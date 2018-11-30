@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="consumerExp">
+
+<typeAlias alias="consumerExpPage" type="com.incon.common.consumerExp.page.ConsumerExpPage"/>
+<typeAlias alias="consumerExpEntity" type="com.incon.common.consumerExp.page.ConsumerExpEntity"/>
+<typeAlias alias="consumerExpJsPage" type="com.incon.common.consumerExp.page.ConsumerExpJsPage"/>
+<!-- 导出模板列表 -->
+<select id="queryConsumerExp" parameterClass="consumerExpPage" resultClass="consumerExpEntity">
+	select t.*,ROW_NUMBER()OVER(ORDER BY null) ORDERNUMBER from (
+	  select s.*,ROW_NUMBER()OVER(ORDER BY null) ORDERNUMBER  from SYS_EXP_TAB s
+	  where 1=1
+	  <isNotEmpty prepend="and" property="ywmc">
+			s.ywmc like '%'|| #ywmc# || '%' 
+	  </isNotEmpty>
+	  )t
+	  <![CDATA[
+        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+	  ]]>
+</select>
+<select id="queryConsumerExpCount" parameterClass="consumerExpPage" resultClass="int">
+	  select count(*) from (
+	  	  select s.*,ROW_NUMBER()OVER(ORDER BY null) ORDERNUMBER  from SYS_EXP_TAB s
+		  where 1=1
+		  <isNotEmpty prepend="and" property="ywmc">
+				 s.ywmc like '%'|| #ywmc# || '%' 
+		  </isNotEmpty>
+	  )t
+</select>
+
+<!-- 保存添加模板信息 -->
+<insert id="saveMbxx" parameterClass="consumerExpEntity">
+  insert into SYS_EXP_TAB(id,tablename,ywmc,roleid)values(SEQ_SYS_EXP_TAB.nextval,#tablename#,#ywmc#,#roleid#)
+</insert>
+<!-- 根据id获取模板信息 -->
+<select id="queryMbxxById" parameterClass="String" resultClass="consumerExpEntity">
+	select id,tablename,ywmc,roleid from sys_exp_tab where id=#id#
+</select>
+<!-- 查询字段表中是否存在数据，若无则添加，反之修改-->
+<select id="queryByTabId" parameterClass="String" resultClass="java.util.HashMap">
+	select * from SYS_EXP_COL m where m.tab_id=#id#
+</select>
+<!-- 删除Col -->
+<delete id="deleteCol" parameterClass="String">
+  	delete from SYS_EXP_COL where tab_id=#id#
+</delete>
+<!-- 保存Col-->
+<insert id="saveCol" parameterClass="consumerExpEntity">
+  insert into SYS_EXP_COL(id,tab_id,column_en,column_zh)values(SEQ_SYS_EXP_COL.nextval,#id#,#column_en#,#column_zh#)
+</insert>
+<!-- 修改tab -->
+<!-- 
+<update id="updateTab" parameterClass="consumerExpEntity">
+  	update SYS_EXP_TAB set ywmc=#ywmc#,roleid=#roleid# where id=#id#
+</update>
+ -->
+<update id="updateTab" parameterClass="consumerExpEntity">
+  	update SYS_EXP_TAB set ywmc=#ywmc# where id=#id#
+</update>
+<!-- 删除表(批量删除) -->
+<delete id="deleteConsumerExp" parameterClass="String">
+	
+		delete from SYS_EXP_TAB where id=#id#
+	
+</delete>
+<!-- 删除字段（批量）-->
+<delete id="deleteConsumerExpCol" parameterClass="String">
+		delete from SYS_EXP_COL where tab_id=#id#
+</delete>
+
+<!-- 根据角色获取不同的导出数据 -->
+<select id="queryConsumerJsExp" parameterClass="consumerExpJsPage" resultClass="consumerExpEntity">
+	select t.*,ROW_NUMBER()OVER(ORDER BY null) ORDERNUMBER from (
+	  select s.*,ROW_NUMBER()OVER(ORDER BY null) ORDERNUMBER  from SYS_EXP_TAB s
+	  where 1=1
+	   <!-- 
+	   s.roleid like '%'|| #jsdm# || '%'
+	    -->
+	  <isNotEmpty prepend="and" property="ywmc">
+			s.ywmc like '%'|| #ywmc# || '%' 
+	  </isNotEmpty>
+	  )t
+	  <![CDATA[
+        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+	  ]]>
+</select>
+<select id="queryConsumerJsExpCount" parameterClass="consumerExpJsPage" resultClass="int">
+	  select count(*) from (
+	  	  select s.*,ROW_NUMBER()OVER(ORDER BY null) ORDERNUMBER  from SYS_EXP_TAB s
+		  where 1=1
+		  <!-- 
+		  s.roleid like '%'|| #jsdm# || '%'
+		   -->
+		  <isNotEmpty prepend="and" property="ywmc">
+				 s.ywmc like '%'|| #ywmc# || '%' 
+		  </isNotEmpty>
+	  )t
+</select>
+<!-- 根据id获取表名及字段信息 -->
+<select id="queryById" parameterClass="String" resultClass="java.util.HashMap">
+	select s.ywmc,s.tablename,m.column_en,m.column_zh from SYS_EXP_TAB s,SYS_EXP_COL m where s.id=m.tab_id and s.id=#id#
+</select>
+<!-- 根据表名查询出此表的信息 -->
+<select id="queryByTable" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" remapResults="true">
+	select * from $tableName$ <isNotEmpty property="param">where $param$</isNotEmpty>
+</select>
+<select id="queryByTable1" parameterClass="java.lang.String" resultClass="java.util.HashMap" remapResults="true">
+	select * from $tableName$
+</select>
+<!-- 查询新添加字段列表（有值时） -->
+<select id="queryTabColsByTabName" parameterClass="java.util.Map" resultClass="java.util.HashMap" remapResults="true">
+	select a.column_name column_en,(select comments from user_col_comments where table_name=a.TABLE_NAME and column_name  =a.COLUMN_NAME) column_zh from user_tab_columns a 
+	where a.TABLE_NAME=#tableName# and a.column_name not in ($zdStr$)
+</select>
+<!-- 查询新添加字段列表（无值时） -->
+<select id="queryTabNullColsByTabName" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+	select a.column_name column_en,(select comments from user_col_comments where table_name=a.TABLE_NAME and column_name  =a.COLUMN_NAME) column_zh from user_tab_columns a 
+	where a.TABLE_NAME=#tableName#
+</select>
+
+</sqlMap>

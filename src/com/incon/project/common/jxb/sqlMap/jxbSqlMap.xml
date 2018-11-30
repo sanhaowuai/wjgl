@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="jxb">
+
+    <typeAlias alias="JxbEntity" type="com.incon.pojo.common.JxbEntity"/>
+	<typeAlias alias="jxbPage" type="com.incon.project.common.jxb.page.JxbPage"/>
+	
+    
+	<!-- 查询班级维护列表 -->
+	<select id="queryJxb" resultClass="JxbEntity" parameterClass="jxbPage">
+		select t.*   from 
+		( select t.*,row_number()over(order by CMCODE desc) orderNumber 
+			from 
+			( select CMCODE,CMCLASSNAME,CMWHETHERAVAILABLE,CMADDTIME,CMCLASSPEOPLENUM ,PINYIN
+                 		from DYCX_CLASSMAINTAIN 
+                  		where 1=1
+				<isNotEmpty prepend="and" property="keyWOrd">
+					(CMCLASSNAME like '%'||trim(#keyWOrd#)||'%' or CMCODE like '%'||trim(#keyWOrd#)||'%')
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="CMWHETHERAVAILABLE">
+				    CMWHETHERAVAILABLE = #CMWHETHERAVAILABLE#
+				</isNotEmpty>
+			) t 
+      	)t 
+      	<![CDATA[
+    		where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		]]>
+	</select>
+	
+	<!-- 查询班级维护数量-->
+	<select id="queryJxbCount" parameterClass="jxbPage" resultClass="int">
+			select count(*) from DYCX_CLASSMAINTAIN 
+             where 1=1 
+		<isNotEmpty prepend="and" property="keyWOrd">
+			(CMCLASSNAME like '%'||trim(#keyWOrd#)||'%' or CMCODE like '%'||trim(#keyWOrd#)||'%')
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="CMWHETHERAVAILABLE">
+		    CMWHETHERAVAILABLE = #CMWHETHERAVAILABLE#
+		</isNotEmpty>
+	</select>
+	
+	<!-- 添加班级信息 -->
+	<insert id="addJxb" parameterClass="JxbEntity">
+		  insert into DYCX_CLASSMAINTAIN(CMCODE,CMCLASSNAME,CMWHETHERAVAILABLE,CMADDTIME,CMCLASSPEOPLENUM,PINYIN) 
+   		  values((select nvl(max(to_number(CMCODE)),0)+1 from DYCX_CLASSMAINTAIN),
+   		  #CMCLASSNAME#,#CMWHETHERAVAILABLE#,sysdate,#CMCLASSPEOPLENUM#,#PINYIN#)
+	</insert>
+	<!-- 修改班级信息 -->
+	<update id="updJxb" parameterClass="JxbEntity">
+	begin
+		update DYCX_CLASSMAINTAIN set
+		 CMCLASSNAME=#CMCLASSNAME#,CMWHETHERAVAILABLE=#CMWHETHERAVAILABLE#,CMCLASSPEOPLENUM=#CMCLASSPEOPLENUM#,PINYIN=#PINYIN#  
+		 where CMCODE=#CMCODE#;
+		 update DYCX_CLASSTEACHER set
+          CMCLASSNAME=#CMCLASSNAME#  
+		 where CMCLASSCODE=#CMCODE#;
+    end;
+	</update>
+	
+	<!-- 根据CMCODE查询班级信息 -->
+	<select id="queryJxbByCMCODE" parameterClass="String" resultClass="JxbEntity">
+		select CMCODE,CMCLASSNAME,CMWHETHERAVAILABLE,CMADDTIME,CMCLASSPEOPLENUM 
+		 from DYCX_CLASSMAINTAIN where CMCODE = #CMCODE# 
+	</select>
+	
+	
+	
+</sqlMap>

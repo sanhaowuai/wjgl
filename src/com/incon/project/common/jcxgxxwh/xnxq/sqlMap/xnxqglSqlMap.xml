@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="xnxqgl">
+	<!-- 实体pojo -->
+	<typeAlias alias="XnxqbEntity" type="com.incon.pojo.common.jcxgxxwh.XnxqbEntity"/>
+	<typeAlias alias="XnxqglPage" type="com.incon.project.common.jcxgxxwh.xnxq.page.XnxqglPage" />
+<!--  分页查询学年学期	-->
+    <select id="queryXnxqgl" parameterClass="XnxqglPage" resultClass="XnxqbEntity">
+    select t.*   from 
+       (select t.*,row_number()over(order by to_char(xn),to_number(xq)) orderNumber from 
+        (
+      select xn,xq,xnmc,xqmc,kyf,sfdqxq from dm_xnxqb where 1=1
+         <isNotEmpty prepend="and" property="dmmc" > 
+          xnmc like '%'|| trim(#dmmc#) ||'%' or xqmc like '%'|| trim(#dmmc#) ||'%'
+      	</isNotEmpty>
+       ) t 
+       )t 
+	      <![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		  ]]> 
+    </select>
+    <select id="queryXnxqglCount" parameterClass="XnxqglPage" resultClass="int">
+	 	select count(*) from 
+	      (
+		 	  select xn,xq,xnmc,xqmc,kyf,sfdqxq from dm_xnxqb where 1=1
+     		<isNotEmpty prepend="and" property="dmmc" > 
+				  xnmc like '%'|| trim(#dmmc#) ||'%' or xqmc like '%'|| trim(#dmmc#) ||'%'
+			</isNotEmpty>
+		 ) t
+    </select>
+	<!--  添加学年学期  -->
+    <insert id="addXnxq" parameterClass="XnxqbEntity"  >
+    begin
+    	if #sfdqxq# = 1 then
+    	  update dm_xnxqb set sfdqxq = '0' where sfdqxq = '1';
+    	end if;
+       	insert into DM_XNXQB(xn,xq,xnmc,xqmc,kyf,sfdqxq) values(#xn#,#xq#,#xnmc#,#xqmc#,#kyf#,#sfdqxq#);
+    end;
+    </insert>
+	<!--  修改学年学期信息  -->
+     <update id="updXnxq" parameterClass="XnxqbEntity">
+     begin
+       if #sfdqxq# = 1 then
+    	  update dm_xnxqb set sfdqxq = '0' where sfdqxq = '1';
+       end if;
+         update DM_XNXQB
+         set xn=#xn#,xq=#xq#,xnmc=#xnmc#,xqmc=#xqmc#,kyf=#kyf#,sfdqxq=#sfdqxq# 
+         where xn=#xn# and xq=#xq#;
+     end;
+     </update>
+<!--  删除学年学期  -->
+     <delete id="delXnxq" parameterClass="java.util.List">
+        delete from DM_XNXQB  where 
+        <iterate conjunction="or">
+        	(xn=#list[].xn# and xq=#list[].xq#)
+        </iterate>
+    </delete>
+<!--  查询代码是否存在  -->
+    <select id="queryByDmCount" parameterClass="XnxqbEntity" resultClass="int">
+		select count(*) from dm_xnxqb where xn = #xn# and xq = #xq#
+    </select>
+<!--  查询单个学年学期信息   -->
+    <select id="queryXnxqByDm" parameterClass="XnxqbEntity" resultClass="XnxqbEntity">
+        select xn,xq,xnmc,xqmc,kyf,sfdqxq
+        from DM_XNXQB 
+        where xn=#xn# and xq=#xq#
+    </select>
+</sqlMap>

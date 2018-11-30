@@ -1,0 +1,33 @@
+.icon-base{
+	background:url('basic.png') no-repeat;
+}
+.icon-layout{
+	background:url('layout.png') no-repeat;
+}
+.icon-menu{
+	background:url('images/menu.png') no-repeat;
+}
+.icon-form{
+	background:url('form.png') no-repeat;
+}
+.icon-window{
+	background:url('images/window.png') no-repeat;
+}
+.icon-datagrid{
+	background:url('grid.png') no-repeat;
+}
+.icon-tree{
+	background:url('tree.png') no-repeat;
+}
+.icon-root{
+	background:url('root.png') no-repeat;
+}
+.icon-folder{
+	background:url('folder.png') no-repeat;
+}
+.icon-tabs{
+	background:url('tabs.png') no-repeat;
+}
+.icon-gears{
+	background:url('images/gears.png') no-repeat;
+}

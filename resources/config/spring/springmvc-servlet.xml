@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"
+	default-lazy-init="true">
+
+	<!-- 只搜索@Controller 标注的类 不搜索其他标注的类 -->
+	<context:component-scan base-package="com.incon.**.controller" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+
+
+	<!-- controller层的属性和配置文件读入 ,多个用逗号隔开 <context:property-placeholder location="classpath:/config/others/config.properties" /> -->
+
+	<!-- 应用属性文件读入 -->
+	 
+	<bean id="applicationProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="locations">
+			<list>
+				<!-- 标准配置 -->
+				<value>classpath:/config/others/config.properties</value>
+				<value>classpath:/config/ibatis/jdbc.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 用于持有applicationProperties,将properties转变为静态方法使用,PropertiesHolder.getProperty("somekey") -->
+	<bean class="com.incon.framework.util.PropertiesHolder">
+		<property name="properties" ref="applicationProperties" />
+	</bean>
+
+	<!-- PropertyPlaceholderConfigurer,用于spring ${placeholder}的解析 -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="properties" ref="applicationProperties" />
+	</bean>
+
+	<!-- 激活 @Required @Autowired,JSR 250's @PostConstruct, @PreDestroy and @Resource 等标注 -->
+	<context:annotation-config />
+
+
+	<!-- 对某些静态资源，如css,图片等进行过滤 ,有引用 "/resources/**" 的路径引用转到工程的/resources/目录取资源 -->
+	<!-- <mvc:resources mapping="/favicon.ico" location="/favicon.ico"/> -->
+	<mvc:resources mapping="/resources/**" location="/resources/" />
+	<mvc:resources mapping="/upload/**" location="/upload/" />
+	<!-- 登录验证 -->
+    <mvc:interceptors>
+	   <bean class="com.incon.framework.interseptor.SystemInterceptor" />
+<!-- 	   <bean class="filter.FileInterceptor" /> -->
+    </mvc:interceptors>
+    
+	<!-- 简单的地址映射 -->
+	<!-- Forwards requests to the "/" resource to the "welcome" view
+	 <mvc:view-controller path="/admin" view-name="/admin/login" />
+	-->
+	
+	<mvc:annotation-driven />
+	 
+ 
+	<!-- jsp视图 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+ 
+
+ 	<!--开发期间注释掉，上线后启用 错误解析器 发生错误默认会跳转到/web-inf/error/error.jsp-->
+	<bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+         <property name="exceptionMappings">
+             <props>
+             	<!--
+		        <prop key="java.sql.SQLException">error/error</prop>
+		        <prop key="org.springframework.web.bind.ServletRequestBindingException">error/error</prop>
+		        <prop key="java.lang.IllegalArgumentException">error/error</prop>
+		        <prop key="org.springframework.validation.BindException">error/error</prop>
+                <prop key="java.lang.Exception">error/error</prop>
+                <prop key="java.lang.Throwable">error/error</prop>
+                 -->
+                <prop key="java.lang.IllegalAccessException">error/error</prop><!-- 自定义非法访问异常 -->
+             </props>
+         </property>
+<!--          <property name="statusCodes">      -->
+<!--              <props>      -->
+<!--                  <prop key="error/error500">500</prop>      -->
+<!--                  <prop key="error/error404">404</prop>      -->
+<!--              </props>      -->
+<!--          </property>      -->
+<!--          <property name="defaultErrorView" value="error/error_err"></property>    -->
+    </bean>
+ 
+
+	<!-- 国际化,并且可以批定文件编码,可以使用classpath: 或者WEB-INF/ 前缀 -->
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>classpath:/config/others/messages</value>
+			</list>
+		</property>
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="cacheSeconds" value="60" />
+	</bean>
+   <bean id="multipartResolver"  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--1024*200即200k-->
+        <property name="maxUploadSize" value="52428800"/>
+        <!--resolveLazily属性启用是为了推迟文件解析，以便在UploadAction 中捕获文件大小异常-->
+         <property name="defaultEncoding" value="UTF-8"></property>
+        <property name="resolveLazily" value="true"/>
+    </bean>
+
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
+ 
+
+</beans>

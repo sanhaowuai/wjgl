@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rxlxgl">
+	<!-- 实体pojo -->
+	<typeAlias alias="RxlxbEntity" type="com.incon.pojo.common.jcxgxxwh.RxlxbEntity"/>
+	<typeAlias alias="RxlxglPage" type="com.incon.project.common.jcxgxxwh.rxlx.page.RxlxglPage" />
+<!--  分页查询入校类型	-->
+    <select id="queryRxlxgl" parameterClass="RxlxglPage" resultClass="RxlxbEntity">
+    select t.*   from 
+       (select t.*,row_number()over(order by to_number(dm)) orderNumber from 
+        (
+      select dm,mc,kyf from dm_rxlxb where 1=1
+         <isNotEmpty prepend="and" property="dmmc" > 
+          mc like '%'|| trim(#dmmc#) ||'%'
+      	</isNotEmpty>
+       ) t 
+       )t 
+	      <![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		  ]]> 
+    </select>
+    <select id="queryRxlxglCount" parameterClass="RxlxglPage" resultClass="int">
+	 	select count(*) from 
+	      (
+		 	 select dm,mc,kyf from dm_rxlxb where 1=1
+     		<isNotEmpty prepend="and" property="dmmc" > 
+				  mc like '%'|| trim(#dmmc#) ||'%'
+			</isNotEmpty>
+		 ) t
+    </select>
+	<!--  添加入校类型  -->
+    <insert id="addRxlx" parameterClass="RxlxbEntity"  >
+       	insert into DM_RXLXB(dm,mc,kyf) values(#dm#,#mc#,#kyf#)
+    </insert>
+	<!--  修改入校类型信息  -->
+     <update id="updRxlx" parameterClass="RxlxbEntity">
+         update DM_RXLXB
+         set dm=#dm#,mc=#mc#,kyf=#kyf# 
+         where dm=#dm#
+     </update>
+<!--  删除入校类型  -->
+     <delete id="delRxlx" parameterClass="String">
+        delete from DM_RXLXB  where dm=#dm#
+    </delete>
+<!--  查询代码是否存在  -->
+    <select id="queryByDmCount" parameterClass="String" resultClass="int">
+		select count(*) from dm_rxlxb where dm = #dm#
+    </select>
+<!--  查询单个入校类型信息   -->
+    <select id="queryRxlxByDm" parameterClass="String" resultClass="RxlxbEntity">
+        select dm,mc,kyf
+        from DM_RXLXB 
+        where dm=#dm#
+    </select>
+</sqlMap>

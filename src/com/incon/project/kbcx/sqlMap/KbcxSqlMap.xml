@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="kbcx">
+	<!-- 实体课表 -->
+	<typeAlias alias="kcb" type="com.incon.pojo.common.kbcx.Kcb"/>
+	<typeAlias alias="zkb" type="com.incon.pojo.common.kbcx.Zkb"/>
+    
+
+	  <!-- 通过学年学期查周次 -->
+    <select id="kbcx.queryzclistByxnxq" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	select distinct zc from jw_xt_rlb where xn=#xn# and xq=#xq# and zc!='0' order by zc
+    </select>
+ <!-- 查询学生个人实践课程信息 -->
+   	<select id="kbcx.queryGrsjkc" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	SELECT  (jw_rw_rwapb.kcmc||'◇'|| to_char(dgjsb.jsxm)||'◇'|| jw_rw_rwapb.qsjsz||'◇'|| nvl(jw_rw_rwapb.bz,'') )SJKCZW  FROM jw_rw_rwapb left join
+	(SELECT rwh, to_char(wm_concat(sz_jsxxb.jsxm ))  jsxm  FROM jw_rw_dgjsb,sz_jsxxb WHERE xn=#xn# and xq =#xq# and jw_rw_dgjsb.zgh=sz_jsxxb.zgh GROUP BY rwh ) dgjsb on jw_rw_rwapb.rwh = dgjsb.rwh
+	WHERE jw_rw_rwapb.xn=#xn# and jw_rw_rwapb.xq =#xq# and jw_rw_rwapb.sftk = '0' and jw_rw_rwapb.sfpk ='0'
+	AND  exists (SELECT rwh FROM jw_xk_xsxkxxb WHERE jw_xk_xsxkxxb.xn=#xn# and jw_xk_xsxkxxb.xq =#xq# and jw_xk_xsxkxxb.xh =#xh# and sxbj ='1' and jw_xk_xsxkxxb.rwh = jw_rw_rwapb.rwh )
+	And  not exists  (SELECT rwh From jw_pk_pkjgb Where jw_pk_pkjgb.xn =#xn# and jw_pk_pkjgb.xq =#xq# and jw_pk_pkjgb.rwh =jw_rw_rwapb.rwh   )
+	</select>
+
+	<!--学生信息-->
+	<select id="kbcx.queryXsxx" parameterClass="String" resultClass="java.util.HashMap">
+		 select x.xm,x.bjdm,x.jxb,b.bjmc,x.xslb,x.glyx,x.zydm,x.nj,x.zyfxdm zyfx,TO_CHAR(SYSDATE,'YYYY-MM-DD hh24:mi:ss') xtsj  from xj_xsxxb x left join dm_bjb b on b.bjdm=x.bjdm
+		 where x.xh=#xh#
+	</select>
+	
+	
+	 <!--  查询学生个人课表   -->
+    <select id="kbcx.queryGrkb" parameterClass="java.util.HashMap" resultClass="kcb">
+    <![CDATA[
+     select decode( sxw,'1','上午','2','下午','3','晚上') as sxw_cn  ,jw_pk_kbjcb.bz,jw_pk_kbjcb.xn,jw_pk_kbjcb.xq,
+     replace( replace(to_char(wm_concat(distinct case xqj when 1 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) mon ,
+     replace( replace(to_char(wm_concat(distinct case xqj when 2 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) tues,
+     replace( replace(to_char(wm_concat(distinct case xqj when 3 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) wed ,
+     replace( replace(to_char(wm_concat(distinct case xqj when 4 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) thur,
+     replace( replace(to_char(wm_concat(distinct case xqj when 5 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) fri,
+     replace( replace(to_char(wm_concat(distinct case xqj when 6 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) sat,
+     replace( replace(to_char(wm_concat(distinct case xqj when 7 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) sun 
+     from  jw_pk_kbjcb   
+     left join  table(
+         jw_pk_xskb_by_xh(#xh#)
+     ) pkjgb on jw_pk_kbjcb.xn=pkjgb.xn and jw_pk_kbjcb.xq=pkjgb.xq  and jw_pk_kbjcb.jc=pkjgb.jc  
+     where jw_pk_kbjcb.xn=#xn# and jw_pk_kbjcb.xq =#xq#
+     group by  jw_pk_kbjcb.xn,jw_pk_kbjcb.xq,jw_pk_kbjcb.sxw,jw_pk_kbjcb.jc ,jw_pk_kbjcb.bz 
+     order by jw_pk_kbjcb.sxw, jw_pk_kbjcb.jc
+   ]]>
+    </select>
+    
+    
+	 <!--  查询学生个人周课表   -->
+    <select id="kbcx.GrZkbcxList" parameterClass="java.util.HashMap" resultClass="kcb">
+    <![CDATA[
+     select decode( sxw,'1','上午','2','下午','3','晚上') as sxw_cn  ,jw_pk_kbjcb.bz,jw_pk_kbjcb.xn,jw_pk_kbjcb.xq,
+     replace( replace(to_char(wm_concat(distinct case xqj when 1 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) mon ,
+     replace( replace(to_char(wm_concat(distinct case xqj when 2 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) tues,
+     replace( replace(to_char(wm_concat(distinct case xqj when 3 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) wed ,
+     replace( replace(to_char(wm_concat(distinct case xqj when 4 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) thur,
+     replace( replace(to_char(wm_concat(distinct case xqj when 5 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) fri,
+     replace( replace(to_char(wm_concat(distinct case xqj when 6 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) sat,
+     replace( replace(to_char(wm_concat(distinct case xqj when 7 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>'),'◇' ,'</br>' ) sun 
+     from  jw_pk_kbjcb   
+     left join  table(
+         jw_pk_xskb_by_xh_zc(#xh#,#zc#)
+     ) pkjgb on jw_pk_kbjcb.xn=pkjgb.xn and jw_pk_kbjcb.xq=pkjgb.xq  and jw_pk_kbjcb.jc=pkjgb.jc  
+   where jw_pk_kbjcb.xn=#xn# and jw_pk_kbjcb.xq = #xq#
+     group by  jw_pk_kbjcb.xn,jw_pk_kbjcb.xq,jw_pk_kbjcb.sxw,jw_pk_kbjcb.jc ,jw_pk_kbjcb.bz 
+     order by jw_pk_kbjcb.sxw, jw_pk_kbjcb.jc
+   ]]>
+    </select>
+    
+    
+    	
+	 <!--  查询学生个人课表(英文版)   -->
+    <select id="kbcx.queryYwGrkb" parameterClass="java.util.HashMap" resultClass="kcb">
+    <![CDATA[
+         select decode(sxw, '1', 'MORNING', '2', 'AFTERNOON', '3', 'EVENING') as sxw_cn,
+         en2sksj(( select b.xiaoqu from xj_xsxxb x left join dm_bjb b on b.bjdm=x.bjdm where x.xh=#xh#) , jw_pk_kbjcb.jcsj) bz,
+         jw_pk_kbjcb.xn, jw_pk_kbjcb.xq,
+	     replace(to_char(wm_concat(distinct case xqj when 1 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>') mon ,
+	     replace(to_char(wm_concat(distinct case xqj when 2 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>') tues,
+	     replace(to_char(wm_concat(distinct case xqj when 3 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>') wed ,
+	     replace(to_char(wm_concat(distinct case xqj when 4 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>') thur,
+	     replace(to_char(wm_concat(distinct case xqj when 5 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>') fri,
+	     replace(to_char(wm_concat(distinct case xqj when 6 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>') sat,
+	     replace(to_char(wm_concat(distinct case xqj when 7 then  replace(nvl(kbxx,' '),',','，') end )),',','</br>') sun 
+	     from  jw_pk_kbjcb
+         left join table(jw_pk_xskb_yw_xh(#xh#)) pkjgb
+         on jw_pk_kbjcb.xn = pkjgb.xn and jw_pk_kbjcb.xq = pkjgb.xq and jw_pk_kbjcb.jc = pkjgb.jc
+         where jw_pk_kbjcb.xn=#xn# and jw_pk_kbjcb.xq = #xq#
+		 group by jw_pk_kbjcb.xn, jw_pk_kbjcb.xq, jw_pk_kbjcb.sxw,
+		          jw_pk_kbjcb.jc, jw_pk_kbjcb.jcsj
+		 order by jw_pk_kbjcb.sxw, jw_pk_kbjcb.jc
+   ]]>
+    </select>
+	
+    
+ 	
+ 	<!-- 判断确认按钮是否可用-->
+    <select id="kbcx.queryQransfky" parameterClass="java.util.HashMap" resultClass="String">
+       SELECT case when kgzt = '1' AND sysdate > kssj
+     		  AND sysdate   <![CDATA[< ]]>jssj AND (kfyx is NULL OR instr(','||kfyx||',',','||#glyx#||',') > 0)
+              then '1' else '0' END 
+       FROM jw_xk_xkkgb 
+       WHERE xn = #xn# AND xq = #xq#
+       And lx = 'tk'
+ 	</select>
+ 	
+ 	<!-- 个人课表确认-->
+    <update id="kbcx.queryGrkbqr" parameterClass="java.util.HashMap" >
+         update  jw_xk_xsxkxxb set  sfqr = '1' ,qrsj=sysdate  where xn = #xn# and xq = #xq# and xh = #xh# and sxbj in('0','1') 
+        
+ 	</update>
+ 	
+ 		<!-- 个人课表是否已确认-->
+    <select id="kbcx.queryGrkbsfqr" parameterClass="java.util.HashMap" resultClass="int" >
+         select count(rwh) from  jw_xk_xsxkxxb where   sfqr = '1' and  xn = #xn# and xq = #xq# and xh = #xh#
+        
+ 	</select>
+ 	
+ 		<!-- 判断学生是否已选课-->
+    <select id="kbcx.querySfyxk" parameterClass="java.util.HashMap" resultClass="int" >
+         select count(rwh) from  jw_xk_xsxkxxb where  sxbj in('0','1') and   xn = #xn# and xq = #xq# and xh = #xh#
+        
+ 	</select>
+ 	
+ 		<!--  查询课表开关状态-->
+   <select id="kbcx.queryKbkgzt"  parameterClass="String" resultClass="Integer">
+         select count(1) from  JW_PK_KBFBB t where xn||xq=#xnxq# and sffb='1' 
+  </select> 
+  
+  
+    <!-- 通过学年学期查周次 -->
+    <select id="kbcx.queryDqzc"  resultClass="String">
+        select zc from jw_xt_rlb where rq = to_date(to_char(sysdate, 'yyyy-mm-dd'), 'yyyy-mm-dd')
+        and xn||Xq=(select xn||Xq from dm_xnxqb where kyf='1' and sfdqxq='1')
+    </select>
+    
+      <!-- 查询课表日期-->
+    <select id="kbcx.queryKbrqList" parameterClass="java.util.HashMap" resultClass="zkb">
+        select  to_char(rq,'mm/dd') rq  from jw_xt_rlb where xn=#xn# and xq=#xq# and zc=#kbzc# order by xqj 
+    </select>
+</sqlMap>

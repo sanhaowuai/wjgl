@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bjgl">
+	<!-- 实体pojo -->
+	<typeAlias alias="BjbEntity" type="com.incon.pojo.common.jcxgxxwh.BjbEntity"/>
+	<typeAlias alias="BjglPage" type="com.incon.project.common.jcxgxxwh.bj.page.BjglPage" />
+	<typeAlias alias="YxdmbEntity" type="com.incon.pojo.common.YxdmbEntity"/>
+	<typeAlias alias="ZybEntity" type="com.incon.pojo.common.ZybEntity"/>
+	<typeAlias alias="XyzybEntity" type="com.incon.pojo.common.XyzybEntity"/>
+	<typeAlias alias="NjbEntity" type="com.incon.pojo.common.jcxgxxwh.NjbEntity"/>
+	<typeAlias alias="XiaoqubEntity" type="com.incon.pojo.common.jcxgxxwh.XiaoqubEntity"/>
+	<typeAlias alias="userEntity" type="com.incon.pojo.common.UserEntity" />
+<!--  分页查询班级	-->
+    <select id="queryBjgl" parameterClass="BjglPage" resultClass="BjbEntity">
+     select * from (select  rownum rn, bb.* from (
+         select t.bjdm,t.bjmc,t.xydm,t.xdm,t.zydm,t.nj,t.xiaoqu,t4.mc,t5.njmc,t3.zymc,t1.yxmc,t2.yxmc xmc,t.kyf from dm_bjb t 
+         left join dm_yxb t1 on t.xydm = t1.yxdm
+         left join dm_yxb t2 on t2.yxdm = t.xdm
+         left join dm_zyb t3 on t3.zydm = t.zydm
+         left join dm_xiaoqub t4 on t4.dm = t.xiaoqu
+         left join dm_njb t5 on t5.nj = t.nj
+         where 1=1
+          <isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and t.glyx in (select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+         <isNotEmpty prepend="and" property="dmmc" > 
+          bjmc like '%'|| trim(#dmmc#) ||'%'
+      	</isNotEmpty>
+		<![CDATA[
+       ORDER BY bjdm
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+    <select id="queryBjglCount" parameterClass="BjglPage" resultClass="int">
+	 	select count(*) from 
+	      (
+		 select t.bjdm,t.bjmc,t.xydm,t.xdm,t.zydm,t.nj,t.xiaoqu,t4.mc,t5.njmc,t3.zymc,t1.yxmc,t2.yxmc xmc,t.kyf from dm_bjb t 
+         left join dm_yxb t1 on t.xydm = t1.yxdm
+         left join dm_yxb t2 on t2.yxdm = t.xdm
+         left join dm_zyb t3 on t3.zydm = t.zydm
+         left join dm_xiaoqub t4 on t4.dm = t.xiaoqu
+         left join dm_njb t5 on t5.nj = t.nj
+         where 1=1
+        	 <isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and t.glyx in (select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+     		<isNotEmpty prepend="and" property="dmmc" > 
+				  bjmc like '%'|| trim(#dmmc#) ||'%'
+			</isNotEmpty>
+		 ) 
+    </select>
+	<!--  添加班级  -->
+    <insert id="addBj" parameterClass="BjbEntity"  >
+       	insert into DM_BJB(bjdm,bjmc,xydm,xdm,zydm,nj,xiaoqu,kyf,bjjc,zjm,bjrs,<!--  zyfx,-->sfpkbj,bjlx,glyx,tgyx)
+       	 values(#bjdm#,#bjmc#,#xydm#,#xdm#,#zydm#,#nj#,#xiaoqu#,#kyf#,#bjjc#,#zjm#,#bjrs#,<!--  #zyfx#,-->#sfpkbj#,#bjlx#,#glyx#,#tgyx#)
+    </insert>
+	<!--  修改班级信息  -->
+     <update id="updBj" parameterClass="BjbEntity">
+         update DM_BJB
+         set bjdm=#bjdm#,bjmc=#bjmc#,xydm=#xydm#,xdm=#xdm#,zydm=#zydm#,nj=#nj#,xiaoqu=#xiaoqu#,kyf=#kyf#,
+         bjjc=#bjjc#,zjm=#zjm#,bjrs=#bjrs#,<!-- zyfx=#zyfx#,-->sfpkbj=#sfpkbj#,bjlx=#bjlx#,glyx=#glyx#,tgyx=#tgyx#
+         where bjdm=#bjdm#
+     </update>
+<!--  删除班级  -->
+     <delete id="delBj" parameterClass="String">
+        delete from DM_BJB  where bjdm=#bjdm#
+    </delete>
+<!--  查询代码是否存在  -->
+    <select id="queryByDmCount" parameterClass="String" resultClass="int">
+		select count(*) from dm_bjb where bjdm = #bjdm#
+    </select>
+<!--  查询单个班级信息   -->
+    <select id="queryBjByDm" parameterClass="String" resultClass="BjbEntity">
+        select bjdm,bjmc,xydm,xdm,zydm,nj,xiaoqu,kyf,bjjc,zjm,bjrs,<!-- zyfx,-->sfpkbj,bjlx,glyx,tgyx
+        from DM_BJB 
+        where bjdm=#bjdm#
+    </select>
+    
+    <!-- 查询院系 -->
+    <select id="queryYx" resultClass="YxdmbEntity">
+    	select yxdm,yxmc,sjyxdm from dm_yxb where kyf = '1' order by yxdm
+    </select>
+    <!-- 查询学院列表 -->
+    <select id="queryYxList" resultClass="YxdmbEntity">
+        select yxdm,yxmc,kyf from DM_YXB t 
+        where kyf='1' and sjyxdm = '0'
+		order by yxdm asc
+    </select>
+    <!-- 查询年级列表 -->
+    <select id="queryNjList" resultClass="NjbEntity">
+        select nj,njmc,kyf from DM_NJB      
+		order by to_number(nj) asc
+    </select>
+    <!-- 查询校区列表 -->
+    <select id="queryXiaoquList" resultClass="XiaoqubEntity">
+        select dm,mc,kyf from DM_XIAOQUB      
+		order by to_number(dm) asc
+    </select>
+    <!-- 查询专业列表 -->
+    <select id="queryZyList" parameterClass="String" resultClass="ZybEntity">
+       select t.zydm,t.zymc,t.kyf from dm_zyb t
+       left join dm_xyzyb t1 on t1.zydm = t.zydm
+       where t1.xydm = #xydm# and t.kyf = '1'
+       order by to_number(t.zydm)
+    </select>
+     <!-- 根据院查询系 -->
+     <select id="queryXList" resultClass="YxdmbEntity" parameterClass="String">
+      select yxdm,yxmc,sfglbm from dm_yxb where sjyxdm = #yxdm# and kyf='1'
+	  order by to_number(yxdm) asc
+    </select>
+    
+    <select id="querySfglbm" parameterClass="YxdmbEntity" resultClass="YxdmbEntity">
+    	select sfglbm from dm_yxb where yxdm = #yxdm# and kyf = '1'
+    </select>
+    
+    <!-- 通过系查询专业 -->
+    <select id="queryZyListByX" parameterClass="String" resultClass="ZybEntity">
+    	select t.zydm,t.zymc,t.kyf from dm_zyb t
+       left join dm_xyzyb t1 on t1.zydm = t.zydm
+       where t1.xdm = #xydm# and t.kyf = '1'
+       order by to_number(t.zydm)
+    </select>
+    <!-- 根据session中yhdm 查询 用户数据 -->
+   	<select id="queryUser" parameterClass="userEntity" resultClass="userEntity">
+   		select xd.dldm,
+       xd.yhdm,  
+       to_char(#jsdm#) jsdm,
+       dj.sfcjgly,
+       dr.gljb
+		  from xt_dlb xd
+		 inner join dm_jsb dj
+		    on dj.jsdm = to_char(#jsdm#)
+		  left join dm_ryjsb dr
+		    on dr.jsdm = to_char(#jsdm#)
+		   and dr.yhdm = #yhdm#
+		   and dr.xtdm = dj.xtdm
+		 where xd.yhdm = #yhdm#
+		   and dj.kyf = '1'
+		   and dj.xtdm = <include refid="common.xtdm"/>
+		   and dr.xtdm = <include refid="common.xtdm"/>
+   	</select>
+</sqlMap>

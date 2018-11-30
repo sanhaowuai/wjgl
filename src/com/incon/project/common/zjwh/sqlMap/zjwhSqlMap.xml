@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="zjwh">
+	<!-- 实体pojo -->
+	<typeAlias alias="ZjwhEntity" type="com.incon.pojo.common.zjwh.ZjwhEntity"/>
+	<typeAlias alias="JszjbEntity" type="com.incon.pojo.common.zjwh.JszjbEntity"/>
+	<!-- 分页page -->
+	<typeAlias alias="ZjwhPage" type="com.incon.project.common.zjwh.page.ZjwhPage"/>
+	<typeAlias alias="ZjwhJsqxPage" type="com.incon.project.common.zjwh.page.ZjwhJsqxPage"/>
+	<typeAlias alias="ZjwhRyjsqxPage" type="com.incon.project.common.zjwh.page.ZjwhRyjsqxPage"/>
+	
+	<select id="queryZjwh" parameterClass="ZjwhPage" resultClass="ZjwhEntity">
+      select t.*  from 
+	     (select t.*,row_number()over(order by qxdm) orderNumber from 
+	      (
+	       	select qxdm, xtdm, zjxxmc, width, height, src, zjlx, mbnr, mbdz, mbsjy, href, qxlb from pt_pub_qxb
+	       	where 1=1 and xtdm=<include refid="common.xtdm"/> 				 
+			  <isNotEmpty  prepend="and" property="pzjmc">
+			       zjxxmc like '%'||trim(#pzjmc#)||'%'
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="pqxlb">
+			       qxlb =#pqxlb#
+			  </isNotEmpty> 
+	  
+      	) t 
+	    )t
+	 	 <![CDATA[
+	       where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		 ]]>   
+    </select>
+    
+     <select id="queryZjwhCount" parameterClass="ZjwhPage" resultClass="int">
+	 	select count(*) from 
+	      (
+       		 select * from pt_pub_qxb
+	       	 where 1=1 and xtdm=<include refid="common.xtdm"/> 
+			  <isNotEmpty  prepend="and" property="pzjmc">
+			       zjxxmc like '%'||trim(#pzjmc#)||'%'
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="pqxlb">
+			       qxlb =#pqxlb#
+			  </isNotEmpty>  
+		 ) t 
+	 </select>
+	 
+	 <select id="queryZjwhJsqx" parameterClass="ZjwhJsqxPage" resultClass="ZjwhEntity">	 	
+	      select  t.qxdm, t.xtdm, t.zjxxmc, t.width, t.height, t.src, t.zjlx, t.mbnr, t.mbdz, t.mbsjy, t.href, t.qxlb 
+			 ,  case when t1.jsdm is not null then '1' else '0' end sfxz
+			 from pt_pub_qxb t
+			 left join Pt_Pub_Jsqxb t1 on t.qxdm = t1.qxdm and t1.jsdm = #jsdm#
+			 where t.qxlb = #qxlb#
+			 and t.xtdm=<include refid="common.xtdm"/> 
+		  <isNotEmpty  prepend="and" property="pzjmc">
+		       t.zjxxmc like '%'||trim(#pzjmc#)||'%'
+		  </isNotEmpty>       	  
+	 </select>
+	 
+	 <select id="queryZjwhJsqxCount" parameterClass="ZjwhJsqxPage" resultClass="int">
+	 	select count(*) from 
+	      (
+       		 select * from dm_zj_zjb t
+       		 left join dm_zj_jszjb t1 on t.zjdm=t1.zjdm and t1.jsdm=#jsdm#
+	       	 where t.xtdm=<include refid="common.xtdm"/> 
+			  <isNotEmpty  prepend="and" property="pzjmc">
+			       t.zjxxmc like '%'||trim(#pzjmc#)||'%'
+			  </isNotEmpty> 
+		 ) t 
+	 </select>
+	 
+	 <select id="queryZjwhRyjsqx" parameterClass="ZjwhRyjsqxPage" resultClass="ZjwhEntity">	 	
+			       	 select  t.qxdm, t.xtdm, t.zjxxmc, t.width, t.height, t.src, t.zjlx, t.mbnr, t.mbdz, t.mbsjy, t.href, t.qxlb 
+					 ,  case when t1.jsdm is not null then '1' else '0' end sfxz
+					 from pt_pub_qxb t
+                    left join pt_pub_ryjsqxb t1 on t.qxdm=t1.qxdm and t1.jsdm=#jsdm# and t1.yhdm=#yhdm#
+                   where 1 = 1 and t.qxlb = #qxlb#
+                   and t.xtdm=<include refid="common.xtdm"/> 				 
+		  <isNotEmpty  prepend="and" property="pzjmc">
+		       t.zjxxmc like '%'||trim(#pzjmc#)||'%'
+		  </isNotEmpty> 
+	 </select>
+	 
+	 <select id="queryZjwhRyjsqxCount" parameterClass="ZjwhRyjsqxPage" resultClass="int">
+	 	select count(*) from 
+	      (
+       		 select * from dm_zj_zjb t
+       		 left join dm_zj_ryjszjb t1 on t.zjdm=t1.zjdm and t1.jsdm=#jsdm# and t1.yhdm=#yhdm#
+	       	 where 1=1 and t.xtdm=<include refid="common.xtdm"/> 
+			  <isNotEmpty  prepend="and" property="pzjmc">
+			       t.zjxxmc like '%'||trim(#pzjmc#)||'%'
+			  </isNotEmpty> 
+		 ) t 
+	 </select>
+	 
+	 
+	 
+	 
+	 <select id="queryZjwhOne" parameterClass="String" resultClass="ZjwhEntity">
+	 	select qxdm, xtdm, zjxxmc, width, height, src, zjlx, mbnr, mbdz, mbsjy, href, qxlb 
+		from pt_pub_qxb where qxdm=#qxdm# and xtdm=<include refid="common.xtdm"/>	 	
+	 </select>
+	 
+	 <insert id="addZjwh" parameterClass="ZjwhEntity">
+         insert into pt_pub_qxb
+			  (qxdm, xtdm, zjxxmc, width, height, src,zjlx, mbnr, mbdz, mbsjy, href,qxlb)
+		 values
+			  (sys_guid(),<include refid="common.xtdm"/>, #zjxxmc#, #width#, #height#, #src#,#zjlx#, #mbnr#, #mbdz#, #mbsjy#, #href#,#qxlb#) 
+    </insert>
+    
+    <update id="UpdZjwh" parameterClass="ZjwhEntity">
+      update pt_pub_qxb
+	   set xtdm = <include refid="common.xtdm"/>,
+	       zjxxmc = #zjxxmc#,
+	       width = #width#,
+	       height = #height#,
+	       src = #src#,
+	       zjlx=#zjlx#,
+	       mbnr = #mbnr#,
+	       mbdz = #mbdz#,
+	       mbsjy = #mbsjy#,
+	       href = #href#,
+	       qxlb = #qxlb#
+	 where xtdm = <include refid="common.xtdm"/>
+	   and qxdm = #qxdm#
+    </update>
+    
+    <delete id="delZjwh" parameterClass="String">
+    	begin
+ 		   delete from pt_pub_grzjbjb where zjdm = #qxdm# and xtdm = <include refid="common.xtdm"/>;	
+ 		   delete from pt_pub_jszjbjb where zjdm = #qxdm# and XTDM = <include refid="common.xtdm"/>;	
+	       delete pt_pub_ryjsqxb
+	       where xtdm = <include refid="common.xtdm"/>
+	       and qxdm = #qxdm#;
+	       delete pt_pub_jsqxb
+	       where xtdm = <include refid="common.xtdm"/>
+	       and qxdm = #qxdm#;
+	       delete pt_pub_qxb
+	       where xtdm = <include refid="common.xtdm"/>
+			   and qxdm = #qxdm#;   
+	    end; 
+    </delete>
+    
+    <select id="queryJszjb" parameterClass="String" resultClass="JszjbEntity">
+    	select jsdm, zjdm, xtdm from dm_zj_jszjb
+		where jsdm=#jsdm# and xtdm=<include refid="common.xtdm"/>
+    </select>
+    
+    
+    <select id="queryZjqx" resultClass="ZjwhEntity">
+    	select zjdm, qxdm, xtdm, zjxxmc, width, height, src, zjlx, mbnr, mbdz, mbsjy, href 
+		from dm_zj_zjb where xtdm=<include refid="common.xtdm"/>
+    </select>
+	
+	<insert id="addJsZjsq" parameterClass="java.util.HashMap">
+		   insert into pt_pub_jsqxb
+		   (jsdm, qxdm, xtdm, qxlb)
+		 values
+		   (#jsdm#, #qxdm#, <include refid="common.xtdm"/>, #qxlb#)
+	</insert>
+	
+	<delete id="delJsZjsq" parameterClass="java.util.HashMap">
+		delete Pt_Pub_Jsqxb t
+	     where t.jsdm = #jsdm#  and t.qxlb = #qxlb#       
+	       and t.xtdm = <include refid="common.xtdm"/>
+	       <isNotEmpty prepend="and" property="pzjmc">
+	       	exists (select 1 from pt_pub_qxb t1 where t1.qxdm = t.qxdm and t.xtdm = t1.xtdm
+	       			and t1.zjxxmc like '%'||trim(#pzjmc#)||'%')
+		  </isNotEmpty>
+	</delete>
+	
+	<delete id="delRyjsZjsq" parameterClass="java.util.HashMap">		 
+		delete pt_pub_ryjsqxb
+		 where yhdm = #yhdm#
+		   and jsdm = #jsdm#	  and  qxlb = #qxlb#
+		   and xtdm = <include refid="common.xtdm"/>
+	</delete>
+	
+	<insert id="addRyjsZjsq" parameterClass="java.util.HashMap">
+			 insert into pt_pub_ryjsqxb
+		   (yhdm, jsdm, qxdm, xtdm, qxlb)
+		 values
+		   (#yhdm#, #jsdm#, #qxdm#, <include refid="common.xtdm"/>, #qxlb#) 
+	</insert>
+	
+</sqlMap>

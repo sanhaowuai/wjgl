@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="xtfk">
+	<!-- 分页page -->
+	<typeAlias alias="xtfkPage" type="com.incon.project.common.xtfk.page.XtfkPage"/>
+	<!-- 实体pojo -->
+	<typeAlias alias="XtfkEntity" type="com.incon.pojo.common.XtfkbEntity"/>
+	
+	<!-- 查询反馈列表 -->
+	<select id="queryXtfk" parameterClass="xtfkPage" resultClass="XtfkEntity">
+	  select t.*   from 
+	     (select t.*,row_number() over (order by sfzd desc, czsj desc) orderNumber from 
+	      (
+	      		
+				select xtfkb.dm, xtfkb.fklb,REGEXP_REPLACE(xtfkb.fknr,<![CDATA['<[^>]+>']]>,'') as fknr, 
+				xtfkb.clbz, xtfkb.czr, to_char(xtfkb.czsj,'YYYY-MM-DD hh24:mi') as czsj, 
+				       xtfkb.xtdm, xtfkb.sfzd, xtfkb.clr, to_char(xtfkb.clsj,'YYYY-MM-DD hh24:mi') as clsj, 
+				       REGEXP_REPLACE(xtfkb.clnr,<![CDATA['<[^>]+>']]>,'') as clnr, 
+				       xtfkb.czrlxdh,czrb.xm as czrxm,clrb.xm as clrxm,xt_xtfklbb.mc as xtfklbmc     
+				from xt_xtfkb xtfkb 
+				left join xt_dlb czrb on czrb.yhdm = xtfkb.czr
+				left join xt_dlb clrb on clrb.yhdm = xtfkb.clr 
+				left join xt_xtfklbb on xt_xtfklbb.dm = xtfkb.fklb 
+				where xtfkb.xtdm =  <include refid="common.xtdm"/> 
+	     		<isNotEmpty prepend="and" property="fklb" > 
+					  xtfkb.fklb = #fklb# 
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="clbz" > 
+					  xtfkb.clbz = #clbz#
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="ff_fknr" > 
+					  REGEXP_REPLACE(xtfkb.fknr,<![CDATA['<[^>]+>']]>,'') like '%'||REGEXP_REPLACE(#ff_fknr#,<![CDATA['<[^>]+>']]>,'')||'%'
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="fkr" > 
+					  (xtfkb.czr like '%' || #fkr# || '%' or  czrb.xm like '%' || #fkr# || '%')
+				</isNotEmpty>	
+				<isNotEmpty prepend="and" property="yhdm" > 
+					  xtfkb.czr = #yhdm#
+				</isNotEmpty>								
+							
+	 	  ) t 
+	     )t 
+	      <![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		  ]]>  
+	 </select>
+ 
+	 <select id="queryXtfkCount" parameterClass="xtfkPage" resultClass="int">
+	 	select count(*) from 
+	      (
+			select xtfkb.dm, xtfkb.fklb,REGEXP_REPLACE(xtfkb.fknr,<![CDATA['<[^>]+>']]>,'') as fknr, 
+				xtfkb.clbz, xtfkb.czr, to_char(xtfkb.czsj,'YYYY-MM-DD hh24:mi') as czsj, 
+				       xtfkb.xtdm, xtfkb.sfzd, xtfkb.clr, to_char(xtfkb.clsj,'YYYY-MM-DD hh24:mi') as clsj, 
+				       REGEXP_REPLACE(xtfkb.clnr,<![CDATA['<[^>]+>']]>,'') as clnr, 
+				       xtfkb.czrlxdh,czrb.xm as czrxm,clrb.xm as clrxm,xt_xtfklbb.mc as xtfklbmc     
+				from xt_xtfkb xtfkb 
+				left join xt_dlb czrb on czrb.yhdm = xtfkb.czr
+				left join xt_dlb clrb on clrb.yhdm = xtfkb.clr 
+				left join xt_xtfklbb on xt_xtfklbb.dm = xtfkb.fklb 
+				where xtfkb.xtdm =  <include refid="common.xtdm"/> 
+	     		<isNotEmpty prepend="and" property="fklb" > 
+					  xtfkb.fklb = #fklb# 
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="clbz" > 
+					  xtfkb.clbz = #clbz#
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="ff_fknr" > 
+					  REGEXP_REPLACE(xtfkb.fknr,<![CDATA['<[^>]+>']]>,'') like '%'||REGEXP_REPLACE(#ff_fknr#,<![CDATA['<[^>]+>']]>,'')||'%'
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="fkr" > 
+					  (xtfkb.czr like '%' || #fkr# || '%' or  czrb.xm like '%' || #fkr# || '%')
+				</isNotEmpty>	
+				<isNotEmpty prepend="and" property="yhdm" > 
+					  xtfkb.czr = #yhdm#
+				</isNotEmpty>	
+		 ) t 
+	 </select>
+	 
+	 <!-- 删除反馈信息 -->
+	<delete id="delFk" parameterClass="string">
+		delete from xt_xtfkb where dm = #dm# and xtdm = <include refid="common.xtdm"/>
+	</delete>
+	
+	<!-- 修改处理标志 -->
+	<update id="updClbz" parameterClass="XtfkEntity">
+		update xt_xtfkb set clbz = #clbz# where dm = #dm# and xtdm = <include refid="common.xtdm"/>
+	</update>
+	<!-- 修改是否置顶 -->
+	<update id="updSfzd" parameterClass="XtfkEntity">
+		update xt_xtfkb set sfzd = #sfzd# where dm = #dm# and xtdm = <include refid="common.xtdm"/>
+	</update>	
+	
+	<update id="updFk" parameterClass="XtfkEntity">
+			update xt_xtfkb
+		   set fklb = #fklb#,
+		       fknr = #fknr#,
+		       sfzd = #sfzd#,
+		       clr = #clr#,
+		       clsj = sysdate,
+		       clnr = #clnr#,
+		       clbz = #clbz#
+		 where dm = #dm#
+		   and xtdm = <include refid="common.xtdm"/>
+	</update>	
+	<update id="updFk_user" parameterClass="XtfkEntity">
+			update xt_xtfkb
+		   set fklb = #fklb#,
+		       fknr = #fknr#,
+		       czrlxdh = #czrlxdh# 
+		 where dm = #dm#
+		   and xtdm = <include refid="common.xtdm"/>
+	</update>	
+
+	
+	<!-- 反馈内容详细信息 -->
+	<select id="queryFknrByDm" parameterClass="string" resultClass="XtfkEntity">
+		select xtfkb.dm, xtfkb.fklb,xtfkb.fknr, 
+		xtfkb.clbz, xtfkb.czr, to_char(xtfkb.czsj,'YYYY-MM-DD hh24:mi') as czsj, 
+		       xtfkb.xtdm, xtfkb.sfzd, xtfkb.clr, to_char(xtfkb.clsj,'YYYY-MM-DD hh24:mi') as clsj, 
+		       xtfkb.clnr, 
+		       xtfkb.czrlxdh,czrb.xm as czrxm,clrb.xm as clrxm,xt_xtfklbb.mc as xtfklbmc     
+		from xt_xtfkb xtfkb 
+		left join xt_dlb czrb on czrb.yhdm = xtfkb.czr
+		left join xt_dlb clrb on clrb.yhdm = xtfkb.clr 
+		left join xt_xtfklbb on xt_xtfklbb.dm = xtfkb.fklb 
+		where xtfkb.xtdm =  <include refid="common.xtdm"/> and xtfkb.dm = #dm#
+	</select>
+	
+	<select id="qeuryXtfklbb" resultClass="java.util.HashMap">
+		select dm,mc from xt_xtfklbb where kyf = '1'
+	</select>
+	
+	
+	<!-- 增加反馈信息 -->
+	<insert id="addFk" parameterClass="XtfkEntity">
+		insert into xt_xtfkb
+		  (dm, fklb, fknr, czr, czsj, xtdm, sfzd, czrlxdh,clr,clnr,clsj,clbz)
+		values
+		  ((select nvl(max(to_number(dm)),0)+1 from xt_xtfkb where xtdm = <include refid="common.xtdm"/>), #fklb#, #fknr#, #czr#, sysdate, <include refid="common.xtdm"/>, #sfzd#,#czrlxdh#,#clr#,#clnr#,sysdate,#clbz#)
+	</insert>	
+	<insert id="addFk_user" parameterClass="XtfkEntity">
+		insert into xt_xtfkb
+		  (dm, fklb, fknr, czr, czsj, xtdm, czrlxdh)
+		values
+		  ((select nvl(max(to_number(dm)),0)+1 from xt_xtfkb where xtdm = <include refid="common.xtdm"/>), #fklb#, #fknr#, #czr#, sysdate, <include refid="common.xtdm"/>, #czrlxdh#)
+	</insert>	
+</sqlMap>

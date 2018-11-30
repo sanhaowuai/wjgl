@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="xsgl">
+	<!-- 实体pojo -->
+	<typeAlias alias="YxdmbEntity" type="com.incon.pojo.common.YxdmbEntity"/>
+	<typeAlias alias="ZybEntity" type="com.incon.pojo.common.ZybEntity"/>
+	<typeAlias alias="XsxxbEntity" type="com.incon.pojo.common.XsxxbEntity"/>
+	<typeAlias alias="XsglPage" type="com.incon.project.common.xsgl.page.XsglPage" />
+	<typeAlias alias="PtxzXsPage" type="com.incon.project.common.xsgl.page.PtxzXsPage" />
+	<typeAlias alias="XyzybEntity" type="com.incon.pojo.common.XyzybEntity"/>
+	<typeAlias alias="XbbEntity" type="com.incon.pojo.common.ryxgxxwh.XbbEntity"/>
+	<typeAlias alias="JgbEntity" type="com.incon.pojo.common.ryxgxxwh.JgbEntity"/>
+	<typeAlias alias="MzbEntity" type="com.incon.pojo.common.ryxgxxwh.MzbEntity"/>
+	<typeAlias alias="ZzmmbEntity" type="com.incon.pojo.common.ryxgxxwh.ZzmmbEntity"/>
+	<typeAlias alias="BjbEntity" type="com.incon.pojo.common.jcxgxxwh.BjbEntity"/>
+	<typeAlias alias="UserEntity" type="com.incon.pojo.common.UserEntity"/>
+<!--  分页查询学生	-->
+    <select id="queryXsgl" parameterClass="XsglPage" resultClass="XsxxbEntity">
+       select * from (select  rownum rn, bb.* from ( 
+                      select t.xh,
+                       t.xm,
+                       t.xydm,
+                       t.xdm,
+                       t.zydm,
+                       (select mc from dm_xbb where dm = t.xb) xbmc,
+                       (select mc from dm_jgb where dm = t.jgdm) jgmc,
+                       (select mc from dm_mzb where dm = t.mzdm) mzmc,
+                       (select mc from dm_zzmmb where dm = t.zzmm) zzmmmc,
+                       t.sfzx,
+                       t.sfzc,
+                       t1.yxmc,
+                       t2.zymc,
+                       t3.yxmc xmc,
+                       t8.bjmc,
+                       wm_concat(t10.jsmc) jsm,
+                       t11.njmc njmc
+                  from XJ_XSXXB t
+                  left join DM_YXB t1
+                    on t.xydm = t1.yxdm
+                  left join DM_ZYB t2
+                    on t.zydm = t2.zydm
+                  left join DM_YXB t3
+                    on t3.yxdm = t.xdm
+                  left join dm_bjb t8
+                    on t8.bjdm = t.bjdm
+                  left join dm_ryjsb t9
+                    on t.xh = t9.yhdm
+                   and t9.xtdm = <include refid="common.xtdm"/>
+                  left join dm_jsb t10
+                    on t10.jsdm = t9.jsdm
+                   and t10.xtdm = <include refid="common.xtdm"/>
+                  left join dm_njb t11
+                    on t11.nj=t.nj
+                 where 1 = 1 
+			 <isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and t.glyx in (select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+			  <isNotEmpty  prepend="and" property="xsnjdm">
+			       t.nj = #xsnjdm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xsyxdm">
+			       (t.xydm =#xsyxdm# or t.xdm = #xsyxdm#)
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xszydm">
+			       t.zydm =#xszydm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xsbjdm">
+			       t.bjdm =#xsbjdm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xsxh">
+			       (t.xm like '%'||trim(#xsxh#)||'%' or t.xh like '%'||trim(#xsxh#)||'%')
+			  </isNotEmpty>
+		           group by t.xh,
+                          t.xm,
+                          t.xydm,
+                          t.xdm,
+                          t.zydm,
+                          t.xb,
+                          t.jgdm,
+                          t.mzdm,
+                          t.zzmm,
+                          t.sfzx,
+                          t.sfzc,
+                          t1.yxmc,
+                          t2.zymc,
+                          t3.yxmc,
+                          t8.bjmc,
+                          t11.njmc
+       <![CDATA[
+       ORDER BY XH
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+    <select id="queryXsglCount" parameterClass="XsglPage" resultClass="int">
+        select  count(*) from (
+	           select t.xh,
+                       t.xm,
+                       t.xydm,
+                       t.xdm,
+                       t.zydm,
+                       (select mc from dm_xbb where dm = t.xb) xbmc,
+                       (select mc from dm_jgb where dm = t.jgdm) jgmc,
+                       (select mc from dm_mzb where dm = t.mzdm) mzmc,
+                       (select mc from dm_zzmmb where dm = t.zzmm) zzmmmc,
+                       t.sfzx,
+                       t.sfzc,
+                       t1.yxmc,
+                       t2.zymc,
+                       t3.yxmc xmc,
+                       t8.bjmc,
+                       wm_concat(t10.jsmc) jsm,
+                       t11.njmc njmc
+                  from XJ_XSXXB t
+                  left join DM_YXB t1
+                    on t.xydm = t1.yxdm
+                  left join DM_ZYB t2
+                    on t.zydm = t2.zydm
+                  left join DM_YXB t3
+                    on t3.yxdm = t.xdm
+                  left join dm_bjb t8
+                    on t8.bjdm = t.bjdm
+                  left join dm_ryjsb t9
+                    on t.xh = t9.yhdm
+                   and t9.xtdm = <include refid="common.xtdm"/>
+                  left join dm_jsb t10
+                    on t10.jsdm = t9.jsdm
+                   and t10.xtdm = <include refid="common.xtdm"/>
+                   left join dm_njb t11
+                    on t11.nj=t.nj
+                 where 1 = 1 
+			 <isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and t.glyx in (select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+			  <isNotEmpty  prepend="and" property="xsnjdm">
+			       t.nj = #xsnjdm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xsyxdm">
+			       t.xydm =#xsyxdm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xszydm">
+			       t.zydm =#xszydm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xsbjdm">
+			       t.bjdm =#xsbjdm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xsxh">
+			       (t.xm like '%'||trim(#xsxh#)||'%' or t.xh like '%'||trim(#xsxh#)||'%')
+			  </isNotEmpty>
+		          group by t.xh,
+                          t.xm,
+                          t.xydm,
+                          t.xdm,
+                          t.zydm,
+                          t.xb,
+                          t.jgdm,
+                          t.mzdm,
+                          t.zzmm,
+                          t.sfzx,
+                          t.sfzc,
+                          t1.yxmc,
+                          t2.zymc,
+                          t3.yxmc,
+                          t8.bjmc,
+                          t11.njmc
+	 )
+    </select>
+<!--  分页查询学生	-->
+    <select id="queryPtxzXs" parameterClass="PtxzXsPage" resultClass="XsxxbEntity">
+       select * from (select  rownum rn, bb.* from ( 
+                      select t.xh,
+                       t.xm,
+                       t.xydm,
+                       t.xdm,
+                       t.zydm,
+                       (select mc from dm_xbb where dm = t.xb) xbmc,
+                       (select mc from dm_jgb where dm = t.jgdm) jgmc,
+                       (select mc from dm_mzb where dm = t.mzdm) mzmc,
+                       (select mc from dm_zzmmb where dm = t.zzmm) zzmmmc,
+                       t.sfzx,
+                       t.sfzc,
+                       t1.yxmc,
+                       t2.zymc,
+                       t3.yxmc xmc,
+                       t8.bjmc,
+                       wm_concat(t10.jsmc) jsm,
+                       t11.njmc nj
+                  from PT_XJ_XSXXB t
+                  left join DM_YXB t1
+                    on t.xydm = t1.yxdm
+                  left join DM_ZYB t2
+                    on t.zydm = t2.zydm
+                  left join DM_YXB t3
+                    on t3.yxdm = t.xdm
+                  left join dm_bjb t8
+                    on t8.bjdm = t.bjdm
+                  left join dm_ryjsb t9
+                    on t.xh = t9.yhdm
+                   and t9.xtdm = <include refid="common.xtdm"/>
+                  left join dm_jsb t10
+                    on t10.jsdm = t9.jsdm
+                   and t10.xtdm = <include refid="common.xtdm"/>
+                      left join dm_njb t11
+                    on t11.nj=t.nj
+                 where 1 = 1 and not exists (select 1 from xj_xsxxb tt where tt.xh = t.xh)
+			 <isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and t.glyx in (select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+			  <isNotEmpty  prepend="and" property="xsyxdm">
+			       (t.xydm =#xsyxdm# or t.xdm = #xsyxdm#)
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xszydm">
+			       t.zydm =#xszydm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xsbjdm">
+			       t.bjdm =#xsbjdm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xsxh">
+			       (t.xm like '%'||trim(#xsxh#)||'%' or t.xh like '%'||trim(#xsxh#)||'%')
+			  </isNotEmpty>
+		           group by t.xh,
+                          t.xm,
+                          t.xydm,
+                          t.xdm,
+                          t.zydm,
+                          t.xb,
+                          t.jgdm,
+                          t.mzdm,
+                          t.zzmm,
+                          t.sfzx,
+                          t.sfzc,
+                          t1.yxmc,
+                          t2.zymc,
+                          t3.yxmc,
+                          t8.bjmc,  
+                          t11.njmc
+       <![CDATA[
+       ORDER BY XH
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+    <select id="queryPtxzXsCount" parameterClass="PtxzXsPage" resultClass="int">
+        select  count(*) from (
+	           select t.xh,
+                       t.xm,
+                       t.xydm,
+                       t.xdm,
+                       t.zydm,
+                       (select mc from dm_xbb where dm = t.xb) xbmc,
+                       (select mc from dm_jgb where dm = t.jgdm) jgmc,
+                       (select mc from dm_mzb where dm = t.mzdm) mzmc,
+                       (select mc from dm_zzmmb where dm = t.zzmm) zzmmmc,
+                       t.sfzx,
+                       t.sfzc,
+                       t1.yxmc,
+                       t2.zymc,
+                       t3.yxmc xmc,
+                       t8.bjmc,
+                       wm_concat(t10.jsmc) jsm,
+                       t11.njmc nj
+                  from PT_XJ_XSXXB t
+                  left join DM_YXB t1
+                    on t.xydm = t1.yxdm
+                  left join DM_ZYB t2
+                    on t.zydm = t2.zydm
+                  left join DM_YXB t3
+                    on t3.yxdm = t.xdm
+                  left join dm_bjb t8
+                    on t8.bjdm = t.bjdm
+                  left join dm_ryjsb t9
+                    on t.xh = t9.yhdm
+                   and t9.xtdm = <include refid="common.xtdm"/>
+                  left join dm_jsb t10
+                    on t10.jsdm = t9.jsdm
+                   and t10.xtdm = <include refid="common.xtdm"/>
+                      left join dm_njb t11
+                    on t11.nj=t.nj
+                 where 1 = 1 and not exists (select 1 from xj_xsxxb tt where tt.xh = t.xh)
+			 <isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and t.glyx in (select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+			  <isNotEmpty  prepend="and" property="xsyxdm">
+			       (t.xydm =#xsyxdm# or t.xdm = #xsyxdm#)
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xszydm">
+			       t.zydm =#xszydm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xsbjdm">
+			       t.bjdm =#xsbjdm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xsxh">
+			       (t.xm like '%'||trim(#xsxh#)||'%' or t.xh like '%'||trim(#xsxh#)||'%')
+			  </isNotEmpty>
+		           group by t.xh,
+                          t.xm,
+                          t.xydm,
+                          t.xdm,
+                          t.zydm,
+                          t.xb,
+                          t.jgdm,
+                          t.mzdm,
+                          t.zzmm,
+                          t.sfzx,
+                          t.sfzc,
+                          t1.yxmc,
+                          t2.zymc,
+                          t3.yxmc,
+                          t8.bjmc,  
+                          t11.njmc
+	 )
+    </select>
+    <!-- 查询院系列表 -->
+    <select id="queryYxList" resultClass="YxdmbEntity" parameterClass="UserEntity">
+    	<isEqual property="gljb" compareValue="1">
+			select yxdm,yxmc from dm_yxb where kyf = '1' and sfglbm = '1' order by yxdm
+		</isEqual>
+		<isEqual property="gljb" compareValue="2">
+			select dy.yxdm,dy.yxmc from dm_yxb dy 
+				inner join dm_sjqxb ds on ds.yxdm = dy.yxdm 
+				where dy.kyf = '1' and dy.sfglbm = '1' 
+				and ds.jsdm = #jsdm# and ds.yhdm = #yhdm# and ds.xtdm = <include refid="common.xtdm"/>
+				order by dy.yxdm
+		</isEqual>
+    </select>
+    <!-- 查询院系列表 -->
+    <select id="queryYxList2" resultClass="YxdmbEntity">
+        select yxdm,yxmc from dm_yxb where kyf = '1' and sjyxdm = '0' order by yxdm
+    </select>
+    <!-- 查询专业列表 -->
+    <select id="queryZyList" parameterClass="String" resultClass="ZybEntity">
+       select dx.zydm,dz.zymc from dm_xyzyb dx 
+			inner join dm_zyb dz on dz.zydm = dx.zydm 
+			where dx.glyx = #yxdm# and dx.kyf = '1' order by zydm
+    </select>
+     <!-- 根据院查询系 -->
+     <select id="queryXList" resultClass="YxdmbEntity" parameterClass="String">
+      select yxdm,yxmc,kyf from DM_YXB t 
+      where sjyxdm=#yxdm# and kyf='1'
+		order by to_number(yxdm) asc
+    </select>
+	<!--  添加学生  -->
+    <insert id="addXs" parameterClass="XsxxbEntity"  >
+	    begin
+		     insert into xt_dlb(dldm,yhdm,mm,xm,mrjs,yhlx) values(seq_xt_dlb.nextval,#xh#,#mm#,#xm#,'3','2');
+		     insert into XJ_XSXXB(xh,xm,xydm,xdm,glyx,zydm,xb,jgdm,mzdm,zzmm,bjdm,bszplj,nj)
+		     	values(#xh#,#xm#,#xydm#,#xdm#,#glyx#,#zydm#,#xb#,#jg#,#mz#,#zzmm#,#bjdm#,#bszplj#,#nj#);
+		     insert into dm_ryjsb(ryjsdm,yhdm,jsdm,gljb,xtdm,cjr,cjsj) values(SEQ_DM_RYJSB.NEXTVAL,#xh#,'3','2',<include refid="common.xtdm"/>,#cjr#,sysdate); 
+	   end;
+    </insert>
+	<!--  添加学生  -->
+    <insert id="addXzxs" parameterClass="XsxxbEntity"  >
+	    begin
+		    insert into xt_dlb(dldm,yhdm,mm,xm,mrjs,yhlx)
+		    select seq_xt_dlb.nextval,xh,#mm#,xm,'3','2' from pt_xj_xsxxb where xh = #xh#;
+		    insert into xj_xsxxb(xh, xm, ywxm, xsjc, zjm, cym, xb, xydm, tgyx, glyx, xdm, zydm, nj, bjdm, jxb, csrq, zzmm, mzdm, jgdm, xz, xjzt, zyfxdm, pycc, kl, rxrq, byzx, email, lxdh, zkzh, sfzh, gatm, bz, bdh, gkzf, ydyjb, yhzh, lxrq, lxlx, ksh, rxfs, wyyz, jtdz, lysdm, sfjljh, xslb, sfcglx, lqh, zplj1, zplj2, sfpt, ycsj, kslbdm, yydjdm, sftks, sfgfs, sfbsbld, zgh, sfszs, yzbm, jtdh, jkzk, rtrdny, sffxxs, sfzx, sfzc, bszplj, gj, lqsj, kstc, jcqk, lqxs, bxxs, xxxs, pyfs, lydq, gcljrc, zygcs, bjrc, xsxzz, xjbdjl, xjbdxnxq, jycc, cfzt, pydw, xbfs, xszsf, xszdq, xszccqj, tysj, tyxz, tyjsdw, tsjglb, byzt, byshwc, byjl, xwsyjl, byzsbh, xwzsbh, jyhbysj, bxwsj, jyyy, bsxwyy, hsxwyy, xzxm, xzxmpy, zhsjzt, zhxgsj, zhxgr, qq, pkdj, xx, zjlx, hyqk, zjxy, csd, sftcs, xymc, xmc, gjzydm, gjzymc, zylb, gzzw, byrq, hxwrq, dlsj, xjbdyy, wx, sjr, lqpc, jsjsp, wyslcd, zyl, hzh, sfjd, tjlx, pmfs, yxjf, zhmc, pjxfj, pmrs, zhcj, sfjljhr, exwsyjl, exwzsbh, tsbxxn, tsbxxq, ssxwzsbh, ssbyzsbh, bsxwzsbh, bsbyzsbh, jg_s, jg_x, xkml)
+			select xh, xm, ywxm, xsjc, zjm, cym, xb, xydm, tgyx, glyx, xdm, zydm, nj, bjdm, jxb, csrq, zzmm, mzdm, jgdm, xz, xjzt, zyfxdm, pycc, kl, rxrq, byzx, email, lxdh, zkzh, sfzh, gatm, bz, bdh, gkzf, ydyjb, yhzh, lxrq, lxlx, ksh, rxfs, wyyz, jtdz, lysdm, sfjljh, xslb, sfcglx, lqh, zplj1, zplj2, sfpt, ycsj, kslbdm, yydjdm, sftks, sfgfs, sfbsbld, zgh, sfszs, yzbm, jtdh, jkzk, rtrdny, sffxxs, sfzx, sfzc, bszplj, gj, lqsj, kstc, jcqk, lqxs, bxxs, xxxs, pyfs, lydq, gcljrc, zygcs, bjrc, xsxzz, xjbdjl, xjbdxnxq, jycc, cfzt, pydw, xbfs, xszsf, xszdq, xszccqj, tysj, tyxz, tyjsdw, tsjglb, byzt, byshwc, byjl, xwsyjl, byzsbh, xwzsbh, jyhbysj, bxwsj, jyyy, bsxwyy, hsxwyy, xzxm, xzxmpy, zhsjzt, zhxgsj, zhxgr, qq, pkdj, xx, zjlx, hyqk, zjxy, csd, sftcs, xymc, xmc, gjzydm, gjzymc, zylb, gzzw, byrq, hxwrq, dlsj, xjbdyy, wx, sjr, lqpc, jsjsp, wyslcd, zyl, hzh, sfjd, tjlx, pmfs, yxjf, zhmc, pjxfj, pmrs, zhcj, sfjljhr, exwsyjl, exwzsbh, tsbxxn, tsbxxq, ssxwzsbh, ssbyzsbh, bsxwzsbh, bsbyzsbh, jg_s, jg_x, xkml from pt_xj_xsxxb
+			where xh = #xh#;
+		    insert into dm_ryjsb(ryjsdm,yhdm,jsdm,gljb,xtdm,cjr,cjsj) 
+		    select SEQ_DM_RYJSB.NEXTVAL,xh,'3','2',<include refid="common.xtdm"/>,#cjr#,sysdate from pt_xj_xsxxb where xh = #xh#;
+	   end;
+    </insert>
+	 <!-- 根据学生学号修改学生 -->
+     <update id="updXsByXh" parameterClass="XsxxbEntity">
+     	begin
+         update XJ_XSXXB
+         set xm=#xm#,xydm=#xydm#,glyx=#glyx#,xdm=#xdm#,zydm=#zydm#,xb=#xb#,jgdm=#jg#,mzdm=#mz#,zzmm=#zzmm#,bjdm=#bjdm#,bszplj=#bszplj#,nj=#nj#
+         where xh=#xh#;
+         update XT_DLB
+         set xm=#xm#,mrjs='3',yhlx='2' where yhdm=#xh#;
+      end;
+     </update>
+<!--  删除学生   -->
+     <delete id="delXs" parameterClass="String">
+     begin
+        delete from XJ_XSXXB  where xh=#xh#;
+        delete from DM_RYJSB where yhdm=#xh# and xtdm = <include refid="common.xtdm"/>;
+        delete from DM_RYJSQXB where yhdm=#xh# and xtdm = <include refid="common.xtdm"/>;
+        delete from dm_ryjsanb where yhdm=#xh# and xtdm = <include refid="common.xtdm"/>;
+        delete from DM_SJQXB where yhdm=#xh# and xtdm = <include refid="common.xtdm"/>;
+        delete from XT_DLB where yhdm=#xh#;
+     end;
+    </delete>
+	<!-- 查询xh是否重复 -->
+	<select id="queryByXhCount" parameterClass="string" resultClass="Integer">
+		select count(*) from xj_xsxxb where xh = #xh#
+	</select>
+	
+	<!-- 查询xh是否重复 -->
+	<select id="queryByXhCount2" parameterClass="string" resultClass="Integer">
+		select count(*) from xt_dlb where yhdm = #xh# 
+	</select>
+<!--  查询单个学生信息   -->
+    <select id="queryXsByXh" parameterClass="String" resultClass="XsxxbEntity">
+        select t.xh,t.xm,t.xydm,t.xdm,t.zydm,t.xb,t.jgdm,t.mzdm,t.zzmm,t.glyx,t.bjdm ,bszplj,t.nj
+        from XJ_XSXXB t
+        left join DM_YXB t1 on t.xydm=t1.yxdm
+        left join DM_ZYB t2 on t.zydm = t2.zydm
+        where xh=#xh#
+    </select>   
+    <!-- 查询性别 -->
+    <select id="queryXb" resultClass="XbbEntity">
+    	select dm,mc from dm_xbb where kyf = '1'
+    </select>
+    <!-- 查询籍贯 -->
+    <select id="queryJg" resultClass="JgbEntity">
+    	select dm,mc from dm_jgb where kyf = '1'
+    </select>
+    <!-- 查询民族 -->
+    <select id="queryMz" resultClass="MzbEntity">
+    	select dm,mc from dm_mzb where kyf = '1'
+    </select>
+    <!-- 查询政治面貌 -->
+    <select id="queryZzmm" resultClass="ZzmmbEntity">
+    	select dm,mc from dm_zzmmb where kyf = '1'
+    </select>
+    
+    <!-- 查询班级-->
+    <select id="queryBjList" parameterClass="String" resultClass="BjbEntity">
+       select db.bjdm,db.bjmc from dm_bjb db 
+		where db.zydm = #zydm# and db.bjlx = '1' and db.kyf = '1' order by db.bjdm
+    </select>
+    
+    <!-- 查询院系是否为管理部门 -->
+    <select id="querySfglbm" parameterClass="YxdmbEntity" resultClass="YxdmbEntity">
+    	select sfglbm from dm_yxb where yxdm = #yxdm# and kyf = '1'
+    </select>
+    
+    <!-- 查询专业列表 -->
+    <select id="queryZyListByY" parameterClass="String" resultClass="ZybEntity">
+       select t.zydm,t.zymc,t.kyf from dm_zyb t
+       left join dm_xyzyb t1 on t1.zydm = t.zydm
+       where t1.xydm = #xydm# and t.kyf = '1'
+       order by to_number(t.zydm)
+    </select>
+    
+    <!-- 通过系查询专业 -->
+    <select id="queryZyListByX" parameterClass="String" resultClass="ZybEntity">
+    	select t.zydm,t.zymc,t.kyf from dm_zyb t
+       left join dm_xyzyb t1 on t1.zydm = t.zydm
+       where t1.xdm = #xydm# and t.kyf = '1'
+       order by to_number(t.zydm)
+    </select>
+    <!-- 查询班级-->
+    <select id="queryBjList2" parameterClass="String" resultClass="BjbEntity">
+       select db.bjdm,db.bjmc from dm_bjb db 
+		where db.zydm = #zydm# and db.kyf = '1' order by db.bjdm
+    </select>
+    <!-- 根据session中yhdm 查询 用户数据 -->
+   	<select id="queryUser" parameterClass="UserEntity" resultClass="UserEntity">
+   		select xd.dldm,
+       xd.yhdm,  
+       to_char(#jsdm#) jsdm,
+       dj.sfcjgly,
+       dr.gljb
+		  from xt_dlb xd
+		 inner join dm_jsb dj
+		    on dj.jsdm = to_char(#jsdm#)
+		  left join dm_ryjsb dr
+		    on dr.jsdm = to_char(#jsdm#)
+		   and dr.yhdm = #yhdm#
+		   and dr.xtdm = dj.xtdm
+		 where xd.yhdm = #yhdm#
+		   and dj.kyf = '1'
+		   and dj.xtdm = <include refid="common.xtdm"/>
+		   and dr.xtdm = <include refid="common.xtdm"/>
+   	</select>
+   	
+   	   	<!-- **********excel表格导入******************************************************* -->
+   	<select id="queryOneXsxxbByXh" parameterClass="String" resultClass="String">
+   		select count(*) from XJ_XSXXB where xh = #xh#
+   	</select>
+   	
+   	<update id="updBathXsxx" parameterClass="XsxxbEntity">
+   		update XJ_XSXXB set xm=#xm#,xydm=#xydm#,xdm=#xdm#,glyx=#glyx#,zydm=#zydm#,nj=#nj#,xb=#xb#,bjdm=#bjdm# where xh = #xh#
+   	</update>
+   	
+   	<!-- excel表格导入学生信息 -->
+   	<insert id="addBathXsxx" parameterClass="XsxxbEntity">
+    	begin
+    	    delete from xt_dlb where yhdm = #xh#;
+    	    delete from dm_ryjsb where yhdm = #xh# and xtdm = <include refid="common.xtdm"/>;
+    	    delete from dm_ryjsanb where yhdm = #xh# and xtdm = <include refid="common.xtdm"/>;
+    	    delete from dm_ryjsqxb where yhdm = #xh# and xtdm = <include refid="common.xtdm"/>;
+		     insert into xt_dlb(dldm,yhdm,mm,xm,mrjs,yhlx) values(seq_xt_dlb.nextval,#xh#,fun_jiami('123456'),#xm#,'3','2');
+		     insert into XJ_XSXXB(xh,xm,xydm,xdm,glyx,zydm,xb,bjdm,nj)
+		     	values(#xh#,#xm#,#xydm#,#xdm#,#glyx#,#zydm#,#xb#,#bjdm#,#nj#);
+		     insert into dm_ryjsb(ryjsdm,yhdm,jsdm,gljb,xtdm,cjr,cjsj) 
+         values(SEQ_DM_RYJSB.NEXTVAL,#xh#,'3','2',<include refid="common.xtdm"/>,#cjr#,sysdate); 
+     end;   	
+   	</insert>
+   	
+   	<!-- **********excel表格导入******************************************************* -->
+   	
+   	<!-- 导入查询 -->
+	 <select id="queryByPtXhCount" parameterClass="String" resultClass="int">
+		Select count(*) From pt_xj_xsxxb where xh = #xh#
+    </select>
+    <!-- 增加 -->
+    <insert id="addPtXsxx" parameterClass="XsxxbEntity">
+    
+    
+    
+    
+    
+     	  insert into pt_xj_xsxxb(xh,xm,xydm,xdm,glyx,zydm,xb,jgdm,mzdm,zzmm,bjdm,nj)
+           values(#xh#,#xm#,#xydm#,#xdm#,#glyx#,#zydm#,#xb#,#jg#,#mz#,#zzmm#,#bjdm#,#nj#)
+    </insert>
+    <!-- 修改 -->
+    <update id="updPtXsxx" parameterClass="XsxxbEntity">
+	   Update pt_Xj_Xsxxb
+		   Set Xm     = #xm#,
+		       Xydm   = #xydm#,
+		       Glyx   = #glyx#,
+		       Xdm    = #xdm#,
+		       Zydm   = #zydm#,
+		       Xb     = #xb#,
+		       Jgdm   = #jg#,
+		       Mzdm   = #mz#,
+		       Zzmm   = #zzmm#,
+		       Bjdm   = #bjdm#,
+		       nj   = #nj#
+		  where xh=#xh#
+    </update>
+   
+   	 <!-- 查询 院系专业   tree-->
+    <select id="queryYxByZyTree" resultClass="XsxxbEntity" parameterClass="XsxxbEntity">
+	      Select dm,mc,fdm From (Select yxdm dm,yxmc  mc,'0' fdm From dm_yxb Where sjyxdm='0' and kyf='1'
+	       <isNotEmpty prepend="and" property="yxmcordm">
+				       (yxmc like '%'||trim(#yxmcordm#)||'%' or yxdm like '%'||trim(#yxmcordm#)||'%')
+		   </isNotEmpty> 
+		   <isNotEmpty prepend="and" property="zymcordm">
+				  yxdm in(  Select distinct dm_xyzyb.glyx glyx 
+				   From dm_xyzyb Left  Join dm_zyb On dm_zyb.zydm=dm_xyzyb.zydm 
+				   Where  (dm_zyb.zydm like '%'||trim(#zymcordm#)||'%' or dm_zyb.zymc like '%'||trim(#zymcordm#)||'%'))
+		   </isNotEmpty>
+		 Union
+		    Select dm_zyb.zydm dm,dm_zyb.zymc mc,dm_xyzyb.glyx fdm From dm_xyzyb Left  Join dm_zyb On dm_zyb.zydm=dm_xyzyb.zydm
+		    Where dm_zyb.kyf='1'
+				<isNotEmpty prepend="and" property="zymcordm">
+						       (dm_zyb.zydm like '%'||trim(#zymcordm#)||'%' or dm_zyb.zymc like '%'||trim(#zymcordm#)||'%')
+				</isNotEmpty>
+		)  START WITH   fdm='0'  CONNECT BY     PRIOR       dm= fdm
+    </select>
+    
+    
+    <!-- 查询复合条件的学生信息 -->
+    <select id="queryAllXsxx" parameterClass="String" resultClass="XsxxbEntity">
+    select xh,xm,xydm,xdm,glyx,zydm,xb,jgdm,mzdm,zzmm,bjdm,nj From pt_xj_xsxxb Where ('Y'||xydm=#ids# Or zydm=#ids# ) and xh  not in (select xh from xj_xsxxb)
+    </select>
+  <!-- 根据学工号看是修改还是增加 -->
+    <insert id="addorupdXs" parameterClass="XsxxbEntity">
+      Merge into xj_xsxxb  
+   	 Using (Select Count(*)  Count From xj_xsxxb Where xh=#xh#) num2 
+        On  (num2.count  >0 )
+         when not matched Then
+           Insert (xh,xm,xydm,xdm,glyx,zydm,xb,jgdm,mzdm,zzmm,bjdm,nj)
+ 		values(#xh#,#xm#,#xydm#,#xdm#,#glyx#,#zydm#,#xb#,#jgdm#,#mzdm#,#zzmm#,#bjdm#,#nj#)
+					   When  MATCHED THEN   
+               Update 
+                Set Xm     = #xm#,
+		       Xydm   = #xydm#,
+		       Glyx   = #glyx#,
+		       Xdm    = #xdm#,
+		       Zydm   = #zydm#,
+		       Xb     = #xb#,
+		       Jgdm   = #jgdm#,
+		       Mzdm   = #mzdm#,
+		       Zzmm   = #zzmm#,
+		       Bjdm   = #bjdm#,
+		       nj   = #nj#
+				  where xh=#xh#
+    </insert>
+    <!-- 查询年级 -->
+    <select id="qyeryAllNj" resultClass="XsxxbEntity">
+    Select nj dm,njmc mc From dm_njb Where kyf='1' order by nj
+    </select>
+     <!-- 查询复合条件的学生信息（NJ） -->
+    <select id="queryAllXsxxByNj" parameterClass="String" resultClass="XsxxbEntity">
+    select xh,xm,xydm,xdm,glyx,zydm,xb,jgdm,mzdm,zzmm,bjdm From pt_xj_xsxxb Where nj=#nj# and xh  not in (select xh from xj_xsxxb)
+    </select>
+</sqlMap>

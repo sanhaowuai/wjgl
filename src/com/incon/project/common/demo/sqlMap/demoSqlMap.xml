@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="demo">
+	<typeAlias type="com.incon.project.common.demo.page.DemoJsonPage" alias="DemoJsonPage"/>
+	<insert id="addTest_dmwh_1" parameterClass="java.util.HashMap">
+		insert into test_dmwh_1
+		  (dm, mc)
+		values
+		  (#dm#, #mc#)	
+	</insert>
+	<insert id="addTest_dmwh_2" parameterClass="java.util.HashMap">
+		insert into test_dmwh_2
+		  (dm, mc2)
+		values
+		  (#dm#, #mc#)			
+	</insert>
+	
+	<select id="queryNjList" resultClass="java.util.HashMap" parameterClass="DemoJsonPage">
+		select * from (select  rownum rn, cc.* from (
+			select nj as nj,njmc as njmc,kyf as kyf from dm_njb  			
+		<![CDATA[
+		) cc where rownum <=#page#*#rows#
+		)where rn  >(#page#-1)*(#rows#)
+		]]>
+	</select>
+	
+	<select id="queryNjListCount" resultClass="int" parameterClass="DemoJsonPage">
+		select count(*) from (
+			select nj as nj,njmc as njmc,kyf as kyf from dm_njb
+		)
+	</select>
+</sqlMap>

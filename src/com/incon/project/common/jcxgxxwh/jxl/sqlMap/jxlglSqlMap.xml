@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="jxlgl">
+	<!-- 实体pojo -->
+	<typeAlias alias="JxlbEntity" type="com.incon.pojo.common.jcxgxxwh.JxlbEntity"/>
+	<typeAlias alias="XiaoqubEntity" type="com.incon.pojo.common.jcxgxxwh.XiaoqubEntity"/>
+	<typeAlias alias="JxlglPage" type="com.incon.project.common.jcxgxxwh.jxl.page.JxlglPage" />
+<!--  分页查询教学楼	-->
+    <select id="queryJxlgl" parameterClass="JxlglPage" resultClass="JxlbEntity">
+     select * from (select  rownum rn, bb.* from (
+         select t.dm,t.mc,t1.mc xq,t.kyf from dm_jxl t 
+         left join dm_xiaoqub t1 on t.xiaoqu = t1.dm
+         where 1=1
+         <isNotEmpty prepend="and" property="dmmc" > 
+          t.mc like '%'|| trim(#dmmc#) ||'%'
+      	</isNotEmpty>
+		<![CDATA[
+       ORDER BY lpad(t.dm,8,'0')
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+    <select id="queryJxlglCount" parameterClass="JxlglPage" resultClass="int">
+	 	select count(*) from 
+	      (
+		 select t.dm,t.mc,t1.mc xq,t.kyf from dm_jxl t 
+         left join dm_xiaoqub t1 on t.xiaoqu = t1.dm
+         where 1=1
+     		<isNotEmpty prepend="and" property="dmmc" > 
+				  t.mc like '%'|| trim(#dmmc#) ||'%'
+			</isNotEmpty>
+		 ) t2
+    </select>
+	<!--  添加教学楼  -->
+    <insert id="addJxl" parameterClass="JxlbEntity"  >
+       	insert into DM_JXL(dm,mc,xiaoqu,zjm,jc,kldly,kyf) values(#dm#,#mc#,#xiaoqu#,#zjm#,#jc#,#kldly#,#kyf#)
+    </insert>
+	<!--  修改教学楼信息  -->
+     <update id="updJxl" parameterClass="JxlbEntity">
+         update DM_JXL
+         set dm=#dm#,mc=#mc#,xiaoqu=#xiaoqu#,zjm=#zjm#,jc=#jc#,kldly=#kldly#,kyf=#kyf# 
+         where dm=#dm#
+     </update>
+<!-- 判断教学楼是否被使用 -->
+<select id="queryExit" parameterClass="String" resultClass="Integer">
+	select count(*) from dm_jxcd where lhdm = #id#
+</select>
+<!--  删除教学楼  -->
+     <delete id="delJxl" parameterClass="String">
+        delete from DM_JXL  where dm=#dm#
+    </delete>
+<!--  查询代码是否存在  -->
+    <select id="queryByDmCount" parameterClass="String" resultClass="int">
+		select count(*) from dm_jxl where dm = #dm#
+    </select>
+<!--  查询单个教学楼信息   -->
+    <select id="queryJxlByDm" parameterClass="String" resultClass="JxlbEntity">
+        select dm,mc,xiaoqu,zjm,jc,kldly,kyf
+        from DM_JXL 
+        where dm=#dm#
+    </select>
+    <!-- 查询校区列表 -->
+    <select id="queryXiaoquList" resultClass="XiaoqubEntity">
+        select dm,mc,kyf from DM_XIAOQUB      
+		order by to_number(dm) asc
+    </select>
+</sqlMap>

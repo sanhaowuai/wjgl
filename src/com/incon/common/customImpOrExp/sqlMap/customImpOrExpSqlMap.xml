@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="customImpOrExp">
+	<typeAlias alias="CustomImpOrExpPage" type="com.incon.common.customImpOrExp.page.CustomImpOrExpPage"/>
+	<typeAlias alias="CustomImpOrExpEntity" type="com.incon.common.customImpOrExp.page.CustomImpOrExpEntity"/>
+	<typeAlias alias="JsEntity" type="com.incon.common.customImpOrExp.page.JsEntity"/>
+	<typeAlias alias="TabColumnsEntity" type="com.incon.common.customImpOrExp.page.TabColumnsEntity"/>
+	<typeAlias alias="ImpColEntity" type="com.incon.common.customImpOrExp.page.ImpColEntity"/>
+	<typeAlias alias="ImpColCheckEntity" type="com.incon.common.customImpOrExp.page.ImpColCheckEntity"/>
+	
+	<select id="queryCustomImpOrExp" parameterClass="CustomImpOrExpPage" resultClass="CustomImpOrExpEntity">
+		select t.*,ROW_NUMBER()OVER(ORDER BY null) ORDERNUMBER from (
+		  select s.*,ROW_NUMBER()OVER(ORDER BY null) ORDERNUMBER  from SYS_IMP_TAB s
+		  where 1=1
+		  <isNotEmpty prepend="and" property="ywmc">
+				s.ywmc like '%'|| #ywmc# || '%' 
+		  </isNotEmpty>
+		  <!-- 
+		  <isNotEmpty prepend="and" property="roleid">
+				s.id in (select sy.id from SYS_IMP_TAB sy where instr(roleid,#roleid#)!='0')
+		  </isNotEmpty>
+		   -->
+		  
+		  order by id
+		  )t
+		  <![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		  ]]>
+	</select>
+	<select id="queryCustomImpOrExpCount" parameterClass="CustomImpOrExpPage" resultClass="int">
+		  select count(*) from (
+		  	  select s.*,ROW_NUMBER()OVER(ORDER BY null) ORDERNUMBER  from SYS_IMP_TAB s
+			  where 1=1
+			  <isNotEmpty prepend="and" property="ywmc">
+					 s.ywmc like '%'|| #ywmc# || '%' 
+			  </isNotEmpty>
+			  <!-- 
+			  <isNotEmpty prepend="and" property="roleid">
+				s.id in (select sy.id from SYS_IMP_TAB sy where instr(roleid,#roleid#)!='0')
+		 	 </isNotEmpty>
+			   -->
+			  order by id
+		  )t
+	</select>
+	<select id="queryJsList" resultClass="JsEntity">
+	  select jsdm,jsmc from dm_jsb where xtdm = <include refid="common.xtdm"/>
+	</select>
+	<!-- 
+	<insert id="saveMbxx" parameterClass="CustomImpOrExpEntity">
+	  insert into sys_imp_tab(id,tablename,ywmc,imptype,roleid)values(seq_sys_imp_tab.nextval,#tablename#,#ywmc#,#imptype#,#roleid#)
+	</insert>
+	 -->
+	<insert id="saveMbxx" parameterClass="CustomImpOrExpEntity">
+	  insert into sys_imp_tab(id,tablename,ywmc,imptype)values(seq_sys_imp_tab.nextval,#tablename#,#ywmc#,#imptype#)
+	</insert>
+	<select id="queryJsByJsdm" parameterClass="java.util.Map" resultClass="JsEntity">
+	 select jsdm,jsmc from dm_jsb where jsdm=#jsdm# and xtdm = <include refid="common.xtdm"/>
+	</select>
+	<!-- 
+	<select id="queryMbxxById" parameterClass="java.util.Map" resultClass="CustomImpOrExpEntity">
+		select id,tablename,ywmc,imptype,roleid from sys_imp_tab where id=#id#
+	</select>
+	 -->
+	<select id="queryMbxxById" parameterClass="java.util.Map" resultClass="CustomImpOrExpEntity">
+		select id,tablename,ywmc,imptype from sys_imp_tab where id=#id#
+	</select>
+	
+	<select id="queryTabColumnsByTabName" parameterClass="java.util.Map" resultClass="TabColumnsEntity">
+		select table_name,column_name,data_type,data_length from user_tab_columns where table_name=#tablename#
+	</select>
+	<select id="queryImpColList" parameterClass="java.util.Map" resultClass="ImpColEntity">
+		select im.id,im.tab_id,im.column_en,im.column_zh,im.sfzj,im.sfxlzj,im.xlmc,im.dmbmc,cc.data_length,im.column_cd,im.column_lx from sys_imp_col im left join 
+		(select id,co.COLUMN_NAME ,co.DATA_LENGTH from sys_imp_tab ta left join user_tab_cols co on ta.tablename = co.TABLE_NAME ) cc  
+	     on im.tab_id = cc.id and im.column_en = cc.column_name
+		where tab_id=#id# order by id asc
+	</select>
+	<!-- 
+	<update id="updateImptab" parameterClass="java.util.Map">
+	 update sys_imp_tab set ywmc=#ywmc#,roleid=#roleid#,imptype=#imptype# where id = #id#
+	</update>
+	 -->
+	<update id="updateImptab" parameterClass="java.util.Map">
+	 update sys_imp_tab set ywmc=#ywmc#,imptype=#imptype# where id = #id#
+	</update>
+	<insert id="saveImpCol" parameterClass="ImpColEntity">
+	 insert into sys_imp_col (id,tab_id,column_en,column_zh,column_cd,column_lx,sfzj,sfxlzj,xlmc,dmbmc)values(seq_sys_imp_col.nextval,#tab_id#,#column_en#,#column_zh#,#column_cd#,#column_lx#,#sfzj#,#sfxlzj#,#xlmc#,#dmbmc#)
+	</insert>
+	<delete id="delImpCol" parameterClass="java.util.Map">
+	delete from sys_imp_col where tab_id=#id# 
+	</delete>
+	<select id="queryImpColById" parameterClass="java.util.Map" resultClass="ImpColEntity">
+		select 
+			* 
+		from 
+			sys_imp_col 
+		where 
+			tab_id = #id# 
+			<isNotEmpty prepend="and" property="sfxlzj">
+				sfxlzj = #sfxlzj#
+			</isNotEmpty>
+		order by id asc
+	</select>
+	<select id="queryImpZjColList" parameterClass="java.util.Map" resultClass="ImpColEntity">
+		select * from sys_imp_col where tab_id=#id# and sfzj='1' order by id asc
+	</select>
+	<select id="queryImpColCheck" resultClass="ImpColCheckEntity">
+		select * from sys_imp_codechk
+	</select>
+	<select id="queryImpColByEnAndTabId" parameterClass="java.util.Map" resultClass="ImpColEntity">
+	    select * from sys_imp_col where tab_id=#tab_id# and column_en=#column_en#
+	</select>
+	<select id="queryImpChkBytblName" parameterClass="java.util.Map" resultClass="ImpColCheckEntity">
+		select * from sys_imp_codechk where tablename=#tablename#
+	</select>
+	<select id="querySfczdm" parameterClass="java.util.Map" resultClass="java.lang.String" remapResults="true">
+		select count(*) from $dmbmc$ where $dm$ = #jyz#
+	</select>
+	<select id="querySfczmc" parameterClass="java.util.Map" resultClass="java.lang.String" remapResults="true">
+		select count(*) from $dmbmc$ where $mc$ = #jyz#
+	</select>
+	<insert id="saveZdyMesg" parameterClass="java.util.Map">
+		insert into $tableName$ ($zdsql$) values($valSql$)
+	</insert>
+	<select id="querydmbfhz" parameterClass="java.util.Map" resultClass="java.lang.String" remapResults="true">
+		select $dm$ from $dmbmc$ where $dm$ = #imporVal# or $mc$ = #imporVal# 
+	</select>
+	<update id="updateZdyMesg" parameterClass="java.util.Map">
+	  update $tableName$ set $zdzsql$ where $zdzjsql$
+	</update>
+	<delete id="delCustomImp" parameterClass="String">
+		delete from sys_imp_col where tab_id=#ids#
+	</delete>
+	<delete id="delCustomImp1" parameterClass="String">
+		delete from sys_imp_tab where id=#ids#
+	</delete>
+	<select id="queryCurImpColList" parameterClass="java.util.Map" resultClass="ImpColEntity" remapResults="true">
+		select co.column_name column_en,(select comments from user_col_comments where table_name=co.TABLE_NAME and column_name  =co.COLUMN_NAME) column_zh,
+		decode((select col.column_name
+		from user_constraints con,  user_cons_columns col
+		where con.constraint_name = col.constraint_name
+		and col.table_name = #tableName# and col.column_name=co.COLUMN_NAME and con.constraint_type='P' ),'','0','1') sfzj,'0' sfxlzj,co.data_length column_cd,co.data_type column_lx
+		from user_tab_columns co
+		where co.Table_Name=#tableName#
+		order by co.column_name
+	</select>
+	<select id="queryTabColsByTabName" parameterClass="java.util.Map" resultClass="ImpColEntity">
+		select co.column_name column_en,(select comments from user_col_comments where table_name=co.TABLE_NAME and column_name  =co.COLUMN_NAME) column_zh,
+		decode((select col.column_name
+		from user_constraints con,  user_cons_columns col
+		where con.constraint_name = col.constraint_name
+		and col.table_name = #tableName# and col.column_name=co.COLUMN_NAME and con.constraint_type='P' ),'','0','1') sfzj,'0' sfxlzj,co.data_length column_cd,co.data_type column_lx
+		from user_tab_columns co
+		where co.Table_Name=#tableName# and co.column_name not in ($zdStr$)
+		order by co.column_name 
+	</select>
+	<!-- 根据id获取表名及字段信息 -->
+	<select id="queryById" parameterClass="String" resultClass="java.util.HashMap">
+		select s.ywmc,s.tablename,m.column_en,m.column_zh from sys_imp_tab s,sys_imp_col m where s.id=m.tab_id and m.sfxlzj!='1' and s.id=#id#
+	</select>
+	<select id="querySfczxl" parameterClass="java.lang.String" resultClass="java.lang.String">
+		select count(*) from user_sequences where sequence_name=#xlmcVal#
+	</select>
+</sqlMap>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PubZj">
+	 
+	
+	<delete id="deleteLayout">
+	delete pt_pub_grzjbjb where    yhdm=#yhdm# and jsdm=#jsdm# and xtdm=<include refid="common.xtdm"/> and qxlb='0'
+	</delete>
+	
+	<insert id="saveLayout" parameterClass="java.util.HashMap" >
+	     begin
+	     
+		 insert into pt_pub_grzjbjb
+		   (zjdm, yhdm, jsdm, xtdm, width, height, top, left,qxlb)
+		 values
+		   (#id#, #yhdm#, #jsdm#, <include refid="common.xtdm"/>, #width#, #height#, #y#, #x#,'0');
+		 end;
+	</insert>
+	<delete id="deleteLayoutJsdm">
+	delete pt_pub_jszjbjb where   jsdm=#jsdm# and xtdm=<include refid="common.xtdm"/> and qxlb='0'
+	</delete>
+	
+	<insert id="saveLayoutJsdm" parameterClass="java.util.HashMap" >
+	     begin
+	     
+		 insert into pt_pub_jszjbjb
+		   (zjdm,  jsdm, xtdm, width, height, top, left,qxlb)
+		 values
+		   (#id#,  #jsdm#, <include refid="common.xtdm"/>, #width#, #height#, #y#, #x#,'0');
+		 end;
+	</insert>
+		<!-- 判断是否有用户角色权限 -->
+	<select id="getRyjsqxCount" parameterClass="UserEntity" resultClass="Integer">
+		select count(*) from   pt_pub_ryjsqxb where qxlb='0' and jsdm = to_char(#jsdm#) and yhdm = #yhdm# and xtdm = <include refid="common.xtdm"/>
+	</select>
+	<select id="loadLayout" parameterClass="com.incon.pojo.common.UserEntity"  resultClass="com.incon.pojo.common.Grzjbjb" >
+	     
+			 select nvl(pt_pub_qxb.qxdm,pt_pub_qxb.qxdm) qxdm,pt_pub_qxb.zjxxmc, pt_pub_grzjbjb.zjdm id , pt_pub_grzjbjb.yhdm, pt_pub_grzjbjb.jsdm, pt_pub_grzjbjb.xtdm, pt_pub_grzjbjb.width, pt_pub_grzjbjb.height, pt_pub_grzjbjb.top y , pt_pub_grzjbjb.left x , pt_pub_grzjbjb.top ly 
+			 ,pt_pub_qxb.src,pt_pub_qxb.href href ,pt_pub_qxb.zjlx ,pt_pub_qxb.mbnr, pt_pub_qxb.mbdz , pt_pub_qxb.mbsjy
+			 from pt_pub_grzjbjb
+			 inner join pt_pub_qxb on pt_pub_grzjbjb.zjdm=pt_pub_qxb.qxdm and pt_pub_grzjbjb.xtdm=pt_pub_qxb.xtdm and   pt_pub_qxb.qxlb='0' and  pt_pub_qxb.qxlb='0'
+			  
+	         where   pt_pub_grzjbjb.yhdm=#yhdm# and pt_pub_grzjbjb.jsdm=#jsdm# and pt_pub_grzjbjb.xtdm=<include refid="common.xtdm"/> 
+	       
+	</select>
+	<select id="loadLayoutJszj" parameterClass="com.incon.pojo.common.UserEntity"  resultClass="com.incon.pojo.common.Grzjbjb" >
+	     
+			 select nvl(pt_pub_qxb.qxdm,pt_pub_qxb.qxdm) qxdm,pt_pub_qxb.zjxxmc, pt_pub_jszjbjb.zjdm id ,   pt_pub_jszjbjb.jsdm, pt_pub_jszjbjb.xtdm, pt_pub_jszjbjb.width, pt_pub_jszjbjb.height, pt_pub_jszjbjb.top y , pt_pub_jszjbjb.left x , pt_pub_jszjbjb.top ly 
+			 ,pt_pub_qxb.src,pt_pub_qxb.href href ,pt_pub_qxb.zjlx ,pt_pub_qxb.mbnr, pt_pub_qxb.mbdz , pt_pub_qxb.mbsjy
+			 from pt_pub_jszjbjb
+			 inner join pt_pub_qxb on pt_pub_jszjbjb.zjdm=pt_pub_qxb.qxdm and pt_pub_jszjbjb.xtdm=pt_pub_qxb.xtdm and   pt_pub_qxb.qxlb='0' and  pt_pub_qxb.qxlb='0'
+			  
+	         where    pt_pub_jszjbjb.jsdm=#jsdm# and pt_pub_jszjbjb.xtdm=<include refid="common.xtdm"/> 
+	       
+	</select>
+	<!-- 籍贯表 赵玥 -->
+	 		<!-- 角色组件表  可用未添加组件-->
+	<select id="getkywtjZjb_1" parameterClass="UserEntity" resultClass="com.incon.pojo.common.Grzjbjb">
+		select  pt_pub_qxb.qxdm id, 
+		   pt_pub_qxb.qxdm , 
+				pt_pub_qxb.qxdm, 
+				pt_pub_qxb.xtdm,
+				pt_pub_qxb.zjxxmc, 
+					pt_pub_qxb.zjlx,
+				pt_pub_qxb.mbsjy,
+				pt_pub_qxb.mbnr,
+				pt_pub_qxb.width, 
+				pt_pub_qxb.height, 
+				pt_pub_qxb.src,pt_pub_qxb.href href from pt_pub_qxb 
+                left join  pt_pub_jsqxb  on pt_pub_qxb.qxdm=pt_pub_jsqxb.qxdm
+                and pt_pub_qxb.xtdm=pt_pub_jsqxb.xtdm
+      where  
+           pt_pub_qxb.xtdm = <include refid="common.xtdm"/> and pt_pub_jsqxb.jsdm = #jsdm# 
+         and pt_pub_qxb.qxlb='0'
+		and not exists(
+		  select 1 from pt_pub_grzjbjb 
+		  where pt_pub_jsqxb.xtdm=pt_pub_grzjbjb.xtdm 
+		  and pt_pub_jsqxb.jsdm=pt_pub_grzjbjb.jsdm
+		  and pt_pub_grzjbjb.yhdm = #yhdm#
+		  and pt_pub_jsqxb.qxdm=pt_pub_grzjbjb.zjdm
+		)
+	</select>
+	
+	
+		<select id="getkywtjZjb_3" parameterClass="UserEntity" resultClass="com.incon.pojo.common.Grzjbjb">
+		select  pt_pub_qxb.qxdm id, 
+		   pt_pub_qxb.qxdm , 
+				pt_pub_qxb.qxdm, 
+				pt_pub_qxb.xtdm,
+				pt_pub_qxb.zjxxmc, 
+					pt_pub_qxb.zjlx,
+				pt_pub_qxb.mbsjy,
+				pt_pub_qxb.mbnr,
+				pt_pub_qxb.width, 
+				pt_pub_qxb.height, 
+				pt_pub_qxb.src,pt_pub_qxb.href href from pt_pub_qxb 
+                left join  pt_pub_jsqxb  on pt_pub_qxb.qxdm=pt_pub_jsqxb.qxdm
+                and pt_pub_qxb.xtdm=pt_pub_jsqxb.xtdm
+      where  
+           pt_pub_qxb.xtdm = <include refid="common.xtdm"/> and pt_pub_jsqxb.jsdm = #jsdm# 
+         and pt_pub_qxb.qxlb='0'
+		and not exists(
+		  select 1 from pt_pub_jszjbjb 
+		  where pt_pub_jsqxb.xtdm=pt_pub_jszjbjb.xtdm 
+		  and pt_pub_jsqxb.jsdm=pt_pub_jszjbjb.jsdm
+		  and pt_pub_jsqxb.qxdm=pt_pub_jszjbjb.zjdm
+		)
+	</select>
+	
+	<!-- 人员角色组件表 可用未添加组件-->
+	<select id="getkywtjZjb_2" parameterClass="UserEntity" resultClass="com.incon.pojo.common.Grzjbjb">
+		select  pt_pub_qxb.qxdm id, 
+		   pt_pub_qxb.qxdm , 
+				pt_pub_qxb.qxdm, 
+				pt_pub_qxb.xtdm,
+				pt_pub_qxb.zjlx,
+				pt_pub_qxb.mbsjy,
+				pt_pub_qxb.mbnr,
+				pt_pub_qxb.zjxxmc, 
+				pt_pub_qxb.width, 
+				pt_pub_qxb.height, 
+				pt_pub_qxb.src,pt_pub_qxb.href href from pt_pub_qxb  left join  pt_pub_ryjsqxb  on 
+				
+			  pt_pub_qxb.qxdm=pt_pub_ryjsqxb.qxdm
+              and pt_pub_qxb.xtdm=pt_pub_ryjsqxb.xtdm  and pt_pub_qxb.qxlb='0'
+                
+          where pt_pub_ryjsqxb.xtdm = <include refid="common.xtdm"/> and pt_pub_ryjsqxb.jsdm = #jsdm# and pt_pub_ryjsqxb.yhdm = #yhdm#
+		  and not exists(
+		  select 1 from pt_pub_grzjbjb 
+		  where pt_pub_ryjsqxb.xtdm=pt_pub_grzjbjb.xtdm 
+		  and pt_pub_ryjsqxb.jsdm=pt_pub_grzjbjb.jsdm
+		  and pt_pub_ryjsqxb.yhdm=pt_pub_grzjbjb.yhdm
+		  and pt_pub_ryjsqxb.qxdm=pt_pub_grzjbjb.zjdm 
+		)
+	</select>
+	<select id="querykjcd"   parameterClass="UserEntity"  resultClass="com.incon.pojo.common.QxEntity">
+	  select dm_qxb.qxdm,dm_qxb.qxmc ,dm_qxb.fwlj,dm_qxb.tcfs,dm_qxb.icon from dm_qxb_grb 
+     left join dm_qxb on dm_qxb_grb.xtdm=dm_qxb.xtdm and dm_qxb_grb.qxdm=dm_qxb.qxdm  
+		where dm_qxb_grb.xtdm= <include refid="common.xtdm"/>
+		and   dm_qxb_grb.yhdm=#yhdm#
+		and   dm_qxb_grb.jsdm=#jsdm# 
+		order by dm_qxb_grb.xssx 
+	</select>
+</sqlMap>

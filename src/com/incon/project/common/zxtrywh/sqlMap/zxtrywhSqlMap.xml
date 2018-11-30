@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="zxtrywh">
+	<!-- 实体pojo -->
+	<typeAlias alias="ZxtrywhPage" type="com.incon.project.common.zxtrywh.page.ZxtrywhPage"/>
+	<typeAlias alias="zxtOnePage" type="com.incon.project.common.zxtrywh.page.zxtwhPage" />
+		<typeAlias alias="zxtrywhEntity" type="com.incon.pojo.common.zxtrywhEntity" />
+		<!-- 分页查询 -->
+	 <select id="queryZxtrywh" parameterClass="ZxtrywhPage" resultClass="zxtrywhEntity">
+	 	   select * from (select  rownum rn, bb.* from ( 
+	          Select dl.yhdm,dl.xm,yx.yxmc,Case When dl.yhlx='1' Then '教师' Else '学生' End As yhlxmc From xt_dlb dl
+				Left Join 
+				(Select xh yhdm,xm yhmc,xydm yxdm From xj_xsxxb
+				Union
+				Select zgh yhdm ,jsxm yhmc,xydm yxdm From sz_jsxxb) yh
+				On yh.yhdm=dl.yhdm
+				Left Join dm_yxb yx On yx.yxdm=yh.yxdm
+				where 1=1
+			 <isNotEmpty  prepend="and" property="pyhmc">
+			       (dl.yhdm like '%'||trim(#pyhmc#)||'%' or dl.xm like '%'||trim(#pyhmc#)||'%')
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="pyhlx">
+			       dl.yhlx  =#pyhlx#
+			  </isNotEmpty> 
+			   <isNotEmpty  prepend="and" property="pyxdm">
+			       yx.yxdm =#pyxdm#
+			  </isNotEmpty> 
+  		  <![CDATA[
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+	
+	 <select id="queryZxtrywhCount" parameterClass="ZxtrywhPage" resultClass="int">
+	 		select  count(*) from (
+	               Select dl.yhdm,dl.xm,yx.yxmc,Case When dl.yhlx='1' Then '教师' Else '学生' End As yhlxmc From xt_dlb dl
+				Left Join 
+				(Select xh yhdm,xm yhmc,xydm yxdm From xj_xsxxb
+				Union
+				Select zgh yhdm ,jsxm yhmc,xydm yxdm From sz_jsxxb) yh
+				On yh.yhdm=dl.yhdm
+				Left Join dm_yxb yx On yx.yxdm=yh.yxdm
+				where 1=1
+			 <isNotEmpty  prepend="and" property="pyhmc">
+			       (dl.yhdm like '%'||trim(#pyhmc#)||'%' or dl.xm like '%'||trim(#pyhmc#)||'%')
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="pyhlx">
+			       dl.yhlx  =#pyhlx#
+			  </isNotEmpty> 
+			   <isNotEmpty  prepend="and" property="pyxdm">
+			       yx.yxdm =#pyxdm#
+			  </isNotEmpty>   )
+	 </select>
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 <!-- 分页查询 -->
+	 <select id="queryZxt" parameterClass="zxtOnePage" resultClass="zxtrywhEntity">
+	 	   select * from (select  rownum rn, bb.* from ( 
+	         Select yh.yhdm,yh.yhmc,yx.yxmc,Case When dlb.yhlx='1' Then '教师' Else '学生' End As yhlxmc,dlb.yhlx,dl.zxtdm,zxt.xtmc From xt_zxtrywh dl
+				Left Join 
+				(Select xh yhdm,xm yhmc,xydm yxdm From xj_xsxxb
+				Union
+				Select zgh yhdm ,jsxm yhmc,xydm yxdm From sz_jsxxb) yh
+				On yh.yhdm=dl.yhdm
+				Left Join xt_dlb dlb On dlb.yhdm=dl.yhdm
+				Left Join dm_yxb yx On yx.yxdm=yh.yxdm
+				Left Join pt_xt_zxtb zxt On zxt.xtdm=dl.zxtdm
+				 where 1=1
+			 <isNotEmpty  prepend="and" property="pyhmc">
+			       (yh.yhdm like '%'||trim(#pyhmc#)||'%' or yx.yxmc like '%'||trim(#pyhmc#)||'%')
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="pyhlx">
+			       dlb.yhlx  =#pyhlx#
+			  </isNotEmpty> 
+			   <isNotEmpty  prepend="and" property="pyxdm">
+			       yx.yxdm =#pyxdm#
+			  </isNotEmpty> 
+			     <isNotEmpty  prepend="and" property="pzxtdm">
+			     dl.zxtdm=#pzxtdm#
+			  </isNotEmpty> 
+  		  <![CDATA[
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+	
+	 <select id="queryZxtCount" parameterClass="zxtOnePage" resultClass="int">
+	 select count(*) from (
+	 	Select yh.yhdm,yh.yhmc,yx.yxmc,Case When dlb.yhlx='1' Then '教师' Else '学生' End As yhlxmc,dlb.yhlx,dl.zxtdm,zxt.xtmc From xt_zxtrywh dl
+				Left Join 
+				(Select xh yhdm,xm yhmc,xydm yxdm From xj_xsxxb
+				Union
+				Select zgh yhdm ,jsxm yhmc,xydm yxdm From sz_jsxxb) yh
+				On yh.yhdm=dl.yhdm
+				Left Join xt_dlb dlb On dlb.yhdm=dl.yhdm
+				Left Join dm_yxb yx On yx.yxdm=yh.yxdm
+				Left Join pt_xt_zxtb zxt On zxt.xtdm=dl.zxtdm
+				 where 1=1
+			 <isNotEmpty  prepend="and" property="pyhmc">
+			       (yh.yhdm like '%'||trim(#pyhmc#)||'%' or yx.yxmc like '%'||trim(#pyhmc#)||'%')
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="pyhlx">
+			       dlb.yhlx  =#pyhlx#
+			  </isNotEmpty> 
+			   <isNotEmpty  prepend="and" property="pyxdm">
+			       yx.yxdm =#pyxdm#
+			  </isNotEmpty> 
+			      <isNotEmpty  prepend="and" property="pzxtdm">
+			     dl.zxtdm=#pzxtdm#
+			  </isNotEmpty>   )
+	 </select>
+	 
+	 
+	  <!-- 查询全部子系统 -->
+	  <select id="queryAllzxt"  resultClass="java.util.HashMap">
+	 		Select xtdm,xtmc From pt_xt_zxtb Where kyf='1'
+	 </select>
+	   
+	 
+	 
+	 
+	 <!-- 根据id查询具体数据 -->
+	  <select id="queryByidzxt" parameterClass="String" resultClass="zxtrywhEntity">
+	 		  Select wh.zxtdm,wh.yhdm,yh.yhmc From xt_zxtrywh wh
+ Left Join  
+        (Select xh yhdm,xm yhmc,xydm yxdm From xj_xsxxb
+        Union
+        Select zgh yhdm ,jsxm yhmc,xydm yxdm From sz_jsxxb) yh
+				On yh.yhdm=wh.yhdm
+  Where wh.zxtdm||wh.yhdm=#ids#
+	 </select>
+	   
+    <!-- 增加   -->
+     <insert id="addzxt" parameterClass="zxtrywhEntity" >
+     Insert Into xt_zxtrywh
+   (zxtdm, yhdm)
+ Values
+   (#zxtdm#,#yhdm#)
+   </insert>
+     <!-- 删除 -->
+     <delete id="delzxt" parameterClass="String">
+	       Delete xt_zxtrywh
+			  Where zxtdm||yhdm = #ids#
+     </delete>
+      <!-- 修改 -->
+     <update id="updzxt" parameterClass="zxtrywhEntity">
+		Update xt_zxtrywh
+		   Set zxtdm = #zxtdm#,
+		       yhdm = #yhdm#
+		 Where zxtdm||yhdm = #ids#
+     </update>
+     
+     <!-- 根据id查询是否属于自己 -->
+	  <select id="querybyoneCount" parameterClass="String" resultClass="int">
+	 	 Select Count(*) numb From xt_zxtrywh Where zxtdm||yhdm=#ids#
+	 </select>
+	 
+	 
+	 <!-- 查询全部学院 -->
+	 <select id="queryAllxy"   resultClass="java.util.HashMap">
+	  Select yxdm, yxmc  From dm_yxb Where kyf='1' 
+	 </select>
+    
+</sqlMap>

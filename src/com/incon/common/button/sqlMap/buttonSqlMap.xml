@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="button">
+	<!-- 根据访问路径查询菜单代码 -->
+	<select id="queryCddmByFwlj" parameterClass="string" resultClass="string">
+		select max(qxdm) from dm_qxb where fwlj = #fwlj# and xtdm = <include refid="common.xtdm"/>
+	</select>
+	
+	<!-- 查询按钮是在RYJSANB是否存在 -->
+	<select id="queryRyjsanbCount" parameterClass="java.util.Map" resultClass="Integer">
+		select count(*) from DM_RYJSANB where jsdm = #jsdm# and yhdm = #yhdm# and xtdm = <include refid="common.xtdm"/>
+	</select>
+	
+	<!-- 根据用户ID以及菜单ID查询页面按钮 -->
+	<select id="queryAnbOrder" parameterClass="java.util.Map" resultClass="java.util.HashMap">		
+		select anb.QXDM, anb.ANMC, anb.ANDH, anb.XTDM from DM_ANB anb where anb.ANDM in 
+		(select ANDM from DM_RYJSANB where YHDM=#yhdm# and SSCDDM=#qxdm# and XTDM=<include refid="common.xtdm"/>) and XTDM=<include refid="common.xtdm"/>
+	</select>
+	
+	<!-- 根据角色ID以及菜单ID查询页面按钮 -->
+	<select id="queryAnbOrder2" parameterClass="java.util.Map" resultClass="java.util.HashMap">		
+		select anb.QXDM, anb.ANMC, anb.ANDH, anb.XTDM from DM_ANB anb where anb.ANDM in 
+		(select ANDM from DM_JSANB where JSDM=#jsdm# and SSCDDM=#qxdm# and XTDM=<include refid="common.xtdm"/>) and XTDM=<include refid="common.xtdm"/>
+	</select>
+</sqlMap>

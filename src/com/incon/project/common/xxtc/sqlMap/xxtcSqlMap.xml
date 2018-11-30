@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="xxtc">
+	<!-- 实体pojo -->
+	<typeAlias alias="XxtcbEntity" type="com.incon.pojo.common.xxtc.XxtcbEntity"/>
+	<!-- 分页page -->
+	<typeAlias alias="XxtcPage" type="com.incon.project.common.xxtc.page.XxtcPage"/>
+    <!-- 查询 -->
+    <select id="queryXxtc" parameterClass="XxtcPage" resultClass="XxtcbEntity">
+      select t.*   from 
+	     (select t.*,row_number()over(order by to_number(xssx)) orderNumber from 
+	      (
+	       Select Id, sfyd, fwlj, tcfs, ms, xssx, sfsd, nww, kyf,sfwzms, icon,wzmsnr From pt_xxtcb
+	       where 1=1 and xtdm = <include refid="common.xtdm"/>  	      
+      	) t 
+	    )t
+	 	 <![CDATA[
+	       where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		 ]]>   
+    </select>
+    
+     <select id="queryXxtcCount" parameterClass="XxtcPage" resultClass="int">
+	 	select count(*) from 
+	      (
+       	   Select Id, sfyd, fwlj, tcfs, ms, xssx, sfsd, nww, kyf, icon From pt_xxtcb
+	       where 1=1 and xtdm = <include refid="common.xtdm"/> 
+		 ) t 
+	 </select>
+    <!-- 添加  -->
+    <insert id="addXxtc" parameterClass="XxtcbEntity">
+		  Insert Into pt_xxtcb
+		  (Id, sfyd, fwlj, tcfs, ms, xssx,  nww, kyf, icon,sfwzms,wzmsnr,xtdm)
+		Values
+		  (#id#,#sfyd#,#fwlj#,#tcfs#,#ms#,#xssx#,#nww#,#kyf#,#icon#,#sfwzms#,#wzmsnr#,<include refid="common.xtdm"/>) 
+	</insert>
+    <!-- 查询一个  -->
+    <select id="queryOneXxtc" parameterClass="String" resultClass="XxtcbEntity">
+      Select Id, sfyd, fwlj, tcfs, ms, xssx, sfsd, nww, kyf, icon,sfwzms,wzmsnr From pt_xxtcb Where Id=#id# and xtdm = <include refid="common.xtdm"/>
+    </select>
+    <!-- 修改  -->
+    <update id="updXxtc" parameterClass="XxtcbEntity">
+		      Update pt_xxtcb
+		   Set sfyd = #sfyd#,
+		       fwlj = #fwlj#,
+		       tcfs = #tcfs#,
+		       ms = #ms#,
+		       xssx = #xssx#,
+		       nww = #nww#,
+		       kyf = #kyf#,
+		       icon = #icon#,
+		       sfwzms=#sfwzms#,
+		       wzmsnr=#wzmsnr#
+		 Where Id = #id# and xtdm = <include refid="common.xtdm"/>
+    </update>
+    <!-- 删除  -->
+    <delete id="delXxtc" parameterClass="String">
+	    Delete pt_xxtcb
+ 			Where Id = #id#  and xtdm = <include refid="common.xtdm"/>
+    </delete>
+    <!-- 查询平台的 id -->
+    <select id="queryOnePt" parameterClass="String" resultClass="String">
+        Select  nvl(pt_xxtcb_id,'*') ptid From xt_dlb Where dldm=#dldm#
+    </select>
+     <!-- 修改  平台id-->
+    <update id="updPtid" parameterClass="java.util.HashMap">
+		     Update xt_dlb
+			   Set  pt_xxtcb_id =#id#
+			 Where dldm = #dldm#
+    </update>
+     <!-- 查询一个  -->
+    <select id="querySfyd" resultClass="String">
+      Select Id  From pt_xxtcb Where sfyd='1' and kyf='1' and xtdm = <include refid="common.xtdm"/> 
+    </select>
+    <!-- 修改除了 本id 的所有是否阅读字段 -->
+    <update id="updNotInId" parameterClass="String">
+	     Update pt_xxtcb
+		   Set sfyd = '0'
+		 Where Id Not In (#id#) and xtdm = <include refid="common.xtdm"/> 
+    </update>
+    
+    
+    <!-- 查询   主页面用 (man-01) -->
+    <select id="queryXxtcMain01"  resultClass="XxtcbEntity">
+      
+	       Select Id, sfyd, fwlj, tcfs, ms, xssx, sfsd, nww, kyf, icon,sfwzms,wzmsnr From pt_xxtcb
+	       where kyf='1' and xtdm = <include refid="common.xtdm"/> 
+	       order by to_number(xssx) 
+    </select>
+    <!-- 根据id查询   文字内容 -->
+    <select id="queryByIdNr" resultClass="XxtcbEntity" parameterClass="String">
+    Select wzmsnr,ms from pt_xxtcb  Where Id=#id# and xtdm = <include refid="common.xtdm"/>
+    </select>
+</sqlMap>

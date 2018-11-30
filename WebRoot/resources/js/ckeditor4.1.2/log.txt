@@ -1,0 +1,19 @@
+ckeditor.js
+	embed[height,hspace,pluginspage,src,type,vspace,width
+	
+	flashvars,id,name,allowfullscreen
+
+
+config.js
+	Full Basic Simple style
+
+
+plugins-image-dialogs-image.js
+	upload button
+
+
+
+<textarea class="ckeditor" id="editor1" name="editor1"><%=zw%></textarea>
+<script>
+CKEDITOR.replace('editor1',{toolbar : 'Basic'});
+</script>

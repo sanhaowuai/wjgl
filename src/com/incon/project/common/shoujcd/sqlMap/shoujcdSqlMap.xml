@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="shoujcd">
+	<!-- 实体pojo -->
+	<typeAlias alias="RzEntity" type="com.incon.pojo.common.RzEntity"/>
+	<typeAlias alias="PtappqxbEntity" type="com.incon.pojo.common.shoujcd.PtappqxbEntity"/>
+	<typeAlias alias="ZxtbEntity" type="com.incon.pojo.common.ZxtbEntity"/>
+	<typeAlias alias="JsqxbEntity" type="com.incon.pojo.common.JsqxbEntity"/>
+	<!-- 分页pojo -->
+	<typeAlias alias="ShoujcdPage" type="com.incon.project.common.shoujcd.page.ShoujcdPage"/>	
+	
+	<!-- 查询菜单page -->
+	<select id="queryQxb" parameterClass="ShoujcdPage" resultClass="PtappqxbEntity">
+		select t.*   from 
+		(
+			select t.*,row_number()over(order by xsxx) orderNumber 
+			from 
+			(
+				Select qxdm, qxmc, pt_app_qxb.icon, appurl, wz, xsxx,pt_xt_zxtb.xtmc zxtdm From pt_app_qxb
+				left join pt_xt_zxtb on pt_xt_zxtb.xtdm=pt_app_qxb.zxtdm
+				where 1=1 
+				<isNotEmpty  prepend="and" property="qxmcPage">
+				       qxmc like '%'||trim(#qxmcPage#)||'%' 
+				</isNotEmpty>
+				<isNotEmpty  prepend="and" property="wzPage">
+				      wz =#wzPage#
+				</isNotEmpty>  
+				<isNotEmpty  prepend="and" property="zxtdmPage">
+				      zxtdm =#zxtdmPage#
+				</isNotEmpty>   								
+			) t 
+	      	)t 
+      	<![CDATA[
+    	where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		]]>
+	</select>
+	<!-- 查询菜单Count -->
+	<select id="queryQxbCount" parameterClass="ShoujcdPage" resultClass="int">
+		select count(*) from 
+	      ( 
+	      	Select qxdm, qxmc, pt_app_qxb.icon, appurl, wz, xsxx, zxtdm From pt_app_qxb
+	      		left join pt_xt_zxtb on pt_xt_zxtb.xtdm=pt_app_qxb.zxtdm
+				where 1=1 
+				<isNotEmpty  prepend="and" property="qxmcPage">
+				       qxmc like '%'||trim(#qxmcPage#)||'%' 
+				</isNotEmpty>
+				<isNotEmpty  prepend="and" property="wzPage">
+				      wz =#wzPage#
+				</isNotEmpty>  
+				<isNotEmpty  prepend="and" property="zxtdmPage">
+				      zxtdm =#zxtdmPage#
+				</isNotEmpty> 
+	      ) t	
+	</select>
+	<select id="queryByIdQxb" resultClass="PtappqxbEntity">
+		Select qxdm, qxmc, icon, appurl, wz, xsxx, zxtdm From pt_app_qxb Where qxdm=#qxdm#
+	</select>
+	
+	<!-- 添加-->
+	<insert id="addQxb" parameterClass="PtappqxbEntity">
+		Insert Into pt_app_qxb
+		  (qxdm, qxmc, icon, appurl, wz, xsxx, zxtdm)
+		Values
+		  (#qxdm#, #qxmc#, #icon#, #appurl#, #wz#, #xsxx#, #zxtdm#)
+	</insert>
+	<!-- 删除 -->
+	<delete id="delQxb" parameterClass="String" >
+			Delete pt_app_qxb
+				 Where qxdm = #qxdm#
+	</delete>
+	<!-- 修改-->
+	<update id="updQxb" parameterClass="PtappqxbEntity" >
+			Update pt_app_qxb
+		     Set  qxmc = #qxmc#,
+		       icon = #icon#,
+		       appurl = #appurl#,
+		       wz = #wz#,
+		       xsxx = #xsxx#,
+		       zxtdm = #zxtdm#
+			 Where qxdm = #qxdm#
+	</update>
+	<!-- 查询是否重复 -->
+	<select id="queryByIdQxbCount" resultClass="int">
+		Select count(*) from pt_app_qxb Where qxdm=#qxdm#
+	</select>
+	<!-- 查询子系统代码 -->
+	<select id="queryByZxt" resultClass="java.util.HashMap">
+		Select  xtmc, xtdm From pt_xt_zxtb
+	</select>
+	
+	<!--************************************************* 2016.9.1 安智博创建 begin  *************************************************-->
+	<!-- 查询手机子系统 -->
+	<select id="querySjZxtList" resultClass="ZxtbEntity">
+		select t.dm, t.xtmc, t.xtdm, t.fwlj, t.kyf, t.appid, t.xtlx from pt_xt_zxtb t
+		where t.kyf = '1' and t.xtlx = '1'
+		order by dm
+	</select>
+	
+	<!-- 查询手机菜单 -->
+	<select id="querySjcdList" parameterClass="PtappqxbEntity" resultClass="PtappqxbEntity">
+		select t.qxdm, t.qxmc, t.icon, t.appurl, t.wz, t.xsxx, t2.xtmc zxtdm, case when count(t1.qxdm) > 0 then '1' else '0' end sfxz from pt_app_qxb t
+		left join pt_app_jsqxb t1 on t1.qxdm = t.qxdm and t1.jsdm = #jsdm#
+		left join pt_xt_zxtb t2 on t2.xtdm = t.zxtdm
+		where t.wz = #wz#
+		<isNotEmpty prepend="and" property="zxtdm">
+			t.zxtdm = #zxtdm#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="qxmc">
+			t.qxmc like '%'|| #qxmc# ||'%'
+		</isNotEmpty>
+		group by  t.qxdm, t.qxmc, t.icon, t.appurl, t.wz, t.xsxx, t2.xtmc
+		order by t.xsxx
+	</select>
+	<!-- 根据角色代码删除app角色授权 -->
+	<delete id="delAppjssqByJsdm" parameterClass="PtappqxbEntity">
+		delete pt_app_jsqxb t where t.jsdm = #jsdm#
+		and exists (select t1.qxdm from pt_app_qxb t1 where t1.qxdm = t.qxdm 
+					and t1.wz = #wz#
+					<isNotEmpty prepend="and" property="zxtdm">
+						t1.zxtdm = #zxtdm#
+					</isNotEmpty>
+					<isNotEmpty prepend="and" property="qxmc">
+						t1.qxmc like '%'|| #qxmc# ||'%'
+					</isNotEmpty>
+					)
+	</delete>
+	<!-- 添加app角色授权 -->
+	<insert id="addAppjssq" parameterClass="JsqxbEntity">
+		insert into pt_app_jsqxb(qxdm, jsdm)
+		values(#qxdm#, #jsdm#)
+	</insert>
+	<!--************************************************** 2016.9.1 安智博创建 end  **************************************************-->
+</sqlMap>

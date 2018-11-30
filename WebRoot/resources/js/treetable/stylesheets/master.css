@@ -1,0 +1,74 @@
+
+
+pre.listing {
+  background: #eee;
+  border: 1px solid #ccc;
+  margin: .3em auto;
+  padding: .1em .3em;
+  width: 90%;
+}
+
+pre.listing b {
+  color: #f00;
+}
+
+/* TABLE
+ * ========================================================================= */
+
+#zbtable{
+  border-collapse: collapse;
+  line-height: 1;
+  width: 100%;
+  white-space: nowrap; 
+  text-overflow: ellipsis; table-layout: fixed;
+}
+
+/* Caption
+ * ------------------------------------------------------------------------- */
+#zbtable caption {
+  font-weight: bold;
+}
+
+/* Header
+ * ------------------------------------------------------------------------- */
+#zbtable thead {
+/* background: #d3d9de url(../images/bg-table-thead.png) repeat-x top left;*/
+}
+
+#zbtable thead tr th {
+  /* border-left :1px solid #d3d9de;*/
+  font-weight: bold;
+}
+
+/* Body
+ * ------------------------------------------------------------------------- */
+#zbtable tbody tr td {
+  border:1px solid #ddd;
+  cursor: default;
+  /*padding: 2px 20px;*/
+  padding: 0 3px 0 5px;
+}
+
+#zbtable tbody tr.even {
+  background: #f3f3f3;
+}
+
+#zbtable tbody tr.odd {
+  background: #fff;
+}
+
+#zbtable span {
+  background-position: center left;
+  background-repeat: no-repeat;
+  padding: .0em 0em 0em 11px;
+}
+
+#zbtable span.file {
+  display:inline-block;
+  width:20px;
+  background-image: url(../images/page_white_text.png);
+}
+
+#zbtable span.folder {
+  background: url(../images/folder.png) -1px center;
+}

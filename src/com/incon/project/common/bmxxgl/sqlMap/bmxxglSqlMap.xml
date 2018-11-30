@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bmxxgl">
+
+<typeAlias alias="BmxxPage" type="com.incon.project.common.bmxxgl.page.BmxxPage"/>
+ 
+<typeAlias alias="BmxxhzPage" type="com.incon.project.common.bmxxgl.page.BmxxhzPage"/>
+ 
+<typeAlias alias="BmxxcxPage" type="com.incon.project.common.bmxxgl.page.BmxxcxPage"/>
+ 
+ 
+<typeAlias alias="XxfbbEntity" type="com.incon.pojo.common.XxfbbEntity"/>
+<typeAlias alias="FjbEntity" type="com.incon.pojo.common.FjbEntity"/>
+ 
+
+<!-- 基础代码列表  分页   -->
+	<select id="queryBmxx" parameterClass="BmxxPage" resultClass="XxfbbEntity">
+	    select * from (select  rownum rn, bb.* from ( 
+	          select * from (
+					    select DISTINCT  xxid,'[' || t.xtmc || ']' ||  xxbt xxbt,  fbr, sfyfj, to_char(fbsj, 'yyyy-mm-dd hh24:mi') fbsj_xs,sfhz, kjyhlx, kjyhfw , t.fbsj,fbrxm, fbrxymc fbrbm,sffb,
+						(select count(*) from pt_xt_xxfbhzb where xxid=t.xxid and yhdm=#pyhdm#) sfyd,URL,mxdxxsz from  
+					    (
+					      SELECT a.* ,bmxx.column_value mxbm,zxtb.xtmc,mxdxb.mxdxxsz  FROM pt_xt_xxfb a
+					      LEFT JOIN  table(fn_split(a.kjyhfw, ',') ) bmxx    ON  1=1
+					        left join PT_XT_ZXTB zxtb on zxtb.xtdm=a.zxtdm 
+                                 left join PT_PUB_MXDXB mxdxb on 
+			                           a.zxtdm=mxdxb.xtdm and mxdxb.glb='PT_XT_XXFB' and mxdxb.glzjm='XXID' AND mxdxb.Glzjz=a.XXID   					        
+					       ) t   
+					 WHERE  t.kjyhfw != '0' 
+						  <isNotEmpty  prepend="and" property="pfbbm">
+						      		t.mxbm=#pfbbm#
+						  </isNotEmpty>    
+						  <isNotEmpty  prepend="and" property="plb">
+						      		t.xxlb=#plb#
+						  </isNotEmpty>    
+	      
+	             ) t  where 1=1
+			       
+				  <isNotEmpty  prepend="and" property="pxxbt">
+				       xxbt like    '%$pxxbt$%'
+				  </isNotEmpty>
+				  <isNotEmpty  prepend="and" property="pfbksrq">
+				       fbsj>= to_date(#pfbksrq#,'yyyy-mm-dd  hh24:mi')
+				  </isNotEmpty>
+				  <isNotEmpty  prepend="and" property="pfbjsrq">
+				       fbsj <![CDATA[<=]]> to_date(#pfbjsrq#,'yyyy-mm-dd  hh24:mi')
+				  </isNotEmpty>
+				   <isNotEmpty  prepend="and" property="pfbr">
+				     (  fbr like '%$pfbr$%'    or   fbrxm like '%$pfbr$%'  )
+				  </isNotEmpty>
+				  
+	 <![CDATA[
+	   order by  fbsj_xs desc
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	 ]]>
+    </select>
+	<select id="queryBmxxCount"  parameterClass="BmxxPage" resultClass="int">
+    	select count(*) from ( 
+    		   select * from (
+					    select DISTINCT  xxid, xxbt,  fbr, sfyfj, to_char(fbsj, 'yyyy-mm-dd hh24:mi') fbsj_xs,sfhz, kjyhlx, kjyhfw , t.fbsj,fbrxm, fbrxymc fbrbm,sffb,
+						(select count(*) from pt_xt_xxfbhzb where xxid=t.xxid and yhdm=#pyhdm#) sfyd,URL from  
+					    (
+					      SELECT a.* ,bmxx.column_value mxbm FROM pt_xt_xxfb a
+					      LEFT JOIN  table(fn_split(a.kjyhfw, ',') ) bmxx    ON  1=1
+					       ) t   
+					 WHERE  t.kjyhfw != '0' 
+						  <isNotEmpty  prepend="and" property="pfbbm">
+						      		t.mxbm=#pfbbm#
+						  </isNotEmpty>    
+						  <isNotEmpty  prepend="and" property="plb">
+						      		t.xxlb=#plb#
+						  </isNotEmpty>    
+	      
+	             ) t  where 1=1
+			       
+				  <isNotEmpty  prepend="and" property="pxxbt">
+				       xxbt like    '%$pxxbt$%'
+				  </isNotEmpty>
+				  <isNotEmpty  prepend="and" property="pfbksrq">
+				       fbsj>= to_date(#pfbksrq#,'yyyy-mm-dd  hh24:mi')
+				  </isNotEmpty>
+				  <isNotEmpty  prepend="and" property="pfbjsrq">
+				       fbsj <![CDATA[<=]]> to_date(#pfbjsrq#,'yyyy-mm-dd  hh24:mi')
+				  </isNotEmpty>
+				   <isNotEmpty  prepend="and" property="pfbr">
+				     (  fbr like '%$pfbr$%'    or   fbrxm like '%$pfbr$%'  )
+				  </isNotEmpty>
+	 	) t
+    </select>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <!--        信息查询              -->
+    <select id="queryBmxxcx" parameterClass="BmxxcxPage" resultClass="XxfbbEntity">
+    	select * from (select  rownum rn, bb.* from ( 
+	        select * from (
+					    select DISTINCT  xxid,'[' || t.xtmc || ']' || xxbt xxbt,  fbr, sfyfj, to_char(fbsj, 'yyyy-mm-dd hh24:mi') fbsj_xs,sfhz, 
+					    kjyhlx, kjyhfw , t.fbsj,fbrxm, fbrxymc fbrbm,sffb,
+						(select count(*) from pt_xt_xxfbhzb where xxid=t.xxid and yhdm=#syhdm#) sfyd,URL,mxdxsql from  
+					    (
+					      SELECT a.* ,bmxx.column_value mxbm,zxtb.xtmc,mxdxb.mxdxsql FROM pt_xt_xxfb a
+					      LEFT JOIN  table(fn_split(a.kjyhfw, ',') ) bmxx    ON  1=1
+					        left join PT_XT_ZXTB zxtb on zxtb.xtdm=a.zxtdm 
+                                 left join PT_PUB_MXDXB mxdxb on 
+			                           a.zxtdm=mxdxb.xtdm and mxdxb.glb='PT_XT_XXFB' and mxdxb.glzjm='XXID' AND mxdxb.Glzjz=a.XXID   					        
+					       ) t   
+					 WHERE  t.kjyhfw != '0' 
+					 
+					   <!-- and (t.kjyhlx = #syhlx# or t.kjyhlx = '0') -->
+					   <!--
+					   and t.mxbm = (
+					   select yxxx.xydm
+					   from (
+					   	select jsxxb.glyx xydm,jsxxb.zgh 
+						  from sz_jsxxb jsxxb
+						union
+						select xsxxb.xydm,xsxxb.xh zgh from xj_xsxxb xsxxb
+					   )  yxxx
+					   where yxxx.zgh = #syhdm#
+					   )
+					   -->
+					 and fn_xt_xx_jxdtsql(nvl(mxdxsql,'ALL'),#syhdm#) > 0
+					 and t.sffb = '1'
+<!--						  <isNotEmpty  prepend="and" property="sfbbm">-->
+<!--						      		t.mxbm=#sfbbm#-->
+<!--						  </isNotEmpty>    -->
+	      
+	             ) t  where 1=1
+			       
+				  <isNotEmpty  prepend="and" property="sxxbt">
+				       xxbt like    '%'||#sxxbt#||'%'
+				  </isNotEmpty>
+				  <isNotEmpty  prepend="and" property="skssj">
+				       fbsj >=  to_date(#skssj#,'yyyy-mm-dd hh24:mi') 
+				  </isNotEmpty>
+				  <isNotEmpty  prepend="and" property="sjssj">
+				      fbsj <![CDATA[<=]]> to_date(#sjssj#,'yyyy-mm-dd hh24:mi') 
+				  </isNotEmpty>
+				   <isNotEmpty  prepend="and" property="sfbr">
+				     (  fbr like '%'||#sfbr#||'%'    or   fbrxm like '%'||#sfbr#||'%'  )
+				  </isNotEmpty>
+				  
+	 <![CDATA[
+	   order by  fbsj_xs desc
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+    <select id="queryBmxxcxCount"  parameterClass="BmxxcxPage" resultClass="int">
+    	select count(*) from ( 
+    		  select * from (
+					    select DISTINCT  xxid, xxbt,  fbr, sfyfj, to_char(fbsj, 'yyyy-mm-dd hh24:mi') fbsj_xs,sfhz, 
+					    kjyhlx, kjyhfw , t.fbsj,fbrxm, fbrxymc fbrbm,sffb,
+						(select count(*) from pt_xt_xxfbhzb where xxid=t.xxid and yhdm=#syhdm#) sfyd,URL,mxdxsql from  
+					    (
+					      SELECT a.* ,bmxx.column_value mxbm ,mxdxb.mxdxsql FROM pt_xt_xxfb a
+					      LEFT JOIN  table(fn_split(a.kjyhfw, ',') ) bmxx    ON  1=1 
+                                 left join PT_PUB_MXDXB mxdxb on 
+			                           a.zxtdm=mxdxb.xtdm and mxdxb.glb='PT_XT_XXFB' and mxdxb.glzjm='XXID' AND mxdxb.Glzjz=a.XXID 					      
+					       ) t   
+					 WHERE  t.kjyhfw != '0' 
+					 <!-- 
+					   and (t.kjyhlx = #syhlx# or t.kjyhlx = '0')
+					   
+					   and t.mxbm = (
+					   select yxxx.xydm
+					   from (
+					   	select jsxxb.glyx xydm,jsxxb.zgh 
+						  from sz_jsxxb jsxxb
+						union
+						select xsxxb.xydm,xsxxb.xh zgh from xj_xsxxb xsxxb
+					   )  yxxx
+					   where yxxx.zgh = #syhdm#
+					   )
+					    -->
+					   and fn_xt_xx_jxdtsql(nvl(mxdxsql,'ALL'),#syhdm#) > 0
+					 and t.sffb = '1'
+<!--						  <isNotEmpty  prepend="and" property="sfbbm">-->
+<!--						      		t.mxbm=#sfbbm#-->
+<!--						  </isNotEmpty>    -->
+	      
+	             ) t  where 1=1
+			       
+				  <isNotEmpty  prepend="and" property="sxxbt">
+				       xxbt like    '%'||#sxxbt#||'%'
+				  </isNotEmpty>
+				  <isNotEmpty  prepend="and" property="skssj">
+				       fbsj >=  to_date(#skssj#,'yyyy-mm-dd hh24:mi') 
+				  </isNotEmpty>
+				  <isNotEmpty  prepend="and" property="sjssj">
+				      fbsj <![CDATA[<=]]> to_date(#sjssj#,'yyyy-mm-dd hh24:mi') 
+				  </isNotEmpty>
+				   <isNotEmpty  prepend="and" property="sfbr">
+				     (  fbr like '%'||#sfbr#||'%'    or   fbrxm like '%'||#sfbr#||'%'  )
+				  </isNotEmpty>
+				  
+	 	) t
+    </select>
+    <!--        查询单个信息                                       -->
+<!--    <select id="queryOneXxfb" parameterClass="string" resultClass="XxfbbEntity">-->
+<!--    -->
+<!--    -->
+<!--		select xxid, xxbt, xxnr, fbr, sfyfj, to_char(fbsj,'yyyy-MM-dd hh24:mi') fbsj_xs, sfhz, -->
+<!--		kjyhlx, kjyhfw, sffb, url, fbrxm, fbrxydm, fbrxymc, xxlb -->
+<!--		from pt_xt_xxfb-->
+<!--        where xxid=#xxid#-->
+<!--	</select>-->
+    <!--  向回执表中插入数据  -->
+    <insert id="addXxfbHzb"  parameterClass="java.util.HashMap">
+<!--	     insert into pt_xt_xxfbhzb-->
+<!--	     (id, yhdm, xxid, dqsj)-->
+<!--          values -->
+<!--         (sys_guid(), #yhdm#, #xxid#, sysdate)-->
+<!--         -->
+         merge into pt_xt_xxfbhzb p
+			using (select count(*) count
+			         from pt_xt_xxfbhzb
+			        where yhdm = #yhdm#
+			          and xxid = #xxid#) numm
+			on (numm.count > 0)
+			when not matched then
+			  insert (id, yhdm, xxid, dqsj) values (sys_guid(), #yhdm#, #xxid#, sysdate)
+			when matched then
+			  update set dqsj = sysdate where yhdm = #yhdm# and xxid = #xxid#    
+			         
+    </insert>
+    <select id="queryFj" parameterClass="java.util.HashMap" resultClass="FjbEntity">
+        SELECT FJBH fjid,CCLJ,XSM XSMC,CCM,GLZJM glzj,SCsj,SCR,GLB,GLZJZ FROM DEMO_XT_FJB
+        	WHERE GLZJM=#GLZJ# AND GLB=#GLB# AND GLZJZ=#GLZJZ#
+    </select>
+    
+    <select id="queryFjByFjbh" parameterClass="string" resultClass="FjbEntity">
+        SELECT FJBH,CCLJ,XSM xsmc,CCM,GLZJM,SCSJ ,SCR,GLB,GLZJZ FROM DEMO_XT_FJB
+        	WHERE FJBH=#FJBH# 
+    </select>
+ 
+  <!--  新增  -->
+    <insert id="addGg" parameterClass="XxfbbEntity">
+	        insert into pt_xt_xxfb
+         (xxid, xxbt, xxnr, fbr, sfyfj,
+         <isEqual  property="sffb"  compareValue="0">
+          fbsj,
+          </isEqual>
+           sfhz, kjyhlx, kjyhfw,sffb,url, fbrxm, fbrxydm, fbrxymc,xxlb,zxtdm)
+       values
+         (#xxid#, #xxbt#, #xxnr#, #fbr#, #sfyfj#,
+         <isEqual  property="sffb"  compareValue="0">
+          '', 
+            </isEqual>
+          #sfhz#, #kjyhlx#, #kjyhfw#,#sffb#,'xxgl/queryForCkBmxx',
+         (select jsxm from sz_jsxxb where zgh=#fbr#),
+         (select xydm from sz_jsxxb where zgh=#fbr#),
+         (select yxmc from  dm_yxb where yxdm=(select xydm from sz_jsxxb where zgh=#fbr#))
+         ,#xxlb#,<include refid="common.xtdm"/>)
+    </insert>
+	<!--  修改  -->
+	<update id="updateGg" parameterClass="XxfbbEntity">
+	begin
+	    update pt_xt_xxfb
+         set xxbt = #xxbt#,xxnr = #xxnr#,fbsj = sysdate,
+             sfhz = #sfhz#,kjyhlx = #kjyhlx#, kjyhfw = #kjyhfw#,sffb=#sffb#,xxlb=#xxlb#,zxtdm=<include refid="common.xtdm"/>
+       where xxid=#xxid#;
+       delete from pt_xt_xxfbhzb where xxid=#xxid#;
+       end;
+	</update>
+	<!-- 发布    -->
+	<update id="updateGgSffb" parameterClass="string">
+	    update pt_xt_xxfb set sffb='1',fbsj = sysdate   where xxid=#xxid#
+	</update>
+	<!-- 删除 -->
+	<delete id="deleteGg" parameterClass="string">
+    begin
+       delete from pt_xt_xxfb where xxid=#xxid#;
+       delete from pt_xt_xxfbhzb where xxid=#xxid#;
+       delete from DEMO_XT_FJB where glb = 'PT_XT_XXFB'  and glzjm = 'XXID' and glzjz = #xxid#; 
+    end;
+    </delete>
+	<!--  查询附件表  更新 '是否有附件' 标志位    -->
+	<update id="updateSfyfj" parameterClass="string">
+	declare v number;
+	begin
+	    select count(*) into v from  DEMO_XT_FJB where glb = 'PT_XT_XXFB'  and glzjm = 'XXID' and glzjz = #xxid#; 
+	    if v>0 then
+	    update pt_xt_xxfb set sfyfj = '1' where xxid=#xxid#;
+        else 
+        update pt_xt_xxfb set sfyfj = '0' where xxid=#xxid#; 
+        end if;
+	end ; 
+	</update>
+	
+	 <select id="queryXwid" resultClass="string">
+        select sys_guid() from dual
+    </select>
+ <select id="queryOneXxfb" parameterClass="string" resultClass="XxfbbEntity">
+
+       select xxid, xxbt, xxnr, fbr, sfyfj, to_char(fbsj, 'yyyy-mm-dd hh24:mi') fbsj_xs,
+       sfhz, kjyhlx, kjyhfw , t.fbsj,t.fbrxm,t.fbrxymc fbrbm,t.sffb,t.xxlb,mxdxb.mxdxxsz 
+       from pt_xt_xxfb t 
+      left join PT_PUB_MXDXB mxdxb on 
+       t.zxtdm=mxdxb.xtdm and mxdxb.glb='PT_XT_XXFB' and mxdxb.glzjm='XXID' AND mxdxb.Glzjz=t.XXID          
+      
+       where xxid=#xxid#
+	</select>
+
+  	<!--   回执列表分页    -->
+    <select id="queryFbxxhz" parameterClass="BmxxhzPage" resultClass="java.util.HashMap">
+	    select * from (select  rownum rn, bb.* from ( 
+    			  select t.id,t.yhdm,t.xxid,to_char(t.dqsj,'yyyy-mm-dd hh24:mi') dqsj,t.sfhz,t1.xm yhxm
+				 from pt_xt_xxfbhzb t 
+				 left join xt_dlb t1 on t.yhdm=t1.yhdm
+				 where xxid=#ppxxid#
+				  <isNotEmpty  prepend="and" property="ppfbksrq">
+				       t.dqsj >= to_date(#ppfbksrq#,'yyyy-mm-dd hh24:mi') 
+				  </isNotEmpty>
+				  <isNotEmpty  prepend="and" property="ppfbjsrq">
+				       t.dqsj <![CDATA[<=]]> to_date(#ppfbjsrq# ,'yyyy-mm-dd hh24:mi')
+				  </isNotEmpty>
+				  <isNotEmpty  prepend="and" property="ppyhxm">
+				             t1.xm like    '%'||#ppyhxm#||'%'
+				  </isNotEmpty>
+	 <![CDATA[
+	   order by  t.dqsj desc
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	 ]]>
+    </select>
+    
+	<select id="queryFbxxhzCount"  parameterClass="BmxxhzPage" resultClass="int">
+    	select count(*) from ( 
+      		   select t.id,t.yhdm,t.xxid,to_char(t.dqsj,'yyyy-mm-dd hh24:mi') dqsj,t.sfhz,t1.xm yhxm
+				 from pt_xt_xxfbhzb t 
+				 left join xt_dlb t1 on t.yhdm=t1.yhdm
+				 where xxid=#ppxxid#
+				  <isNotEmpty  prepend="and" property="ppfbksrq">
+				       t.dqsj >= to_date(#ppfbksrq#,'yyyy-mm-dd hh24:mi') 
+				  </isNotEmpty>
+				  <isNotEmpty  prepend="and" property="ppfbjsrq">
+				       t.dqsj <![CDATA[<=]]> to_date(#ppfbjsrq# ,'yyyy-mm-dd hh24:mi')
+				  </isNotEmpty>
+				  <isNotEmpty  prepend="and" property="ppyhxm">
+				        t1.xm like    '%'||#ppyhxm#||'%'
+				  </isNotEmpty>
+	 	) t
+    </select>
+    <select id="queryLb" resultClass="java.util.HashMap">
+    	select dm,mc,kyf from PT_XT_XXLBDMB where kyf='1'
+    </select>
+</sqlMap>

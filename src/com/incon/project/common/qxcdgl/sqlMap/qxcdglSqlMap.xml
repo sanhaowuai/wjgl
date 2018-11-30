@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="qxcdgl">
+	<!-- 实体pojo -->
+	<typeAlias alias="QxEntity" type="com.incon.pojo.common.QxEntity"/>
+	<typeAlias alias="JsbEntity" type="com.incon.pojo.common.JsbEntity"/>
+	<typeAlias alias="JsqxbEntity" type="com.incon.pojo.common.JsqxbEntity"/>
+	<typeAlias alias="RyjsqxbEntity" type="com.incon.pojo.common.RyjsqxbEntity"/>
+	<typeAlias alias="HelpbEntity" type="com.incon.pojo.common.HelpbEntity"/>
+	<!-- 分页pojo -->
+	<typeAlias alias="RyjsqxPage" type="com.incon.project.common.qxcdgl.page.RyjsqxPage"/>
+	
+	<!-- 分页查询所有权限 -->
+	<select id="queryQx" parameterClass="String" resultClass="QxEntity">
+	SELECT distinct bb.QXDM qxdm, QXMC qxmc,fqxdm fqxdm,
+    FWLJ fwlj,XSSX xssx,kyf kyf,sfzxj sfzxj,icon,
+    sys_connect_by_path(bb.qxdm,'_') treedm,
+    substr(sys_connect_by_path(fqxdm,'_'),4) treefdm, 
+    pg.id
+    FROM DM_QXB bb
+    left join TJFX_PAGETABLE pg on bb.qxdm=pg.qxdm
+    where 
+    	xtdm = <include refid="common.xtdm"/> 
+    	<isNotEmpty prepend="and">
+    		bb.qxdm in(select distinct qxdm from dm_jsqxb where xtdm = <include refid="common.xtdm"/> and jsdm=#cxjsdm#)
+    	</isNotEmpty>
+    	start with fqxdm='-1'  CONNECT BY PRIOR bb.qxdm = fqxdm and xtdm = <include refid="common.xtdm"/>
+    order by xssx
+    </select>
+    
+    <!-- 查询菜单名称 -->
+    <select id="queryCdmc" resultClass="QxEntity">
+    	SELECT QXDM qxdm,QXMC qxmc,FQXDM fqxdm,SFZXJ sfzxj,icon 
+    	FROM DM_QXB WHERE KYF = 1 and xtdm = <include refid="common.xtdm"/> ORDER BY XSSX
+    </select>
+    <!-- 添加权限菜单 -->
+    <insert id="addQxcd" parameterClass="QxEntity">
+    	declare id varchar2(20);
+    	sx varchar2(20);
+    	cou number;
+    	i varchar2(20);
+    	BEGIN
+    	SELECT '0'||TO_CHAR(MAX(TO_NUMBER(QXDM))+1) into id FROM DM_QXB WHERE FQXDM = #fqxdm# and xtdm = <include refid="common.xtdm"/>;
+    	IF #fqxdm# = '-1'
+    	 THEN 
+    	  if to_number(id) >= 10 then
+    	  id:= to_number(id);
+    	  end if;
+    	  select nvl(max(xssx),9)+1 into sx from dm_qxb where fqxdm = '-1' and xtdm = <include refid="common.xtdm"/>;
+    	ELSE
+    	 SELECT count(*) into cou FROM DM_QXB WHERE FQXDM = #fqxdm# and xtdm = <include refid="common.xtdm"/>;
+   		  if cou > 0 then
+   		  	select nvl(max(xssx),9)+1 into sx from dm_qxb where fqxdm = #fqxdm# and xtdm = <include refid="common.xtdm"/>;
+   		  	select fqxdm into i from dm_qxb where qxdm = #fqxdm# and xtdm = <include refid="common.xtdm"/>;
+   		  	if i = '-1' then
+   		    SELECT #fqxdm#||lpad(TO_CHAR(MAX(TO_NUMBER(substr(QXDM,-2)))+1),2,'0') into id FROM DM_QXB WHERE FQXDM = #fqxdm# and xtdm = <include refid="common.xtdm"/>;
+   		    else
+   		    SELECT #fqxdm#||lpad(TO_CHAR(MAX(TO_NUMBER(substr(QXDM,-2)))+1),2,'0') into id FROM DM_QXB WHERE FQXDM = #fqxdm# and xtdm = <include refid="common.xtdm"/>;
+   		    end if;
+    	  else
+    	  	select xssx||'10' into sx from dm_qxb where qxdm = #fqxdm# and xtdm = <include refid="common.xtdm"/>;
+    	    SELECT #fqxdm#||'01' into id FROM DM_QXB WHERE QXDM = #fqxdm# and xtdm = <include refid="common.xtdm"/>;
+    	  end if;
+    	END IF;
+ 
+    	INSERT INTO DM_QXB(QXDM,QXMC,XSSX,FQXDM,FWLJ,XTDM,KYF,SFZXJ,icon)
+    	VALUES (id,#qxmc#,sx,#fqxdm#,#fwlj#,<include refid="common.xtdm"/>,#kyf#,#sfzxj#,#icon#
+    	);
+    	UPDATE DM_QXB SET SFZXJ=0 WHERE QXDM = #fqxdm# and xtdm = <include refid="common.xtdm"/>;
+    	END;
+    </insert>
+    
+    <!-- 查询最大的权限代码 -->
+    <select id="queryQxdm" resultClass="String" parameterClass="QxEntity">
+        SELECT '0'||MAX(TO_NUMBER(QXDM)) qxdm FROM DM_QXB
+    	WHERE xtdm = <include refid="common.xtdm"/> and fqxdm = #fqxdm#
+    </select>
+    
+    <!-- 查询所有角色 -->
+    <select id="queryJs" parameterClass="String" resultClass="JsbEntity">
+    	select 
+		       jsb.jsdm,
+		       jsb.jsmc,
+		       (case when (select count(*) from dm_jsqxb jsqxb where jsqxb.jsdm = jsb.jsdm and jsqxb.xtdm = jsb.xtdm and jsqxb.qxdm = #qxdm#)>0 
+					 then 'true' else 'false' end) checked 
+		from 
+		       dm_jsb jsb
+		where 
+			   jsb.kyf = 1
+		       and jsb.xtdm = <include refid="common.xtdm"/> 
+		order by to_number(jsb.jsdm)
+    </select>
+    
+    <!-- 根据父权限代码查询父权限 -->
+    <select id="queryFcd" parameterClass="String" resultClass="String">
+    	select fqxdm fqxdm from dm_qxb where qxdm = #fqxdm# and xtdm = <include refid="common.xtdm"/>
+    </select>
+    
+    <!-- 判断角色权限中是否存在此权限 -->
+    <select id="JsqxCount" parameterClass="String" resultClass="String">
+    	select jsdm from dm_jsqxb where xtdm = <include refid="common.xtdm"/> and qxdm = #fdm#
+    </select>
+    
+    <!-- 添加角色权限（父权限） -->
+    <insert id="insertForFdm" parameterClass="JsqxbEntity">
+    	INSERT INTO DM_JSQXB(JSQXDM,JSDM,QXDM,SFMRKF,XTDM)
+    	VALUES 
+    	(SEQ_DM_JSQXB.NEXTVAL,#jsdm#,#qxdm#,#sfmrkf#,<include refid="common.xtdm"/>)
+    </insert>
+    
+    <!-- 添加角色权限表 -->
+    <insert id="addJsqx" parameterClass="java.util.List"> 
+    BEGIN
+    <iterate conjunction=";"  close=";">
+    	INSERT INTO DM_JSQXB(JSQXDM,JSDM,QXDM,SFMRKF,XTDM)
+    	VALUES 
+    	(SEQ_DM_JSQXB.NEXTVAL,#list[].jsdm#,#list[].qxdm#,#list[].sfmrkf#,<include refid="common.xtdm"/>)
+    </iterate>
+    END;
+    </insert>
+    
+    <!-- 根据角色代码查询人员角色权限表 -->
+    <select id="queryRyfp" parameterClass="RyjsqxPage" resultClass="RyjsqxbEntity">
+  select * from (select  rownum rn, cc.* from (
+  select distinct (select jsmc from dm_jsb where jsdm = dr.jsdm and xtdm = <include refid="common.xtdm"/>) js,dr.jsdm jsdm,t.xm,dr.yhdm,t.yx yx,
+  (case when t.xb = '1' then '男' when xb = '2' then '女' else null end) xb
+  from dm_ryjsqxb dr left join 
+  (select sj.zgh yhdm,sj.jsxm xm,sj.xb xb,
+  (select yxmc yx from dm_yxb where yxdm = sj.xydm and kyf = 1) yx 
+  from sz_jsxxb sj
+  union
+  select xx.xh yhdm,xx.xm,xx.xb xb,
+  (select yxmc yx from dm_yxb where yxdm = xx.xdm and kyf = 1) yx  
+  from xj_xsxxb xx) t 
+  on dr.yhdm = t.yhdm where 
+    dr.jsdm in ($jsdms$) and dr.xtdm = <include refid="common.xtdm"/>
+  <isNotEmpty prepend="and" property="xm">
+    (  xm  like '%'|| TRIM(#xm#)||'%')
+  </isNotEmpty>
+  <isNotEmpty prepend="and" property="jsdm">
+    (  jsdm = #jsdm#)
+  </isNotEmpty>
+  <![CDATA[
+    )cc where rownum <=#pageNo#*#pageSize#
+    )where rn  >(#pageNo#-1)*(#pageSize#)
+    ]]> 
+    </select>
+    
+    <!-- 查询该角色下总共的人数 -->
+    <select id="queryRyfpCount" resultClass="int" parameterClass="RyjsqxPage">
+    select count(*) from (
+    select distinct (select jsmc from dm_jsb where jsdm = dr.jsdm and xtdm = <include refid="common.xtdm"/>) js,dr.jsdm jsdm,t.xm,dr.yhdm,t.yx yx,
+  (case when t.xb = '1' then '男' when xb = '2' then '女' else null end) xb
+  from dm_ryjsqxb dr left join 
+  (select sj.zgh yhdm,sj.jsxm xm,sj.xb xb,
+  (select yxmc yx from dm_yxb where yxdm = sj.xydm and kyf= 1) yx 
+  from sz_jsxxb sj
+  union
+  select xx.xh yhdm,xx.xm,xx.xb xb,
+  (select yxmc yx from dm_yxb where yxdm = xx.xdm and kyf = 1) yx  
+  from xj_xsxxb xx) t 
+  on dr.yhdm = t.yhdm where 
+    dr.jsdm in ($jsdms$) and dr.xtdm = <include refid="common.xtdm"/>
+  <isNotEmpty prepend="and" property="xm">
+    (  xm  like '%'|| TRIM(#xm#)||'%')
+  </isNotEmpty>
+  <isNotEmpty prepend="and" property="jsdm">
+    (  jsdm = #jsdm#)
+  </isNotEmpty>
+	)
+    </select>
+    
+    <!-- 根据权限代码查询此权限代码的角色代码和用户代码 -->
+    <select id="RyjsqxCount" parameterClass="String" resultClass="RyjsqxbEntity">
+    	select jsdm jsdm,yhdm yhdm from dm_ryjsqxb where xtdm = <include refid="common.xtdm"/> and qxdm = #fdm#
+    </select>
+    
+    <!-- 添加父类的人员角色权限 -->
+    <insert id="insertForRyjs" parameterClass="RyjsqxbEntity">
+    	insert into dm_ryjsqxb(ryjsqxdm,jsdm,qxdm,yhdm,xtdm)
+    	values (seq_dm_ryjsqxb.nextval,#jsdm#,#qxdm#,#yhdm#,<include refid="common.xtdm"/>)
+    </insert>
+    
+    <!-- 添加人员角色权限表 -->
+    <insert id="addRyjsqxb" parameterClass="java.util.List">
+    BEGIN
+    <iterate conjunction=";"  close=";">
+    	INSERT INTO DM_RYJSQXB(RYJSQXDM,JSDM,QXDM,YHDM,XTDM,CJR,CJSJ)
+    	VALUES 
+    	(SEQ_DM_RYJSQXB.NEXTVAL,#list[].jsdm#,#list[].qxdm#,#list[].yhdm#,<include refid="common.xtdm"/>,#list[].cjr#,sysdate)
+    </iterate>
+    END;
+    </insert>
+    
+    <!-- 根据权限代码查询权限 -->
+    <select id="queryByQxdm" parameterClass="String" resultClass="QxEntity">
+    	SELECT QXDM qxdm,QXMC qxmc,FQXDM fqxdm,FWLJ fwlj,KYF kyf,icon 
+    	FROM DM_QXB WHERE QXDM = #zhi# and xtdm = <include refid="common.xtdm"/>
+    </select>
+    <!-- 根据权限代码修改权限 -->
+    <update id="updQxcd" parameterClass="QxEntity">
+    	begin 
+    	UPDATE DM_QXB SET QXMC = #qxmc#,FWLJ = #fwlj#,KYF = #kyf#,icon=#icon# 
+    	WHERE QXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+		update DM_QXB set kyf = #kyf# where qxdm in (
+		  SELECT distinct qxdm 
+		    FROM DM_QXB bb
+		    where xtdm = <include refid="common.xtdm"/> start with fqxdm=#qxdm#  CONNECT BY PRIOR qxdm = fqxdm   
+		  ) and xtdm = <include refid="common.xtdm"/>;    	
+    	end;
+    </update>
+    
+    <!-- 删除权限菜单 -->
+    <delete id="delQx" parameterClass="String">
+    	BEGIN
+    		DELETE DM_JSQXB WHERE QXDM IN (SELECT QXDM FROM DM_QXB WHERE FQXDM in 
+    		(SELECT QXDM FROM DM_QXB WHERE FQXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>;
+    		DELETE DM_JSQXB WHERE QXDM IN (SELECT QXDM FROM DM_QXB WHERE FQXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>;
+    		DELETE DM_JSQXB WHERE QXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+    		
+    		DELETE DM_RYJSQXB WHERE QXDM IN (SELECT QXDM FROM DM_QXB WHERE FQXDM in 
+    		(SELECT QXDM FROM DM_QXB WHERE FQXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>;
+    		DELETE DM_RYJSQXB WHERE QXDM IN (SELECT QXDM FROM DM_QXB WHERE FQXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>;
+    		DELETE DM_RYJSQXB WHERE QXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+    		
+    		DELETE DM_ANB WHERE QXDM IN (SELECT QXDM FROM DM_QXB WHERE FQXDM in 
+    		(SELECT QXDM FROM DM_QXB WHERE FQXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/> ) and xtdm = <include refid="common.xtdm"/>;
+    		DELETE DM_ANB WHERE QXDM IN (SELECT QXDM FROM DM_QXB WHERE FQXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>;
+    		DELETE DM_ANB WHERE QXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+    		
+    		DELETE DM_JSANB WHERE SSCDDM IN (SELECT QXDM FROM DM_QXB WHERE FQXDM in 
+    		(SELECT QXDM FROM DM_QXB WHERE FQXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>;
+    		DELETE DM_JSANB WHERE SSCDDM IN (SELECT QXDM FROM DM_QXB WHERE FQXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>;
+    		DELETE DM_JSANB WHERE SSCDDM = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+    		
+    		DELETE DM_RYJSANB WHERE SSCDDM IN (SELECT QXDM FROM DM_QXB WHERE FQXDM in 
+    		(SELECT QXDM FROM DM_QXB WHERE FQXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>;
+    		DELETE DM_RYJSANB WHERE SSCDDM IN (SELECT QXDM FROM DM_QXB WHERE FQXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>;
+    		DELETE DM_RYJSANB WHERE SSCDDM = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+    		
+    		DELETE DM_QXB WHERE QXDM IN (SELECT QXDM FROM DM_QXB WHERE FQXDM in 
+    		(SELECT QXDM FROM DM_QXB WHERE FQXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>;
+    		DELETE DM_QXB WHERE QXDM in (SELECT QXDM FROM DM_QXB WHERE FQXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>;
+    		DELETE DM_QXB WHERE QXDM = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+    		
+    		DELETE TJFX_CXTJB WHERE WJID = (SELECT ID FROM TJFX_PAGETABLE WHERE QXDM = #qxmd#);
+    		DELETE TJFX_PAGETABLE WHERE QXDM = #qxdm#;
+    	END;
+    </delete>
+    
+<!-- 改变菜单的显示顺序 -->
+<update id="changeXssx" parameterClass="QxEntity">
+declare wantToUpd varchar2(20);   <!-- 想要修改权限的显示顺序 -->
+anotherToUpd varchar2(20);	    <!-- 被迫修改的显示顺序 -->
+i number;
+begin
+  select xssx into wantToUpd from dm_qxb where qxdm = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+  select xssx into anotherToUpd from dm_qxb where qxdm = #qxdm2# and xtdm = <include refid="common.xtdm"/>;
+  select count(*) into i from dm_qxb where qxdm = (select fqxdm from dm_qxb where qxdm = #fqxdm# and xtdm = <include refid="common.xtdm"/>) and xtdm = <include refid="common.xtdm"/>;
+  if #fqxdm# = '-1' then              <!-- 要移动的是一级菜单 -->
+    if to_number(wantToUpd) > to_number(anotherToUpd) then      <!-- 上调 -->
+    update dm_qxb set xssx = (to_number(substr(xssx,1,2))+1)||(substr(xssx,3))     <!-- 被迫修改的数据 -->
+    <![CDATA[
+    where to_number(substr(xssx,1,2)) >=  to_number(anotherToUpd) 
+    and  to_number(substr(xssx,1,2)) < to_number(wantToUpd) and xtdm ]]> = <include refid="common.xtdm"/>;
+    
+    else    <!-- 下调 -->
+    update dm_qxb set xssx = (to_number(substr(xssx,1,2))-1)||(substr(xssx,3))
+    <![CDATA[
+    where to_number(substr(xssx,1,2)) <=  to_number(anotherToUpd) 
+    and  to_number(substr(xssx,1,2)) > to_number(wantToUpd) and xtdm = ]]> <include refid="common.xtdm"/>;
+    
+    end if;
+    update dm_qxb set xssx = (substr(anotherToUpd,1,2))||(substr(xssx,3)) where (qxdm = #qxdm# or fqxdm = #qxdm# or fqxdm in (select qxdm from dm_qxb where fqxdm = #qxdm# and sfzxj = 0 and xtdm = <include refid="common.xtdm"/>)) and xtdm = <include refid="common.xtdm"/>;     <!-- 想要修改的数据 -->
+  else          
+   if i > 0 then    <!-- 要移动的是三级菜单 -->
+     if to_number(wantToUpd) > to_number(anotherToUpd) then      <!-- 上调 -->
+      update dm_qxb set xssx = to_number(xssx)+1
+      <![CDATA[
+      where fqxdm = #fqxdm# and to_number(xssx) >=  to_number(anotherToUpd)
+      and  to_number(xssx) < to_number(wantToUpd) and lengthb(xssx)=6 and xtdm = ]]> <include refid="common.xtdm"/>;
+      
+     else
+      update dm_qxb set xssx = to_number(xssx)-1
+      <![CDATA[
+      where fqxdm = #fqxdm# and to_number(xssx) <=  to_number(anotherToUpd)
+      and  to_number(xssx) > to_number(wantToUpd) and lengthb(xssx)=6 and xtdm = ]]> <include refid="common.xtdm"/>;
+      
+     end if;
+   else     <!-- 要移动的是二级菜单 -->
+    if to_number(wantToUpd) > to_number(anotherToUpd) then      <!-- 上调 -->
+      update dm_qxb set xssx = (to_number(substr(xssx,1,4))+1)||(substr(xssx,5))
+      <![CDATA[
+      where to_number(substr(xssx,1,4)) >=  to_number(anotherToUpd)
+      and  to_number(substr(xssx,1,4)) < to_number(wantToUpd) and lengthb(xssx)=6 and xtdm = ]]> <include refid="common.xtdm"/>;
+       
+      update dm_qxb set xssx = to_number(xssx)+1
+      <![CDATA[
+      where fqxdm = #fqxdm# and to_number(xssx) >=  to_number(anotherToUpd)
+      and  to_number(xssx) < to_number(wantToUpd) and lengthb(xssx)=4 and xtdm = ]]> <include refid="common.xtdm"/>;
+      
+    else
+      update dm_qxb set xssx = (to_number(substr(xssx,1,4))-1)||(substr(xssx,5))
+      <![CDATA[
+      where to_number(substr(xssx,1,4)) <=  to_number(anotherToUpd)
+      and  to_number(substr(xssx,1,4)) > to_number(wantToUpd) and lengthb(xssx)=6 and xtdm = ]]> <include refid="common.xtdm"/>;
+      
+      update dm_qxb set xssx = to_number(xssx)-1
+      <![CDATA[
+      where fqxdm = #fqxdm# and to_number(xssx) <=  to_number(anotherToUpd)
+      and  to_number(xssx) > to_number(wantToUpd) and lengthb(xssx)=4 and xtdm = ]]> <include refid="common.xtdm"/>;
+      
+    end if;
+   end if;
+    update dm_qxb set xssx = anotherToUpd where qxdm = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+    update dm_qxb set xssx = anotherToUpd||(substr(xssx,5)) where fqxdm = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+  end if;
+end;
+</update>
+	<!-- 添加菜单时，判断访问路径是否存在 -->		
+<select id="pdAddFwlj" parameterClass="java.util.HashMap" resultClass="int">
+	select count(*) from dm_qxb q where q.fwlj = trim(#fwlj#) and xtdm =<include refid="common.xtdm"/> and fqxdm != '-1'
+</select>
+	<!-- 添加菜单时，判断访问路径是否存在 -->		
+<select id="pdUpdFwlj" parameterClass="java.util.HashMap" resultClass="int">
+	select count(*) from dm_qxb q where q.fwlj = trim(#fwlj#) and xtdm =<include refid="common.xtdm"/> and fqxdm!='-1' and qxdm != #qxdm#
+</select>
+<!-- 查询导出的数据 -->
+<select id="excelDcsj" resultClass="HelpbEntity">
+	select bzid, qxdm, mc, nr, kyf, xtdm, jsdms, xh from xt_help where xtdm=<include refid="common.xtdm"/>
+</select>
+<!-- 删除所有帮助信息 -->
+<delete id="delHelp">
+	delete xt_help where xtdm=<include refid="common.xtdm"/>
+</delete>
+<!-- 增加 -->
+<insert id="addHelp" parameterClass="HelpbEntity">
+	insert into xt_help
+	  (bzid, qxdm, mc, nr, kyf, xtdm, jsdms, xh)
+	values
+	  (#bzid#, #qxdm#, #mc#, #nr#, #kyf#,<include refid="common.xtdm"/>, #jsdms#, #xh#)
+</insert>
+
+<!-- 根据qxdm删除角色权限 -->
+<delete id="delJsqxByQxdm" parameterClass="java.util.HashMap">
+	begin
+		delete from dm_jsqxb where xtdm = <include refid="common.xtdm"/> and qxdm in (select qxdm from dm_qxb where fqxdm = #qxdm#) and jsdm not in ($jsdm$);
+		delete from dm_jsqxb where qxdm = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+	end;
+</delete>
+
+<!-- 查询功能区列表 -->
+<select id="queryGnList" resultClass="java.util.HashMap">
+	select GNID,GNMC from TJFX_GNLB where KYF = '1' order by XSSX
+</select>
+
+<!-- 查询行内功能区列表 -->
+<select id="queryHngnList" resultClass="java.util.HashMap">
+	select GNID,GNMC from TJFX_HNGNLB where KYF = '1' order by XSSX
+</select>
+
+</sqlMap>

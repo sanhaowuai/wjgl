@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="helpgl">
+
+	<typeAlias alias="helpglQxEntity" type="com.incon.pojo.common.QxbEntity"/>
+	<typeAlias alias="helpglHelpbEntity" type="com.incon.pojo.common.HelpbEntity"/>
+	<select id="queryQxglOne" parameterClass="String" resultClass="helpglQxEntity">
+		select qxdm,qxmc from dm_qxb where qxdm=#qxdm# and xtdm=<include refid="common.xtdm"/> 
+	</select>
+	<!-- 查询功能下的帮助 -->
+	<select id="queryHelpglList" parameterClass="String" resultClass="helpglHelpbEntity">
+		select bzid,qxdm,mc,nr,kyf,xtdm from XT_HELP where xtdm=<include refid="common.xtdm"/> and qxdm=#qxdm# order by xh asc
+	</select>
+	
+		<!-- 查询功能下的帮助 -->
+	<select id="LookHelpglList" parameterClass="java.util.HashMap" resultClass="helpglHelpbEntity">
+		select bzid,qxdm,mc,nr,kyf,xtdm from XT_HELP where kyf='1' and xtdm=<include refid="common.xtdm"/> and qxdm=#qxdm#
+		
+		and #jsdm# in (  select *  from table(fn_split(jsdms,',')) ) order by xh asc
+	</select>
+	
+	<!-- 查询一个帮助 -->
+	<select id="queryHelpglOne" parameterClass="String" resultClass="helpglHelpbEntity">
+		select bzid,qxdm,mc,nr,kyf,xtdm,jsdms,xh from XT_HELP where xtdm=<include refid="common.xtdm"/> and bzid=#bzid#
+	</select>
+	<insert id="addHelpgl" parameterClass="helpglHelpbEntity">
+		insert into XT_HELP (bzid,qxdm,mc,nr,kyf,xtdm,jsdms,xh) values (sys_guid(),#qxdm#,#mc#,#nr#,#kyf#,<include refid="common.xtdm"/>,#jsdms#,#xh#)
+	</insert>
+	<update id="updHelpgl" parameterClass="helpglHelpbEntity">
+		update XT_HELP set qxdm=#qxdm#,mc=#mc#,nr=#nr#,kyf=#kyf#,xtdm=<include refid="common.xtdm"/>,jsdms=#jsdms#,xh=#xh# where bzid=#bzid#
+	</update>
+	<delete id="delHelpgl" parameterClass="String">
+		delete from XT_HELP where bzid=#bzid#
+	</delete>
+	<select id="queryJsList" resultClass="java.util.HashMap">
+		select * from dm_jsb where kyf='1' and xtdm=<include refid="common.xtdm"/>    order by to_number(jsdm)
+	</select>
+</sqlMap>

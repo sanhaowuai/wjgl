@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="gzljcsz">
+
+		<typeAlias alias="YwlcdmPage" type="com.incon.project.common.gzljcsz.page.YwlcdmbPage"/>
+		<typeAlias alias="YwlcBlEnntity" type="com.incon.pojo.common.gzljcsz.YwlcBlEnntity"/>	
+		<typeAlias alias="FuzhiPage" type="com.incon.project.common.gzljcsz.page.FuzhiPage"/>
+	   <typeAlias alias="FuzhilcPage" type="com.incon.project.common.gzljcsz.page.FuzhilcPage"/>
+		<typeAlias alias="YwDmEntity" type="com.incon.pojo.common.gzljcsz.YwDmEntity"/>
+		<typeAlias alias="YwlcYmEntity" type="com.incon.pojo.common.gzljcsz.YwlcYmEntity"/>
+		<typeAlias alias="YwlcYmPage" type="com.incon.project.common.gzljcsz.page.YwlcYmPage"/>
+		<typeAlias alias="YhPage" type="com.incon.project.common.gzljcsz.page.YhPage"/>
+		<typeAlias alias="YxPage" type="com.incon.project.common.gzljcsz.page.YxPage"/>
+		<typeAlias alias="GwPage" type="com.incon.project.common.gzljcsz.page.GwPage"/>
+		<typeAlias alias="gzljcsz.JueSePage" type="com.incon.project.common.gzljcsz.page.JueSePage"/>
+		<typeAlias alias="YwlcBlPage" type="com.incon.project.common.gzljcsz.page.YwlcBlPage"/>
+		
+		
+		<typeAlias alias="YwDmxlhEntity" type="com.incon.pojo.common.gzljcsz.YwDmxlhEntity"/>
+		<typeAlias alias="YwlcYmxlhEntity" type="com.incon.pojo.common.gzljcsz.YwlcYmxlhEntity"/>
+		<typeAlias alias="YwlcBlxlhEnntity" type="com.incon.pojo.common.gzljcsz.YwlcBlxlhEnntity"/>	
+	
+	<select id="queryYwlcdmb"  resultClass="java.util.HashMap" parameterClass="YwlcdmPage">
+	select * from (select  rownum rn, bb.* from ( 
+   select t.ywlcdm,t.ywlcmc,t.ywlcshcklj,t.swxqcklj,t.ywbm,t.ywbdbrzdm,t.kyf,t.xtdm,t.ywlcbbh,t.ywbidzdm,t2.mc as  ywlclbdm from GZL_YWLCDMB t  LEFT JOIN  gzl_DM_YWLCLBB t2 ON t.YWLCLBDM=t2.dm  where 1=1
+	   		and t.xtdm=<include refid="common.xtdm"/>
+	   	    <isNotEmpty prepend="and" property="dmmc">
+	    (t.ywlcdm like '%'||trim(#dmmc#)||'%' or t.ywlcmc like '%'||trim(#dmmc#)||'%')
+	  </isNotEmpty>
+	    <isNotEmpty prepend="and" property="fhdm">
+	    (t.ywlcdm like '%'||trim(#fhdm#)||'%' or t.ywlcmc like '%'||trim(#fhdm#)||'%')
+	  </isNotEmpty>
+	   <![CDATA[
+      ORDER BY t.ywlcdm asc,t.ywlcbbh DESC
+	   ) bb 
+	  
+	   where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+	
+	</select>
+	<select id="queryYwlcdmbCount"  parameterClass="YwlcdmPage" resultClass="int" >
+	   select  count(*) from (
+	 select t.ywlcdm,t.ywlcmc,t.ywlcshcklj,t.swxqcklj,t.ywbm,t.ywbdbrzdm,t.kyf,t.xtdm,t.ywlcbbh,t.ywbidzdm,t2.mc as  ywlclbdm from GZL_YWLCDMB t  LEFT JOIN  gzl_DM_YWLCLBB t2 ON t.YWLCLBDM=t2.dm where 1=1
+	    <isNotEmpty prepend="and" property="dmmc">
+	    (t.ywlcdm like '%'||trim(#dmmc#)||'%' or t.ywlcmc like '%'||trim(#dmmc#)||'%')
+	  </isNotEmpty>
+	    <isNotEmpty prepend="and" property="fhdm">
+	    (t.ywlcdm like '%'||trim(#fhdm#)||'%' or t.ywlcmc like '%'||trim(#fhdm#)||'%')
+	  </isNotEmpty>
+	   
+	   )t 
+<!-- 	    <isNotEmpty prepend="and" property="dmmc"> -->
+<!-- 	    (t.ywlcmc like '%'||trim(#dmmc#)||'%' or t.ywlcshcklj like '%'||trim(#dmmc#)||'%') -->
+<!-- 	  )t -->
+<!-- 	  </isNotEmpty> -->
+	
+	</select>
+	<select id="queryOneYw" parameterClass="YwlcdmPage" resultClass="YwDmEntity">
+	select  * from  GZL_YWLCDMB t where 1=1
+<!--    and t.xtdm = <include refid="common.xtdm"/> -->
+	<isNotEmpty prepend="and" property="ywlcdm">
+	t.ywlcdm=#ywlcdm#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="xtdm">
+	t.xtdm=#xtdm#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="ywlcbbh">
+	t.ywlcbbh=#ywlcbbh#
+	</isNotEmpty>
+	</select>
+	<insert id="addywlc" parameterClass="YwlcdmPage">	
+	insert into GZL_YWLCDMB   (ywlcdm,ywlcmc,ywlcshcklj,swxqcklj,
+	ywbm,ywbdbrzdm,kyf,ywlclbdm,xtdm,ywlcbbh,ywbidzdm
+	)values(
+	#ywlcdm#,#ywlcmc#,#ywlcshcklj#,#swxqcklj#,
+	#ywbm#,#ywbdbrzdm#,#kyf#,#ywlclbdm#,<include refid="common.xtdm"/>,#ywlcbbh#,#ywbidzdm#	
+	)
+	
+	</insert>
+	<update id="updateywlc"  parameterClass="YwlcdmPage">
+	
+	update GZL_YWLCDMB set 
+	ywlcshcklj=#ywlcshcklj#,
+	 swxqcklj=#swxqcklj#,
+	 ywbm=#ywbm#,
+	 ywbdbrzdm=#ywbdbrzdm#,
+	 kyf=#kyf#,
+	ywlclbdm=#ywlclbdm#,
+	 ywbidzdm=#ywbidzdm#
+	  where 1=1 
+	and xtdm=<include refid="common.xtdm"/>
+	and ywlcbbh=#ywlcbbh#
+	and ywlcdm=#ywlcdm#
+	</update>
+	
+<select id="queryYwlcYm"   parameterClass="YwlcYmPage"  resultClass="java.util.HashMap ">
+select * from (select  rownum rn, bb.* from ( 
+select t.ryxxmc,t.jdlx,t.xssx,t.ywlcbbh,t.jddm,t.jdmc,decode(t.rylb,'1','角色','2','部门','3','具体人员','4','岗位')  rylb,t.sfssfqrbm,t.ryxx,t.ryxxcxsql,t.shxqlj,t.sybjddm,t.xybjddm,t.ywlcdm,t.qxdm,t.xtdm,t2.ywlcmc 
+
+,(select a.jdmc from gzl_ywlcjdb a where a.ywlcbbh=#ywlcbbh# and a.ywlcdm=#ywlcdm# and a.xtdm=<include refid="common.xtdm"/> and a.jddm=t.sybjddm ) sybjdmc
+,(select a.jdmc from gzl_ywlcjdb a where a.ywlcbbh=#ywlcbbh# and a.ywlcdm=#ywlcdm# and a.xtdm=<include refid="common.xtdm"/> and a.jddm=t.xybjddm ) xybjdmc
+
+from gzl_ywlcjdb  t left join gzl_ywlcdmb  t2 on t.ywlcdm=t2.ywlcdm and t.xtdm=t2.xtdm and t.ywlcbbh=t2.ywlcbbh
+where t2.ywlcbbh=#ywlcbbh# 
+and  t2.ywlcdm=#ywlcdm#
+and t2.xtdm=<include refid="common.xtdm"/>
+ORDER BY t.xssx asc
+ <![CDATA[
+      
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+
+</select>
+<select id="queryYwlcYmCount"   parameterClass="YwlcYmPage"  resultClass="int ">
+   select  count(*) from (
+select t.ryxxmc,t.jdlx,t.xssx,t.ywlcbbh,t.jddm,t.jdmc,decode(t.rylb,'1','角色','2','部门','3','具体人员','4','岗位')  rylb,t.sfssfqrbm,t.ryxx,t.ryxxcxsql,t.shxqlj,t.sybjddm,t.xybjddm,t.ywlcdm,t.qxdm,t.xtdm,t2.ywlcmc from gzl_ywlcjdb  t left join gzl_ywlcdmb  t2 on t.ywlcdm=t2.ywlcdm and t.xtdm=t2.xtdm and t.ywlcbbh=t2.ywlcbbh 
+where t2.ywlcbbh=#ywlcbbh# 
+and  t2.ywlcdm=#ywlcdm#
+and t2.xtdm=<include refid="common.xtdm"/>
+
+
+)t
+</select>
+
+<select id="queryJueSe"  parameterClass="gzljcsz.JueSePage" resultClass="java.util.HashMap">
+select * from (select  rownum rn, bb.* from ( 
+select * from DM_JSB t where xtdm=<include refid="common.xtdm"/>
+  <isNotEmpty prepend="and" property="jsmc">
+	    (t.jsdm like '%'||trim(#jsmc#)||'%' or t.jsmc like '%'||trim(#jsmc#)||'%')
+	  </isNotEmpty>
+
+<![CDATA[
+      
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+</select>
+
+<select id="queryJueSeCount"  parameterClass="gzljcsz.JueSePage" resultClass="int">
+   select  count(*) from (
+select * from DM_JSB t where xtdm=<include refid="common.xtdm"/>
+ <isNotEmpty prepend="and" property="jsmc">
+	    (t.jsdm like '%'||trim(#jsmc#)||'%' or t.jsmc like '%'||trim(#jsmc#)||'%')
+	  </isNotEmpty>
+) t
+</select>
+
+
+
+
+<select  id="queryAllyh" parameterClass="YhPage" resultClass="java.util.HashMap"> 
+select * from (select  rownum rn, bb.* from ( 
+select t.yhdm,t.xm from XT_DLB t where 1=1
+ <isNotEmpty prepend="and" property="yhdm">
+	    (t.yhdm like '%'||trim(#yhdm#)||'%' or t.xm like '%'||trim(#yhdm#)||'%')
+	  </isNotEmpty>
+<![CDATA[
+      
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+
+</select>
+
+<select  id="queryAllyhCount" parameterClass="YhPage" resultClass="int"> 
+   select  count(*) from (
+select t.yhdm,t.xm from XT_DLB t where 1=1
+ <isNotEmpty prepend="and" property="yhdm">
+	    (t.yhdm like '%'||trim(#yhdm#)||'%' or t.xm like '%'||trim(#yhdm#)||'%')
+	  </isNotEmpty>
+)t
+</select>
+
+
+
+<select id="queryAllyx" parameterClass="YxPage" resultClass="java.util.HashMap">
+select * from (select  rownum rn, bb.* from ( 
+select t.yxdm,t.yxmc from DM_YXB t where 1=1
+ <isNotEmpty prepend="and" property="yxmc">
+	    (t.yxdm like '%'||trim(#yxmc#)||'%' or t.yxmc like '%'||trim(#yxmc#)||'%')
+	  </isNotEmpty>
+<![CDATA[
+      
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+</select>
+
+
+<select id="queryAllyxCount" parameterClass="YxPage" resultClass="int">
+   select  count(*) from (
+select t.yxdm,t.yxmc from DM_YXB t where 1=1
+  <isNotEmpty prepend="and" property="yxmc">
+	    (t.yxdm like '%'||trim(#yxmc#)||'%' or t.yxmc like '%'||trim(#yxmc#)||'%')
+	  </isNotEmpty>
+)t
+</select>
+<select id="queryAllgw" parameterClass="GwPage" resultClass="java.util.HashMap">
+select * from (select  rownum rn, bb.* from ( 
+select gwmc,gwdm  from gzl_dm_gwb  where 1=1
+<isNotEmpty prepend="and" property="gwmc">
+	    (gwmc like '%'||trim(#gwmc#)||'%' or gwdm like '%'||trim(#gwmc#)||'%')
+	  </isNotEmpty>  
+order by gwdm
+<![CDATA[
+      
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+</select>
+
+<select id="queryAllgwCount" parameterClass="GwPage" resultClass="int">
+   select  count(*) from (
+select gwmc,gwdm  from gzl_dm_gwb t where 1=1
+<isNotEmpty prepend="and" property="gwmc">
+	    (gwmc like '%'||trim(#gwmc#)||'%' or gwdm like '%'||trim(#gwmc#)||'%')
+	  </isNotEmpty>  
+)t
+</select>
+<select  id="queryOneYwlcjd"   resultClass="YwlcYmEntity" parameterClass="YwlcYmPage">
+select  * from  GZL_YWLCJDB  t where 
+t.xtdm=<include refid="common.xtdm"/>
+and t.ywlcdm=#ywlcdm# 
+and t.ywlcbbh=#ywlcbbh# 
+and t.jddm=#jddm#
+
+</select>
+
+<insert id="addywlcjd"  parameterClass="YwlcYmPage">
+insert  into GZL_YWLCJDB  
+(jddm, jdmc, rylb, sfssfqrbm, ryxx, ryxxcxsql, 
+shxqlj, sybjddm, xybjddm, shtgqzsj, shbtgqzsj, 
+shtghzsj, shbtghzsj, shtgztxsmc, shbtgztxsmc, ywlcdm, jdlx,
+ shtgqzsjdm, shbtgqzsjdm,
+ shtghzsjdm, shbtghzsjdm, xtdm, xssx, ywlcbbh, qxdm,ryxxmc)
+ values
+ (#jddm#, #jdmc#, #rylb#, #sfssfqrbm#, #ryxx#, #ryxxcxsql#,
+  #shxqlj#, #sybjddm#, #xybjddm#, #shtgqzsj#, #shbtgqzsj#, 
+  #shtghzsj#, #shbtghzsj#, #shtgztxsmc#, #shbtgztxsmc#, 
+  #ywlcdm#, #jdlx#, #shtgqzsjdm#, #shbtgqzsjdm#,
+  #shtghzsjdm#, #shbtghzsjdm#, <include refid="common.xtdm"/>, #xssx#, #ywlcbbh#, #qxdm#,#rymc#)
+</insert>
+
+<update id="updateywlcjd"   parameterClass="YwlcYmPage" >
+update gzl_ywlcjdb
+   set jddm = #jddm#,
+       jdmc = #jdmc#,
+       rylb = #rylb#,
+       sfssfqrbm = #sfssfqrbm#,
+       ryxx = #ryxx#,
+       ryxxcxsql = #ryxxcxsql#,
+       shxqlj = #shxqlj#,
+       sybjddm = #sybjddm#,
+       xybjddm = #xybjddm#,
+       shtgqzsj = #shtgqzsj#,
+       shbtgqzsj = #shbtgqzsj#,
+       shtghzsj = #shtghzsj#,
+       shbtghzsj = #shbtghzsj#,
+       shtgztxsmc = #shtgztxsmc#,
+       shbtgztxsmc = #shbtgztxsmc#,
+       ywlcdm = #ywlcdm#,
+       jdlx = #jdlx#,
+       shtgqzsjdm = #shtgqzsjdm#,
+       shbtgqzsjdm = #shbtgqzsjdm#,
+       shtghzsjdm = #shtghzsjdm#,
+       shbtghzsjdm = #shbtghzsjdm#,
+       ryxxmc=#rymc#,
+       xtdm = <include refid="common.xtdm"/>,
+       xssx = #xssx#,
+       ywlcbbh = #ywlcbbh#,
+       qxdm = #qxdm#
+ where jddm = #jddm#
+   and ywlcdm =#ywlcdm#
+   and xtdm = <include refid="common.xtdm"/>
+   and ywlcbbh = #ywlcbbh#
+
+</update>
+
+<delete id="delYwlc"   parameterClass="YwlcYmPage">
+
+delete  from gzl_ywlcjdb
+ where jddm = #jddm#
+   and ywlcdm = #ywlcdm#
+   and xtdm = <include refid="common.xtdm"/>
+   and ywlcbbh = #ywlcbbh#
+
+
+
+</delete>
+
+
+<delete id="deleteYw"   parameterClass="YwlcdmPage">
+
+delete gzl_ywlcdmb
+ where ywlcdm = #ywlcdm#
+   and xtdm = <include refid="common.xtdm"/>
+   and ywlcbbh = #ywlcbbh#
+
+
+</delete>
+<select  id="queryYwlcBl"   parameterClass="YwlcBlPage"   resultClass="java.util.HashMap">
+
+select * from (select  rownum rn, bb.* from ( 
+
+select  distinct t.bldm as bldm,t.blmc as blmc,t.ywlcdm as ywlcdm,t.kyf as kyf,
+  decode(t.bllx,'1','字符','2','整数',3,'数字',4,'日期')  bllx,t.format as format,t.xtdm as xtdm,t.ywlcbbh as ywlcbbh,t1.ywlcmc as ywlcmc  from gzl_ywlcblb t left join  GZL_YWLCDMB t1 on t.ywlcdm=t1.ywlcdm  
+where t.ywlcdm=#ywlcdm# 
+and t.ywlcbbh=#ywlcbbh# 
+and t1.ywlcmc=#ywlcmc#
+and t1.xtdm=<include refid="common.xtdm"/><![CDATA[
+      
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+</select>
+
+<select  id="queryYwlcBlCount"   parameterClass="YwlcBlPage"   resultClass="int">
+   select  count(*) from (
+
+select  t.bldm as bldm,t.blmc as blmc,t.ywlcdm as ywlcdm,t.kyf as kyf,
+  decode(t.bllx,'1','字符','2','整数',3,'数字',4,'日期')  bllx,t.format as format,t.xtdm as xtdm,t.ywlcbbh as ywlcbbh,t1.ywlcmc as ywlcmc  from gzl_ywlcblb t left join  GZL_YWLCDMB t1 on t.ywlcdm=t1.ywlcdm
+  where t.ywlcdm=#ywlcdm# 
+  and t.ywlcbbh=#ywlcbbh# 
+  and t1.ywlcmc=#ywlcmc#
+  and t1.xtdm=<include refid="common.xtdm"/>
+      
+)t
+</select>
+<select id="queryOneYwlcBl"   parameterClass="YwlcBlPage" resultClass="YwlcBlEnntity">
+
+select *  from  gzl_ywlcblb  
+where bldm=#bldm# and ywlcdm=#ywlcdm#  and xtdm=<include refid="common.xtdm"/>  and ywlcbbh=#ywlcbbh#
+
+</select>
+<insert id="addywlcbl"  parameterClass="YwlcBlPage">
+
+insert into gzl_ywlcblb
+  (bldm, blmc, ywlcdm, kyf, bllx, format, xtdm, ywlcbbh)
+values
+  (#bldm#, #blmc#, #ywlcdm#, #kyf#, #bllx#, #format#, <include refid="common.xtdm"/>, #ywlcbbh#)
+
+
+</insert>
+
+<update id="updateywlcbl"   parameterClass="YwlcBlPage">
+
+update gzl_ywlcblb
+   set bldm = #bldm#,
+       blmc = #blmc#,
+       ywlcdm = #ywlcdm#,
+       kyf = #kyf#,
+       bllx = #bllx#,
+       format = #format#,
+       xtdm = <include refid="common.xtdm"/>,
+       ywlcbbh = #ywlcbbh#
+ where bldm = #bldm#
+   and ywlcdm = #ywlcdm#
+   and xtdm = #xtdm#
+   and ywlcbbh = #ywlcbbh#
+
+
+
+</update>
+
+<delete id="deleteYwbl"  parameterClass="YwlcBlPage">
+delete gzl_ywlcblb
+ where bldm = #bldm#
+   and ywlcdm = #ywlcdm#
+   and xtdm = <include refid="common.xtdm"/>
+   and ywlcbbh = #ywlcbbh#
+
+
+</delete>
+<select id="querylb"  resultClass="java.util.HashMap">
+select *  from  gzl_DM_YWLCLBB 
+</select>
+
+
+<!-- 复制业务流程根据版本号 -->
+	<parameterMap class="java.util.HashMap" id="Fuzhi">
+	   <parameter property="new_ywlcbbh" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+	   <parameter property="old_ywlcbbh" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+	   <parameter property="old_ywlcdm" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+	   <parameter property="old_xtdm" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+	   <parameter property="v_re" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"/>
+	</parameterMap>
+	
+	<procedure id="copyywlcbbh" parameterMap="Fuzhi"  resultClass="int">
+	   <![CDATA[
+	      {call incon_copy_ywlcbbh(?,?,?,?,?)}
+	   ]]>
+	</procedure>
+	
+	
+
+<!-- 复制业务流程 -->
+	<parameterMap class="java.util.HashMap" id="Fuzhilc">
+	 
+	   <parameter property="oldr_ywlcdm" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+	     <parameter property="oldr_ywlcbbh" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+	   <parameter property="oldr_xtdm" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+	   <parameter property="newr_ywlcdm" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+<!--  <parameter property="newr_ywlcmc" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/> -->
+	    <parameter property="newr_ywlcbbh" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+	   <parameter property="v_re" jdbcType="VARCHAR" javaType="java.lang.String" mode="OUT"/>
+	</parameterMap>
+	
+	<procedure id="copyywlc" parameterMap="Fuzhilc"  resultClass="int">
+	   <![CDATA[
+	      {call incon_copy_ywlc(?,?,?,?,?,?)}
+	   ]]>
+	</procedure>
+	
+	<select id="queryjdlist"   resultClass="java.util.HashMap" parameterClass="YwlcYmPage">
+	
+	select distinct jddm,jdmc,xssx  from  GZL_YWLCJDB where ywlcdm=#ywlcdm# and ywlcbbh=#ywlcbbh# and xtdm=<include refid="common.xtdm"/> order by xssx
+	
+	</select>
+	
+	<select  id="querypzsfcz"  resultClass="int"  parameterClass="YwlcBlPage" >
+	
+	select  count(*)  from   gzl_shywlcslb t
+	 where t.ywlcdm = #ywlcdm#
+  	 and t.ywlcbbh = #ywlcbbh#
+  	 and t.xtdm = <include refid="common.xtdm"/>
+	</select>
+	
+	<select id="querypdslcz"   parameterClass="YwlcdmPage"  resultClass="int">
+	
+	select count(*)   from  gzl_shywlcslb t  
+	where t.ywlcdm=#ywlcdm#  and  t.xtdm=<include refid="common.xtdm"/> and  t.ywlcbbh=#ywlcbbh#
+	</select>
+	<delete id="deleteYwlcjd"   parameterClass="YwlcdmPage">
+	delete  from GZL_YWLCJDB t 
+	where t.xtdm=<include refid="common.xtdm"/> and t.ywlcdm=#ywlcdm# and t.ywlcbbh=#ywlcbbh#
+	</delete>
+	<delete id="deleteYwlcbl"   parameterClass="YwlcdmPage">
+	delete  from GZL_YWLCBLB t 
+	where t.xtdm=<include refid="common.xtdm"/> and t.ywlcdm=#ywlcdm# and t.ywlcbbh=#ywlcbbh#
+	</delete>
+	<select id="queryywlc" resultClass="java.util.HashMap">
+	
+	select distinct t.ywlcdm,t.ywlcmc from GZL_YWLCDMB t where t.xtdm=<include refid="common.xtdm"/>
+	</select>
+	<select id="changeywlcdm" parameterClass="YwlcdmPage"  resultClass="java.util.HashMap">
+	select   t.ywlcdm,t.ywlcmc,t.ywlcbbh from  GZL_YWLCDMB t where t.ywlcdm=#ywlcdm# and t.xtdm=<include refid="common.xtdm"/>
+	 <isNotEmpty prepend="and" property="dmxt">
+	   t.ywlcbbh !=#ywlcbbh#
+	  </isNotEmpty>
+	
+	
+	
+	</select>
+	<select id="queryjdbh" parameterClass="String" resultClass="java.util.HashMap">
+	select distinct t.jddm,t.jdmc from GZL_YWLCJDB t WHERE t.ywlcdm=#ywlcdm#
+	</select>
+	<select id="querysffgbbh"  parameterClass="FuzhiPage" resultClass="int" >
+	 
+	select count(*)  from GZL_YWLCDMB t where t.ywlcdm=#old_ywlcdm# 
+	and t.ywlcbbh=#new_ywlcbbh#
+	
+	</select>
+ 
+ 
+ <select id="queryDmxlh" parameterClass="String" resultClass="YwDmxlhEntity">
+		select * from GZL_YWLCDMB where ywlcdm || '_' || ywlcbbh=#id# and xtdm=<include refid="common.xtdm"/>
+	</select>
+	
+	<select id="queryLcxlh" parameterClass="YwDmxlhEntity" resultClass="YwlcYmxlhEntity">
+		select * from GZL_YWLCJDB where ywlcdm=#ywlcdm# and xtdm=<include refid="common.xtdm"/> and ywlcbbh=#ywlcbbh#
+	</select>
+	<select id="queryBlxlh" parameterClass="YwDmxlhEntity" resultClass="YwlcBlxlhEnntity">
+		select * from GZL_YWLCBLB where ywlcdm=#ywlcdm# and xtdm=<include refid="common.xtdm"/> and ywlcbbh=#ywlcbbh#
+	</select>
+	
+	<select id="queryDmxlhSfcz" parameterClass="YwDmxlhEntity" resultClass="String">
+		select count(*)   from  GZL_YWLCDMB t  
+	where t.ywlcdm=#ywlcdm#  and  t.xtdm=<include refid="common.xtdm"/> and  t.ywlcbbh=#ywlcbbh#
+	</select>
+	<delete id="delDmxlh" parameterClass="YwDmxlhEntity">
+		begin
+			delete from GZL_YWLCDMB t where t.ywlcdm=#ywlcdm#  and  t.xtdm=<include refid="common.xtdm"/> and  t.ywlcbbh=#ywlcbbh#;
+			delete from GZL_YWLCJDB t where t.ywlcdm=#ywlcdm#  and  t.xtdm=<include refid="common.xtdm"/> and  t.ywlcbbh=#ywlcbbh#;
+			delete from GZL_YWLCBLB t where t.ywlcdm=#ywlcdm#  and  t.xtdm=<include refid="common.xtdm"/> and  t.ywlcbbh=#ywlcbbh#;
+			
+		
+		end;
+		
+	</delete>
+	<insert id="addDmxlh" parameterClass="YwDmxlhEntity">
+		 insert into gzl_ywlcdmb
+		   (ywlcdm, ywlcmc, ywlcshcklj, swxqcklj, ywbm, ywbdbrzdm, kyf, ywlclbdm, xtdm, ywlcbbh, ywbidzdm)
+		 values
+		   (#ywlcdm#, #ywlcmc#, #ywlcshcklj#, #swxqcklj#, #ywbm#, #ywbdbrzdm#, #kyf#, #ywlclbdm#, <include refid="common.xtdm"/>, #ywlcbbh#, #ywbidzdm#)
+	</insert>
+	<insert id="addLcxlh" parameterClass="YwlcYmxlhEntity">
+		insert into gzl_ywlcjdb
+		  (jddm, jdmc, rylb, sfssfqrbm, ryxx, ryxxcxsql, shxqlj, sybjddm, xybjddm, shtgqzsj, shbtgqzsj, shtghzsj, shbtghzsj, shtgztxsmc, shbtgztxsmc, ywlcdm, jdlx, shtgqzsjdm, shbtgqzsjdm, shtghzsjdm, shbtghzsjdm, xtdm, xssx, ywlcbbh, qxdm, ryxxmc)
+		values
+		  (#jddm#, #jdmc#, #rylb#, #sfssfqrbm#, #ryxx#, #ryxxcxsql#, #shxqlj#, #sybjddm#, #xybjddm#, #shtgqzsj#, #shbtgqzsj#, #shtghzsj#, #shbtghzsj#, #shtgztxsmc#, #shbtgztxsmc#, #ywlcdm#, #jdlx#, #shtgqzsjdm#, #shbtgqzsjdm#, #shtghzsjdm#, #shbtghzsjdm#, <include refid="common.xtdm"/>, #xssx#, #ywlcbbh#, #qxdm#, #ryxxmc#)
+	</insert>
+	<insert id="addBlxlh" parameterClass="YwlcBlxlhEnntity">
+		insert into gzl_ywlcblb
+		  (bldm, blmc, ywlcdm, kyf, bllx, format, xtdm, ywlcbbh)
+		values
+		  (#bldm#, #blmc#, #ywlcdm#, #kyf#, #bllx#, #format#, <include refid="common.xtdm"/>, #ywlcbbh#)
+	</insert>
+	
+ 
+</sqlMap>

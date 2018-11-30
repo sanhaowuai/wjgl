@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="lctp">
+	 <!-- 查询出流程图片的后缀名 -->
+	 <select id="getLctphzm" resultClass="String">
+	 	select lctphzm from DM_XTLCB where xtdm = <include refid="common.xtdm"/>
+	 </select>
+		
+	 <!-- 更新到流程图片表 -->
+	 <insert id="updLctp" parameterClass="String">
+	 	update DM_XTLCB set lctphzm=#filehzm# where xtdm = <include refid="common.xtdm"/>
+	 </insert>
+</sqlMap>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="treeTable">
+	<!-- 实体pojo -->
+	<typeAlias alias="QxEntity" type="com.incon.pojo.common.QxEntity"/>
+	
+	<select id="queryQx" resultClass="QxEntity">
+	SELECT distinct QXDM qxdm, QXMC qxmc,fqxdm fqxdm,
+    FWLJ fwlj,XSSX xssx,kyf kyf,sfzxj sfzxj,
+    sys_connect_by_path(qxdm,'_') treedm,
+    substr(sys_connect_by_path(fqxdm,'_'),4) treefdm 
+    FROM DM_QXB bb
+    where xtdm = <include refid="common.xtdm"/> start with fqxdm='-1'  CONNECT BY PRIOR qxdm = fqxdm 
+    order by xssx
+    </select>
+</sqlMap>

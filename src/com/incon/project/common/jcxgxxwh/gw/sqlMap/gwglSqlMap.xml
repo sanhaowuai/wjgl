@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="gwgl">
+	<!-- 实体pojo -->
+	<typeAlias alias="GwbEntity" type="com.incon.pojo.common.jcxgxxwh.GwbEntity"/>
+	<typeAlias alias="GwlxbEntity" type="com.incon.pojo.common.jcxgxxwh.GwlxbEntity"/>
+	<typeAlias alias="GwglPage" type="com.incon.project.common.jcxgxxwh.gw.page.GwglPage" />
+<!--  分页查询岗位	-->
+    <select id="queryGwgl" parameterClass="GwglPage" resultClass="GwbEntity">
+    select t.*   from 
+       (select t.*,row_number()over(order by to_number(dm)) orderNumber from 
+        (
+      select gw.dm dm,gw.mc mc,lx.mc gwlx,gw.kyf from dm_gwb gw 
+      left join dm_gwlx lx on gw.gwlx = lx.dm where 
+      	1=1
+<!--      gw.kyf = '1'-->
+         <isNotEmpty prepend="and" property="dmmc" > 
+          gw.mc like '%'|| trim(#dmmc#) ||'%'
+      	</isNotEmpty>
+       ) t 
+       )t 
+	      <![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		  ]]> 
+    </select>
+    <select id="queryGwglCount" parameterClass="GwglPage" resultClass="int">
+	 	select count(*) from 
+	      (
+		 	 select gw.dm,gw.mc a,lx.mc b,gw.kyf from dm_gwb gw 
+      		left join dm_gwlx lx on gw.gwlx = lx.dm where 
+      		1=1
+<!--      		gw.kyf = '1'-->
+         	<isNotEmpty prepend="and" property="dmmc" > 
+          	gw.mc like '%'|| trim(#dmmc#) ||'%'
+      		</isNotEmpty>
+		 ) t
+    </select>
+    
+    <!-- 查询所有岗位类型 -->
+    <select id="queryGwlx" resultClass="GwlxbEntity">
+    	select dm dm,mc mc from dm_gwlx where kyf = '1' order by to_number(dm)
+    </select>
+    
+	<!--  添加岗位  -->
+    <insert id="addGw" parameterClass="GwbEntity"  >
+       	insert into DM_GWB(dm,mc,gwlx,kyf) values(#dm#,#mc#,#gwlx#,#kyf#)
+    </insert>
+	<!--  修改专业岗位信息  -->
+     <update id="updGw" parameterClass="GwbEntity">
+         update DM_GWB
+         set dm=#dm#,mc=#mc#,gwlx=#gwlx#,kyf=#kyf# 
+         where dm=#dm#
+     </update>
+<!--  删除岗位  -->
+     <delete id="delGw" parameterClass="String">
+        delete from DM_GWB  where dm=#dm#
+    </delete>
+<!--  查询代码是否存在  -->
+    <select id="queryByDmCount" parameterClass="String" resultClass="int">
+		select count(*) from dm_gwb where dm = #dm#
+    </select>
+<!--  查询单个岗位信息   -->
+    <select id="queryGwByDm" parameterClass="String" resultClass="GwbEntity">
+        select dm,mc,gwlx,kyf
+        from DM_GWB 
+        where dm=#dm#
+    </select>
+</sqlMap>

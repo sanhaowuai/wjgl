@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pubJys">
+	<typeAlias alias="PubJysPage" type="com.incon.common.pub.pubJys.page.PubJysPage"/>
+	
+	<!-- 查询教研室	-->
+    <select id="queryPubJys" parameterClass="PubJysPage" resultClass="HashMap">
+    
+      select jy.jysdm,jy.jysmc,jy.jysfzr,jy.kyf,
+	      (select mc from dm_jyslxb where dm = jy.jyslx) jyxmc,
+	      jy.jyslx,
+	      (select yxmc from dm_yxb where yxdm = jy.xydm) xymc,jy.xydm,
+	      (select yxmc from dm_yxb where yxdm = jy.xdm) xmc,jy.xdm 
+          from dm_jysb jy where kyf='1' and 1=1
+     	 <isNotEqual property="sfcjgly" compareValue="1">
+		 	<isNotEqual property="gljb" compareValue="1">
+		 		<isEqual property="resultCount" compareValue="1">
+			 		and jysdm in (  select jysdm from sz_jsxxb where zgh = #yhdm# union select jysdm from dm_jyssjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		 		<isEqual property="resultCount" compareValue="0">
+			 		and glyx in ( select glyx from sz_jsxxb where zgh = #yhdm# union select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		 	</isNotEqual>
+		 </isNotEqual>
+         <isNotEmpty prepend="and" property="jysmc" > 
+          jy.jysmc like '%'|| #jysmc# ||'%'
+      	</isNotEmpty>
+      
+	      <![CDATA[
+	       order by jysdm
+		  ]]> 
+    </select>
+   <!-- 查询教研室数据权限表中是否有数据 -->
+   	<select id="queryJyssjqxCount" parameterClass="java.util.HashMap" resultClass="int">
+   		select count(*) from dm_jyssjqxb where xtdm = <include refid="common.xtdm"/> and  yhdm=#yhdm# and jsdm=#jsdm#
+   	</select>
+</sqlMap>

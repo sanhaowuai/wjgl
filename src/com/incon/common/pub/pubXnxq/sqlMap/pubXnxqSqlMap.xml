@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pubXnxq">
+
+	<!--  查询学年学期	-->
+    <select id="queryPubXnxq" parameterClass="HashMap" resultClass="HashMap">
+      select xn,xq,xnmc,xqmc,kyf,sfdqxq from dm_xnxqb 
+      where kyf='1' and  1=1
+         <isNotEmpty prepend="and" property="xnmc" > 
+          xnmc like '%'|| #xnmc# ||'%' 
+      	</isNotEmpty>
+      	<isNotEmpty prepend="and" property="xqmc" > 
+          xqmc like '%'|| #xqmc# ||'%' 
+      	</isNotEmpty>
+      	<isNotEmpty prepend="and" property="xq" > 
+          xq like '%'|| #xq# ||'%' 
+      	</isNotEmpty>
+      	<isNotEmpty prepend="and" property="xn" > 
+          xn like '%'|| #xn# ||'%' 
+      	</isNotEmpty>
+	      <![CDATA[
+	      order by xn desc,xq asc
+		  ]]> 
+    </select>
+    
+    
+      <!-- 查询指定学年学期 -->
+    <select id="queryXnxqByOne" parameterClass="String" resultClass="java.util.HashMap">
+    	 select xn||xq xnxq ,xnmc||xqmc xnxqmc, xn, xq from dm_xnxqb where kyf='1' and xn||xq=#xnxq# 
+    </select>
+    
+    
+      <!-- 查询当年学年学期 -->
+    <select id="queryDqXnxq"  resultClass="java.util.HashMap"  >
+	    select xn,xq, xn||xq xnxq, xnmc||xqmc xnxqmc  from dm_xnxqb where kyf='1' and sfdqxq='1' order by xn desc ,xq desc
+    </select>
+	<!--  查询校区	-->
+    <select id="queryPubXiaoqu"  resultClass="HashMap">
+      select dm, mc, kyf from dm_xiaoqub where kyf=1 order by dm,mc
+    </select>
+    
+
+<!--  查询全部正常学年学期 -->
+    <select id="queryXqxqList"  resultClass="java.util.HashMap" >
+	    select xn,xq,xn||xq xnxq, xnmc||xqmc xnxqmc ,sfdqxq from dm_xnxqb where kyf='1' order by xn desc , xq desc
+    </select>
+    
+       <!--  查询学生入学以来再多两学期的学年学期	-->
+   <select id="queryXsXnxqDxq"  parameterClass="String" resultClass="java.util.HashMap">
+    <![CDATA[     
+	    select xn||xq xnxq ,t.xnmc||t.xqmc xnxqmc, t.xn, t.xq 
+	    from dm_xnxqb t
+	    where kyf='1' 
+	    	and  substr(xn,0,4)>=(select nj from xj_xsxxb where xh=#xh#)  
+            and xn||xq <= (select  (substr(xn,0,4) +1) ||'-' ||(substr(xn,6) +1) ||xq from dm_xnxqb where sfdqxq='1')     
+	    order by xn desc ,xq desc 
+    ]]>
+   </select>
+   
+   
+    <!--  查询当前学年学期及以后的学年学期	-->
+    <select id="queryAfterDqXnxq" parameterClass="String" resultClass="java.util.HashMap">
+    <![CDATA[    
+    	select xn||xq xnxq ,t.xnmc||t.xqmc xnxqmc, t.xn, t.xq 
+    	from dm_xnxqb t
+    	where kyf='1' 
+    		and substr(xn, 0, 4)>= (select to_char(rxrq,'YYYY') from xj_xsxxb where xh = #xh# )
+    	   	and xn||xq <= (select xn||xq  from dm_xnxqb where sfdqxq = '1')
+		order by xn ,xq      
+    ]]>
+    </select>
+    
+    
+	<!--  查询创新研修限制人数-->
+   <select id="queryXtcsb"  parameterClass="String" resultClass="java.util.HashMap">
+	 select * from jw_xt_xtcsb  where dm=#cs#
+  </select> 
+</sqlMap>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="wdlw">
+	<!-- 实体pojo -->
+	<typeAlias alias="XtxxEntity" type="com.incon.pojo.common.XtxxEntity" />
+	<typeAlias alias="LwxxEntity" type="com.incon.pojo.common.LwxxEntity" />
+	<typeAlias alias="LwdbTimeAddr" type="com.incon.pojo.common.LwdbTimeAddrEntity" />
+	<typeAlias alias="LwcjEntity" type="com.incon.pojo.common.LwcjEntity" />
+	
+
+	<!-- 查询选题信息 -->
+	<select id="queryxtinfo" resultClass="XtxxEntity"
+		parameterClass="String">
+		select t3.lwmc title,t4.jsxm teachername,t1.xtsj
+		selectdate from SYSJ_LW_XSXTB t1,sysj_lw_xtczb
+		t2,SYSJ_LW_LWSBB
+		t3,SZ_JSXXB t4
+		where t1.xn=t2.xn and t1.xq=t2.xq and t3.lwid=t1.lwid
+		and t3.sbr=t4.zgh and
+		t1.xh=#xh# 
+    </select>
+    <!-- 查询论文信息 -->
+	<select id="querylwinfo" resultClass="LwxxEntity"
+		parameterClass="String">
+		select t.lwtjzt status,t.kwtjsj subDate,t.lwgjc
+		keyword,t.lwzy
+		summary,t.fjlj filepath,lwid from SYSJ_LW_XSXTB t,sysj_lw_xtczb sz where
+		t.xh=#xh# and t.xn=sz.xn and t.xq=t.xq
+	</select>
+	<!-- 查询答辩信息 -->
+	<select id="querydbinfo" resultClass="LwdbTimeAddr"
+		parameterClass="LwxxEntity">
+		select dbsj.kssj dabianTime,dbsj.jssj endTime,dbsj.dbdd dabianAddr from SYSJ_LW_DBSJB dbsj
+		where
+		dbsj.sjid=( select dbap.sjid from SYSJ_LW_DBXSAPB dbap where
+		dbap.xh=#userCode#
+		and lwid=#lwid#)
+	</select>
+	<!-- 查询论文成绩信息 -->
+	<select id="querycjinfo" resultClass="LwcjEntity"
+		parameterClass="LwxxEntity">
+		select cjb.zpcj,cjb.lwcj,cjb.dbcj,cjb.sjcj,cjb.lwcjbl,cjb.dbcjbl,cjb.sjcjbl
+		from SYSJ_LW_CJB cjb where cjb.xh=#userCode# and cjb.lwid=#lwid#
+	</select>
+
+	<!-- 保存论文提交信息 -->
+	<update id="updXTInfo" parameterClass="LwxxEntity">
+		update
+		SYSJ_LW_XSXTB set
+		KWTJSJ=#subDate#,LWZY=#summary#,LWGJC=#keyword#,FJLJ=#filepath#,LWTJZT='1'
+		where XH=#userCode#
+	</update>
+
+</sqlMap>

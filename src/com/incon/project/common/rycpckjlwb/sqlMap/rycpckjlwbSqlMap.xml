@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rycpckjlwb">
+
+	<!-- 实体pojo -->
+	<typeAlias alias="RycpckjlwbEntity" type="com.incon.pojo.common.rycpckjlwb.RycpckjlwbEntity"/>
+	
+	<!-- 分页page -->
+	<typeAlias alias="RycpckjlwbPage" type="com.incon.project.common.rycpckjlwb.page.RycpckjlwbPage"/>
+	
+	<select id="queryRycpckjlwb" parameterClass="RycpckjlwbPage" resultClass="RycpckjlwbEntity">
+		select t.*  from 
+	     (select t.*,row_number()over(order by yhdm) orderNumber from 
+	      (
+			select t.yhdm, t.cckj, t.yylx, t.bz,t1.xm from pt_rycpckjlwb t
+			left join xt_dlb t1 on t.yhdm=t1.yhdm
+			where 1=1 
+			  <isNotEmpty  prepend="and" property="pyhdm">
+			       (t.yhdm like '%'||trim(#pyhdm#)||'%' or t1.xm like '%'||trim(#pyhdm#)||'%')
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="pyylx">
+			       t.yylx = #pyylx#
+			  </isNotEmpty> 
+			) t 
+	    )t
+	 	 <![CDATA[
+	       where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		 ]]> 
+	</select>
+	<select id="queryRycpckjlwbCount" parameterClass="RycpckjlwbPage" resultClass="int">
+		select count(*) from 
+	      (
+       		 select * from pt_rycpckjlwb t
+			left join xt_dlb t1 on t.yhdm=t1.yhdm
+			where 1=1   
+			  <isNotEmpty  prepend="and" property="pyhdm">
+			       (t.yhdm like '%'||trim(#pyhdm#)||'%' or t1.xm like '%'||trim(#pyhdm#)||'%')
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="pyylx">
+			       t.yylx = #pyylx#
+			  </isNotEmpty>   
+		 ) t 	
+	</select>
+
+	<!-- 分页page -->
+	<typeAlias alias="XtryxzPage" type="com.incon.project.common.rycpckjlwb.page.XtryxzPage"/>
+
+	
+	
+	<!--     查询xt_dlb          -->
+	<select id="queryXtryxz" parameterClass="XtryxzPage" resultClass="java.util.HashMap">
+      select t.*  from 
+	     (select t.*,row_number()over(order by yhdm) orderNumber from 
+	      (
+	       	select distinct yhdm,xm from xt_dlb 
+	       	where 1=1 
+			  <isNotEmpty  prepend="and" property="pzgh">
+			       (yhdm like '%'||trim(#pzgh#)||'%' or xm like '%'||trim(#pzgh#)||'%')
+			  </isNotEmpty> 
+			  order by yhdm
+      	) t 
+	    )t
+	 	 <![CDATA[
+	       where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		 ]]>   
+    </select>
+    
+     <select id="queryXtryxzCount" parameterClass="XtryxzPage" resultClass="int">
+	 	select count(*) from 
+	      (
+       		 select distinct yhdm,xm from xt_dlb 
+	       	where 1=1 
+			  <isNotEmpty  prepend="and" property="pzgh">
+			       (yhdm like '%'||trim(#pzgh#)||'%' or xm like '%'||trim(#pzgh#)||'%')
+			  </isNotEmpty> 
+			  order by yhdm
+		 ) t 
+	 </select>
+	 
+	 
+	 <select id="queryRycpckjlwbOne" parameterClass="java.util.HashMap" resultClass="RycpckjlwbEntity">
+	 	select t.yhdm, t.cckj, t.yylx, t.bz,t1.xm from pt_rycpckjlwb t
+	 	left join xt_dlb t1 on t.yhdm=t1.yhdm
+		where t.yhdm=#yhdm# and  t.yylx = #yylx#	
+	 </select>
+	 
+	 <delete id="delRycpckjlwb" parameterClass="java.util.HashMap">
+	 	delete pt_rycpckjlwb
+		 where yhdm = #yhdm#
+		   and yylx = #yylx#
+	 </delete>
+	 
+	 <insert id="addRycpckjlwb" parameterClass="RycpckjlwbEntity">
+	 	insert into pt_rycpckjlwb
+		  (yhdm, cckj, yylx, bz)
+		values
+		  (#yhdm#, #cckj#, #yylx#, #bz#)			 	
+	 </insert>
+	 
+	 <update id="updRycpckjlwb" parameterClass="RycpckjlwbEntity">
+	 	update pt_rycpckjlwb
+		   set cckj = #cckj#,		       
+		       bz = #bz#
+		 where yhdm = #yhdm#
+		   and yylx = #yylx#
+	 </update>
+	 
+	 
+	 <select id="isExFAdd" parameterClass="RycpckjlwbEntity" resultClass="int">
+	 	select count(*) from pt_rycpckjlwb where yhdm = #yhdm# and yylx = #yylx#
+	 </select>
+</sqlMap>

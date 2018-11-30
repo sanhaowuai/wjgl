@@ -1,0 +1,144 @@
+@charset "utf-8";
+/* CSS Document */
+ 
+.Contentbox{ clear:both;border-top:none; height:100%;float:left; position:relative; width:100%; }
+ #tabs_portal_0_panel{ background:url(../images/index_18.gif) repeat-x top #ffffff }
+ .mainbg{background:url(../images/index_18.gif) repeat-x top ; width:100%; height:10px; clear:both}
+/*主框架*/
+.main_left{ width:210px; border-bottom:1px solid #79b347; height:100%; position:relative;  float:left; background: url(../images/index_25.gif) right repeat-y }
+.main_center{width:10px;  border-bottom:1px solid #79b347; height:100%; position:relative;  float:left ;  }
+.main_center img{ margin-top:200px}
+.main_right{border-bottom:1px solid #79b347; height:100%; position:relative;  margin-left:221px;}
+
+/*主框架main05*/
+.main05_left{ width:100px; border-bottom:1px solid #79b347;border-right:1px solid #101115; height:100%; position:relative; background: url(../images/left05/sidebar.jpg);  float:left;  }
+.main05_right{  border-bottom:1px solid #79b347; height:100%; position:relative;  margin-left:111px;}
+ 
+/*主框架main03,main04*/
+.main05{ padding:0px 0px;height:100%;border-bottom:1px solid #79b347;}
+.welcome_bg{background:url(../images/index_03.jpg) no-repeat center -2px; height:450px  }
+
+/*收左侧按钮*/
+.left_but{ width:10px; height:123px;background: url(../images/leftbut_26.png) no-repeat left; display:block; margin-top:200px}
+.right_but{ width:10px; height:123px;background: url(../images/rightbut_26.png) no-repeat left; display:block; margin-top:200px}
+
+ /*当前位、操作按钮 搜索*/
+.address{height:30px;line-height:30px; background: url(../images/switch.png) no-repeat left -296px; padding-left:30px;  font-size:13px}
+.butsea{ min-height:35px; height:auto; _height:35px;line-height:35px; border-bottom:1px  dotted #bfbfbf; width:100%; clear:both } 
+.butsea td{ padding-right:5px}
+ 
+ /*列表*/
+.list{width:100%;  margin-top:5px; min-height:320px; height:auto; _height:320px; border-top:1px solid #c9d1b0;background-color:#ffffff}  
+.bot_line td{ line-height:24px; padding:2px}
+.bot_line th{ 
+	border-bottom:2px solid #98c856; line-height:24px; font-size:13px; text-align:left;padding:2px;  
+    background:#f3f3f3; 
+	background: -moz-linear-gradient(top,  #f9f9f9 0%, #eaeaea 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f9f9f9), color-stop(100%,#eaeaea));
+	background: -webkit-linear-gradient(top,  #f9f9f9 0%,#eaeaea 100%);
+	background: -o-linear-gradient(top,  #f9f9f9 0%,#eaeaea 100%);
+	background: -ms-linear-gradient(top,  #f9f9f9 0%,#eaeaea 100%);
+	background: linear-gradient(top,  #f9f9f9 0%,#eaeaea 100%); 
+ }
+.bgcol{ background-color:#f6f6f6}
+
+/*翻页*/
+div.youtube {PADDING:4px 6px 4px 0px; BORDER-TOP: #9c9a9c 1px dotted; FONT-SIZE: 13px; COLOR: #313031;  BACKGROUND-COLOR: #f6f6f6; TEXT-ALIGN: right; height:30px}
+ 
+ /*button*/
+.addlist_button{ line-height:16px; float:left} 
+.addlist_button a{background: url(../images/button.png) no-repeat left 0;   text-decoration:none; height:26px; float:left; cursor:hand; margin:0; }
+.addlist_button a span{background:url(../images/button.png) no-repeat right -26px; padding:5px 15px 5px 8px; margin:0 0 0 10px; float:left; height:16px;}
+.addlist_button a:hover{background:url(../images/button.png) no-repeat left -52px;height:26px;}
+.addlist_button a:hover span{background:url(../images/button.png) no-repeat right -78px; color:#000000;  padding:5px 15px 5px 8px; margin:0 0 0 10px; height:16px;  }
+
+.addlist_button1{ line-height:16px; float:left} 
+.addlist_button1 a{background: url(../images/button1.png) no-repeat left 0;  color:#ffffff; text-decoration:none; height:26px; float:left; cursor:hand; margin:0; }
+.addlist_button1 a span{background:url(../images/button1.png) no-repeat right -26px;  padding:5px 15px 5px 8px; margin:0 0 0 10px; float:left; height:16px;}
+.addlist_button1 a:hover{background:url(../images/button1.png) no-repeat left -52px;height:26px;}
+.addlist_button1 a:visited{color:#ffffff;}
+.addlist_button1 a:hover span{background:url(../images/button1.png) no-repeat right -78px; color:#000;  padding:5px 15px 5px 8px; margin:0 0 0 10px; height:16px;  }
+ 
+.addlist_button2{ line-height:16px; float:left} 
+.addlist_button2 a{background: url(../images/button2.png) no-repeat left 0;  color:#ffffff; text-decoration:none; height:26px; float:left; cursor:hand; margin:0; }
+.addlist_button2 a span{background:url(../images/button2.png) no-repeat right -26px;  padding:5px 15px 5px 8px; margin:0 0 0 10px; float:left; height:16px;}
+.addlist_button2 a:hover{background:url(../images/button2.png) no-repeat left -52px;height:26px;}
+.addlist_button2 a:visited{color:#ffffff;}
+.addlist_button2 a:hover span{background:url(../images/button2.png) no-repeat right -78px; color:#ffffff;  padding:5px 15px 5px 8px; margin:0 0 0 10px; height:16px;  }
+ 
+/*操作按钮*/
+.cz_button{ width:24px; height:22px; float:left; margin-right:8px; background:url(../images/switch.png) no-repeat; cursor:pointer}
+.cz_modify{ background-position:-5px -332px}
+.cz_see{ background-position:-38px -332px}
+.cz_set{ background-position:-70px -332px}
+.cz_star{ background-position:-102px -332px}
+.cz_infor{ background-position:-134px -332px}
+.cz_role{ background-position:-166px -332px}
+.cz_del{ background-position:-5px -357px}
+.cz_sq{ background-position:-70px -357px}
+.cz_xq{ background-position:-102px -357px}
+.cz_help{background-position:-134px -357px}
+
+
+.open_but{ width:16px; height:16px; float:left; background:url(../images/switch.png) no-repeat -120px -10px; cursor:pointer; display:inline-block; margin-right:5px;margin-left:5px;margin-top:8px }
+.close_but{ width:16px; height:16px; float:left; background:url(../images/switch.png) no-repeat -144px -10px;; cursor:pointer; display:inline-block;margin-top:8px}
+
+/*弹出*/
+.popup_sty{border: 6px solid #ddd;-webkit-box-shadow: 0px 0px 5px #000;-moz-box-shadow: 0px 0px 5px #000;box-shadow: 0px 0px 5px #000;-webkit-border-radius: 10px;-moz-border-radius: 10px;border-radius: 10px;}
+.popup_title{float: left;width:100%; margin-bottom:10px; border-bottom:1px dotted #cccccc; line-height:30px;height:30px}
+.popup{ margin:10px; }
+.btn_close {float: right; display:block; margin-top:4px;width:19px; height:16px; background:url(../images/no.gif) no-repeat  }
+	
+.popup_left{  font-weight:bold; float:left; font-size: 14px;}
+.pop_table td{line-height:36px; border:2px solid #ffffff; padding:2px}
+.pop_table tr{background:#f6f6f6} 
+#BOX_overlay {position: absolute; z-index:80; top: 0px; left: 0px; background-color:#000; filter:alpha(opacity=60); -moz-opacity: 0.6; opacity: 0.6;}
+ /*弹出*/
+ 
+/*加载*/
+.loading_10{width:96px; height:12px; background:url(../images/10.gif) no-repeat; margin:0 auto}
+.loading{width:100px; height:100px; background:url(../images/loading.gif) no-repeat; margin:0 auto}
+ 
+/*锁头*/
+.lock{width:16px; height:16px; background: url(../images/lock.png) no-repeat;}
+ 
+ /*添加列表--表格名称居右*/
+.addlist{ float:left;  padding:0} 
+.addlist td{ border:1px solid #c9d1b0; line-height:26px; padding:2px}
+.addlist th{ background-color:#fefef2;border:1px solid #c9d1b0; line-height:26px; text-align:right; padding:2px 10px 2px 0px}
+.addlist_title{ width:100%; float:left; margin-top:5px; line-height:36px; font-size:20px; font-family:"黑体"; text-align:center;background-color:#f5f5f5; }
+
+/*添加列表--表格名称居左*/
+.addlist_hp{ float:left;padding:0} 
+.addlist_hp td{ border:1px solid #e3e7ee; line-height:24px; padding:2px}
+.addlist_hp th{ background-color:#f5f5f5;border:1px solid #e3e7ee; line-height:24px; text-align:left; padding:2px}
+
+ /*人员基础信息维护*/
+ /*tab选项卡*/
+.Menubox {width:100%;float:left;height:26px;line-height:26px;border-bottom:1px solid #d2e0aa; margin-top:5px; margin-bottom:5px}
+.Menubox ul{margin:0px;padding:0; height:26px;}
+.Menubox li{ display:inline-block;*display:inline;zoom:1;cursor:pointer; padding-left:15px; padding-right:15px ;color:#4478b3;
+border-left:1px solid #d2e0aa;border-top:1px solid #d2e0aa;border-right:1px solid #d2e0aa;background-color:#fefef2; height:25px;margin-left:5px; border-top-left-radius:3px; border-top-right-radius:3px }
+.Menubox li:hover{background: url(../images/menubox.gif) repeat-x ;border-left:1px solid #79b347;border-top:1px solid #79b347;border-right:1px solid #79b347;}
+.Menubox li:hover a{color:#ffffff}
+.Menubox li.hover{ border-left:1px solid #79b347; border-top:1px solid #79b347;border-right:1px solid #79b347;
+background: url(../images/menubox.gif) repeat-x; height:26px;line-height:26px; color:#ffffff }
+.Menubox li.hover a{color:#ffffff}
+
+/*tag标签*/
+span.tag {margin-right:3px; color: #5f5f5f; border: 1px solid #d2d2d2; border-radius: 3px; display: block; float: left; line-height: 24px; padding: 0 8px; white-space: nowrap;
+ border-radius: 3px;-webkit-border-radius: 3px;-moz-border-radius: 3px;
+	background: #fdfdfd;
+	background: -moz-linear-gradient(top, #fcfcfc 0%, #f2f2f2 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fcfcfc), color-stop(100%, #f2f2f2));
+	background: -webkit-linear-gradient(top, #fcfcfc 0%, #f2f2f2 100%);
+	background: -o-linear-gradient(top, #fcfcfc 0%, #f2f2f2 100%);
+	background: -ms-linear-gradient(top, #fcfcfc 0%, #f2f2f2 100%);
+	background: linear-gradient(top, #fcfcfc 0%, #f2f2f2 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#f2f2f2', GradientType=0 );
+}
+span.tag a{margin-left:6px;color:#7a7a7a;}
+span.tag a:hover{color:#ff0000}
+
+ .question{width:26px; height:38px; background:url(../images/question.png) no-repeat;
+position:absolute; right:10px; top:15px; cursor:pointer}

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pubJccx">
+    <!-- 实体pojo -->
+	<typeAlias alias="XbbEntity" type="com.incon.pojo.common.ryxgxxwh.XbbEntity"/>
+	<typeAlias alias="JgbEntity" type="com.incon.pojo.common.ryxgxxwh.JgbEntity"/>
+	<typeAlias alias="MzbEntity" type="com.incon.pojo.common.ryxgxxwh.MzbEntity"/>
+	<typeAlias alias="WhcdbEntity" type="com.incon.pojo.common.ryxgxxwh.WhcdbEntity"/>
+	<typeAlias alias="XlbEntity" type="com.incon.pojo.common.ryxgxxwh.XlbEntity"/>
+	<typeAlias alias="XwbEntity" type="com.incon.pojo.common.ryxgxxwh.XwbEntity"/>
+	<typeAlias alias="XzjbbEntity" type="com.incon.pojo.common.ryxgxxwh.XzjbbEntity"/>
+	<typeAlias alias="ZcbEntity" type="com.incon.pojo.common.ryxgxxwh.ZcbEntity"/>
+	<typeAlias alias="ZzmmbEntity" type="com.incon.pojo.common.ryxgxxwh.ZzmmbEntity"/>
+	
+	 <!-- 查询性别 -->
+    <select id="queryXb" resultClass="XbbEntity">
+    	select dm,mc from dm_xbb where kyf = '1'
+    </select>
+    <!-- 查询籍贯 -->
+    <select id="queryJg" resultClass="JgbEntity">
+    	select dm,mc from dm_jgb where kyf = '1'
+    </select>
+    <!-- 查询民族 -->
+    <select id="queryMz" resultClass="MzbEntity">
+    	select dm,mc from dm_mzb where kyf = '1'
+    </select>
+    <!-- 查询文化程度 -->
+    <select id="queryWhcd" resultClass="WhcdbEntity">
+    	select dm,mc from dm_whcdb where kyf = '1'
+    </select>
+    <!-- 查询学历 -->
+    <select id="queryXl" resultClass="XlbEntity">
+    	select dm,mc from dm_xlb where kyf = '1'
+    </select>
+    <!-- 查询学位 -->
+    <select id="queryXw" resultClass="XwbEntity">
+    	select dm,mc from dm_xwb where kyf = '1'
+    </select>
+    <!-- 查询行政级别 -->
+    <select id="queryXzjb" resultClass="XzjbbEntity">
+    	select dm,mc from dm_xzjbb where kyf = '1'
+    </select>
+    <!-- 查询职称 -->
+    <select id="queryZc" resultClass="ZcbEntity">
+    	select dm,mc from dm_zcb where kyf = '1'
+    </select>
+    <!-- 查询政治面貌 -->
+    <select id="queryZzmm" resultClass="ZzmmbEntity">
+    	select dm,mc from dm_zzmmb where kyf = '1'
+    </select>
+</sqlMap>

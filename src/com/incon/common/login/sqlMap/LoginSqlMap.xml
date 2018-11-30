@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="login">
+	<!-- 实体pojo -->
+	<typeAlias alias="UserEntity" type="com.incon.pojo.common.UserEntity"/>
+	<typeAlias alias="JsbEntity" type="com.incon.pojo.common.JsbEntity"/>
+	<!-- CAS登录 -->
+	<select id="casYhLogin" parameterClass="java.util.HashMap" resultClass="UserEntity" remapResults="true">
+		<isEmpty property="jsdm">
+			select xd.sfscdl,xd.dldm,xd.yhdm,xd.mm,xd.xm,xd.mrjs jsdm,xd.yhlx,dj.dlzylj,dj.jsmc,dj.sfcjgly,dr.gljb,
+			(case when (xd.yhlx = '1' and (select count(1) from sz_jsxxb where zgh = #yhdm# and nvl(kyf,'1') = '1') > 0) then '1'
+                when (xd.yhlx = '2' and (select count(1) from xj_xsxxb where xh = #yhdm# and sfzx != '0' and xjzt != '0') > 0) then '1'
+               else '0' end ) sfkdl    
+		        from xt_dlb xd 
+		        inner join dm_jsb dj on dj.jsdm = xd.mrjs 
+		        left join dm_ryjsb dr on dr.jsdm = xd.mrjs and dr.yhdm = #yhdm# and dr.xtdm = dj.xtdm 
+		        where xd.yhdm = #yhdm# 
+		  		and dj.kyf = '1' and dj.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/>
+		</isEmpty>
+		<isNotEmpty property="jsdm">  
+			select xd.sfscdl,xd.dldm,xd.yhdm,xd.mm,xd.xm,to_char(#jsdm#) jsdm,xd.yhlx,dj.dlzylj,dj.jsmc,dj.sfcjgly,dr.gljb 
+				from xt_dlb xd 
+				inner join dm_jsb dj on dj.jsdm = to_char(#jsdm#) 
+        		left join dm_ryjsb dr on dr.jsdm = to_char(#jsdm#) and dr.yhdm = #yhdm# and dr.xtdm = dj.xtdm 
+				where xd.yhdm = #yhdm# 
+				and dj.kyf = '1' and dj.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 
+		</isNotEmpty>  
+	</select> 
+	<!-- 登录 -->
+	<select id="yhLogin" parameterClass="java.util.HashMap" resultClass="UserEntity" remapResults="true">
+		<isEmpty property="jsdm">
+			select xd.sfscdl,xd.dldm,xd.yhdm,xd.mm,xd.xm,xd.mrjs jsdm,xd.yhlx,dj.dlzylj,dj.jsmc,dj.sfcjgly,dr.gljb,
+			(case when (xd.yhlx = '1' and (select count(1) from sz_jsxxb where zgh = #yhdm# and nvl(kyf,'1') = '1') > 0) then '1'
+                when (xd.yhlx = '2' and (select count(1) from xj_xsxxb where xh = #yhdm# and nvl(sfzx,'1') != '0' and nvl(xjzt,'1') != '0') > 0) then '1'
+               else '0' end ) sfkdl  
+		        from xt_dlb xd 
+		        inner join dm_jsb dj on dj.jsdm = xd.mrjs 
+		        left join dm_ryjsb dr on dr.jsdm = xd.mrjs and dr.yhdm = #yhdm# and dr.xtdm = dj.xtdm 
+		        where xd.yhdm = #yhdm# and (xd.mm = #mm# or xd.md5 = #md5#)
+		  		and dj.kyf = '1' and dj.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/>
+		</isEmpty>
+		<isNotEmpty property="jsdm">  
+			select xd.sfscdl,xd.dldm,xd.yhdm,xd.mm,xd.xm,to_char(#jsdm#) jsdm,xd.yhlx,dj.dlzylj,dj.jsmc,dj.sfcjgly,dr.gljb ,
+			(case when (xd.yhlx = '1' and (select count(1) from sz_jsxxb where zgh = #yhdm# and nvl(kyf,'1') = '1') > 0) then '1'
+                when (xd.yhlx = '2' and (select count(1) from xj_xsxxb where xh = #yhdm# and nvl(sfzx,'1') != '0' and nvl(xjzt,'1') != '0') > 0) then '1'
+               else '0' end ) sfkdl  
+				from xt_dlb xd 
+				inner join dm_jsb dj on dj.jsdm = to_char(#jsdm#) 
+        		left join dm_ryjsb dr on dr.jsdm = to_char(#jsdm#) and dr.yhdm = #yhdm# and dr.xtdm = dj.xtdm 
+				where xd.yhdm = #yhdm# and xd.mm = #mm# 
+				and dj.kyf = '1' and dj.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 
+		</isNotEmpty>  
+	</select>
+	
+	<!-- 查询用户角色 -->
+	<select id="getRyjsb" parameterClass="UserEntity" resultClass="JsbEntity">
+		select dj.jsdm,dj.jsmc from dm_ryjsb dr 
+			inner join dm_jsb dj on dr.jsdm = dj.jsdm 
+			where dr.yhdm = #yhdm# and dj.kyf = '1' and dj.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 
+			order by to_number(dj.jsdm)
+	</select>
+	
+	<!-- 判断是否有用户角色权限 -->
+	<select id="getRyjsqxCount" parameterClass="UserEntity" resultClass="Integer">
+		select count(*) from dm_ryjsqxb where jsdm = to_char(#jsdm#) and yhdm = #yhdm# and xtdm = <include refid="common.xtdm"/>
+	</select>
+	
+	<!-- 一级菜单（人员角色权限） -->
+	<select id="getFatherOrder1" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj,dq.icon,dq.sfzxj from dm_qxb dq 
+			inner join dm_ryjsqxb dr on dr.qxdm = dq.qxdm 
+			where dq.fqxdm = '-1' and dq.kyf ='1' and dr.jsdm = to_char(#jsdm#) and dr.yhdm = #yhdm# and dq.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 
+			<isNotEmpty prepend="and" property="inconqxdm">
+				dq.qxdm = #inconqxdm#
+			</isNotEmpty>			
+			order by dq.xssx
+	</select>
+	
+	<!-- 二级菜单（人员角色权限） -->
+	<select id="getOrder1" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj,dq.icon,dq.sfzxj,(select count(*) from dm_qxb zqxb where zqxb.fqxdm=dq.qxdm and zqxb.xtdm=dq.xtdm) as sfyxj from dm_qxb dq 
+			inner join dm_ryjsqxb dr on dr.qxdm = dq.qxdm 
+			where dq.fqxdm != '-1' and dq.kyf ='1' and dr.jsdm = to_char(#jsdm#) and dr.yhdm = #yhdm# and dq.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 
+			order by dq.xssx
+	</select>
+	
+	<!-- 一级菜单（角色权限） -->
+	<select id="getFatherOrder2" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj,dq.icon,dq.sfzxj from dm_qxb dq 
+			inner join dm_jsqxb dj on dj.qxdm = dq.qxdm 
+			where dq.fqxdm = '-1' and dq.kyf ='1' and dj.jsdm = to_char(#jsdm#) and dj.sfmrkf = '1' and dq.xtdm = <include refid="common.xtdm"/> and dj.xtdm = <include refid="common.xtdm"/> 
+			<isNotEmpty prepend="and" property="inconqxdm">
+				dq.qxdm = #inconqxdm#
+			</isNotEmpty>
+			
+			order by dq.xssx
+	</select>
+	
+	<!-- 二级菜单（角色权限） -->
+	<select id="getOrder2" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj,dq.icon,dq.sfzxj,(select count(*) from dm_qxb zqxb where zqxb.fqxdm=dq.qxdm  and zqxb.xtdm=dq.xtdm) as sfyxj from dm_qxb dq 
+			inner join dm_jsqxb dj on dj.qxdm = dq.qxdm 
+			where dq.fqxdm != '-1' and dq.kyf ='1' and dj.jsdm = to_char(#jsdm#) and dj.sfmrkf = '1' and dq.xtdm = <include refid="common.xtdm"/> and dj.xtdm = <include refid="common.xtdm"/> 
+			order by dq.xssx
+	</select>
+	
+	<!-- main_02专用 begin -->
+	<!-- 二级菜单（人员角色权限） -->
+	<select id="getOrder1Main02" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj,dq.icon from dm_qxb dq 
+			inner join dm_ryjsqxb dr on dr.qxdm = dq.qxdm 
+			where dq.fqxdm != '-1' and dq.kyf ='1' and dr.jsdm = to_char(#jsdm#) and dr.yhdm = #yhdm# and dq.fqxdm = #qxdm# and dq.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 
+			order by dq.xssx
+	</select>
+	
+	<!-- 二级菜单（角色权限） -->
+	<select id="getOrder2Main02" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj,dq.icon from dm_qxb dq 
+			inner join dm_jsqxb dj on dj.qxdm = dq.qxdm 
+			where dq.fqxdm != '-1' and dq.kyf ='1' and dj.jsdm = to_char(#jsdm#) and dq.fqxdm = #qxdm# and dj.sfmrkf = '1' and dq.xtdm = <include refid="common.xtdm"/> and dj.xtdm = <include refid="common.xtdm"/>  
+			order by dq.xssx
+	</select>
+	<!-- main_02专用 end -->
+	
+	<!-- main_06专用 begin -->
+	<!-- 三级菜单（人员角色权限2） -->
+	<select id="getOrder1_1Main06" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		<isEmpty property="qxdm">
+			select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj from dm_qxb dq 
+				inner join dm_ryjsqxb dr on dr.qxdm = dq.qxdm 
+				where dq.fqxdm != '-1' and dq.kyf ='1' and dq.sfzxj != '1' and dr.jsdm = to_char(#jsdm#) and dr.yhdm = #yhdm# 
+				and dq.fqxdm = (select min(qxdm) from dm_ryjsqxb where jsdm = to_char(#jsdm#) and yhdm = #yhdm# and xtdm = <include refid="common.xtdm"/> and length(qxdm) = '2') 
+				and dq.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 
+				order by dq.xssx
+		</isEmpty>
+		<isNotEmpty property="qxdm">  
+			select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj from dm_qxb dq 
+				inner join dm_ryjsqxb dr on dr.qxdm = dq.qxdm 
+				where dq.fqxdm != '-1' and dq.kyf ='1' and dq.sfzxj != '1' and dr.jsdm = to_char(#jsdm#) and dr.yhdm = #yhdm# and dq.fqxdm = #qxdm# and dq.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 
+				order by dq.xssx
+		</isNotEmpty>
+	</select>
+	
+	<!-- 三级菜单（角色权限2） -->
+	<select id="getOrder2_1Main06" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		<isEmpty property="qxdm">
+			select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj from dm_qxb dq 
+				inner join dm_jsqxb dj on dj.qxdm = dq.qxdm 
+				where dq.fqxdm != '-1' and dq.kyf ='1' and dq.sfzxj != '1' and dj.jsdm = to_char(#jsdm#) 
+				and dq.fqxdm = (select min(qxdm) from dm_jsqxb where jsdm = to_char(#jsdm#) and xtdm = <include refid="common.xtdm"/> and length(qxdm) = '2') 
+				and dj.sfmrkf = '1' and dq.xtdm = <include refid="common.xtdm"/> and dj.xtdm = <include refid="common.xtdm"/>  
+				order by dq.xssx
+		</isEmpty>
+		<isNotEmpty property="qxdm">  
+			select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj from dm_qxb dq 
+				inner join dm_jsqxb dj on dj.qxdm = dq.qxdm 
+				where dq.fqxdm != '-1' and dq.kyf ='1' and dq.sfzxj != '1' and dj.jsdm = to_char(#jsdm#) and dq.fqxdm = #qxdm# and dj.sfmrkf = '1' and dq.xtdm = <include refid="common.xtdm"/> and dj.xtdm = <include refid="common.xtdm"/>  
+				order by dq.xssx
+		</isNotEmpty>
+	</select>
+	
+	<!-- 三级菜单（人员角色权限3） -->
+	<select id="getOrder1_2Main06" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		<isEmpty property="qxdm">
+			select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj from dm_qxb dq 
+				inner join dm_ryjsqxb dr on dr.qxdm = dq.qxdm 
+				where dq.fqxdm != '-1' and dq.kyf ='1' and dq.sfzxj = '1' and dr.jsdm = to_char(#jsdm#) and dr.yhdm = #yhdm# 
+				and substr(dq.fqxdm,0,2) = (select min(qxdm) from dm_ryjsqxb where jsdm = to_char(#jsdm#) and yhdm = #yhdm# and xtdm = <include refid="common.xtdm"/> and length(qxdm) = '2') 
+				and dq.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 
+				order by dq.xssx
+		</isEmpty>
+		<isNotEmpty property="qxdm">  
+			select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj from dm_qxb dq 
+				inner join dm_ryjsqxb dr on dr.qxdm = dq.qxdm 
+				where dq.fqxdm != '-1' and dq.kyf ='1' and dq.sfzxj = '1' and dr.jsdm = to_char(#jsdm#) and dr.yhdm = #yhdm# and substr(dq.fqxdm,0,2) = #qxdm# and dq.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 
+				order by dq.xssx
+		</isNotEmpty>
+	</select>
+	
+	<!-- 三级菜单（角色权限3） -->
+	<select id="getOrder2_2Main06" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		<isEmpty property="qxdm">
+			select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj from dm_qxb dq 
+				inner join dm_jsqxb dj on dj.qxdm = dq.qxdm 
+				where dq.fqxdm != '-1' and dq.kyf ='1' and dq.sfzxj = '1' and dj.jsdm = to_char(#jsdm#) 
+				and substr(dq.fqxdm,0,2) = (select min(qxdm) from dm_jsqxb where jsdm = to_char(#jsdm#) and xtdm = <include refid="common.xtdm"/> and length(qxdm) = '2') 
+				and dj.sfmrkf = '1' and dq.xtdm = <include refid="common.xtdm"/> and dj.xtdm = <include refid="common.xtdm"/>  
+				order by dq.xssx
+		</isEmpty>
+		<isNotEmpty property="qxdm">  
+			select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj from dm_qxb dq 
+				inner join dm_jsqxb dj on dj.qxdm = dq.qxdm 
+				where dq.fqxdm != '-1' and dq.kyf ='1' and dq.sfzxj = '1' and dj.jsdm = to_char(#jsdm#) and substr(dq.fqxdm,0,2) = #qxdm# and dj.sfmrkf = '1' and dq.xtdm = <include refid="common.xtdm"/> and dj.xtdm = <include refid="common.xtdm"/>  
+				order by dq.xssx
+		</isNotEmpty>
+	</select>
+	<!-- main_06专用 end -->
+	
+	<!-- 修改密码前查询密码输入是否正确 -->
+	<select id="getDlbToMm" parameterClass="UserEntity" resultClass="Integer">
+		select count(*) from xt_dlb where yhdm = #yhdm# and mm = #mm#
+	</select>
+	
+	<!-- 修改密码 -->
+	<update id="updMm" parameterClass="UserEntity">
+		update xt_dlb set 
+		<isNotEmpty property="sfscdl">
+		sfscdl=#sfscdl#, 
+		</isNotEmpty>
+		mm = #mm# 
+		where yhdm = #yhdm#
+	</update>
+
+	
+	<!-- 查询人员角色按钮表 -->
+	<select id="queryRyjsanb" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select andm, qxdm, anmc, andh, xtdm, fwlj from dm_anb where  xtdm = <include refid="common.xtdm"/> 
+			<isNotEqual property="sfcjgly" compareValue="1" prepend="and">
+				andm in (select andm from dm_ryjsanb where xtdm = <include refid="common.xtdm"/> and yhdm =#yhdm# and jsdm = to_char(#jsdm#))
+			</isNotEqual>		
+	</select>
+	<!-- 查询角色按钮表 -->	
+	<select id="queryJsanb" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select andm, qxdm, anmc, andh, xtdm, fwlj from dm_anb where  xtdm = <include refid="common.xtdm"/> 
+			<isNotEqual property="sfcjgly" compareValue="1" prepend="and">
+		       andm in (select andm from dm_jsb where xtdm = <include refid="common.xtdm"/> and jsdm = to_char(#jsdm#)) 	
+		    </isNotEqual>	
+	</select>
+	<!-- 查询人员角色权限表 -->
+	<select id="queryRyjsqxb" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select qxdm, qxmc, xssx, fqxdm, fwlj, xtdm, kyf, bz, sfzxj, tcfs, sfnww, fwxtdm, yhlx 
+		       from dm_qxb where kyf='1' and xtdm=<include refid="common.xtdm"/> 
+		       	<isNotEqual property="sfcjgly" compareValue="1" prepend="and">
+		            qxdm in (select qxdm from dm_ryjsqxb where xtdm = <include refid="common.xtdm"/> and yhdm =#yhdm# and jsdm = to_char(#jsdm#))		
+				</isNotEqual>
+	</select>
+	<!-- 查询角色权限表 -->
+	<select id="queryJsqxb" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		 select qxdm, qxmc, xssx, fqxdm, fwlj, xtdm, kyf, bz, sfzxj, tcfs, sfnww, fwxtdm, yhlx 
+		       from dm_qxb where kyf='1' and xtdm=<include refid="common.xtdm"/> 
+		       	<isNotEqual property="sfcjgly" compareValue="1" prepend="and">
+		            qxdm in (select qxdm from dm_jsqxb where xtdm = <include refid="common.xtdm"/> and jsdm = to_char(#jsdm#))	
+		        </isNotEqual>	
+	</select>
+	
+	
+	<!-- 权限拦截 begin 丁起明 -->
+	<!-- 按钮（人员角色权限） -->
+	<select id="getAnOrder1" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select an.andm,an.qxdm,an.anmc,an.fwlj,an.andh from dm_anb an 
+			inner join dm_ryjsanb dr on dr.andm = an.andm 
+			where dr.jsdm = to_char(#jsdm#) and dr.yhdm = #yhdm# and an.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 
+	</select>	
+	<!-- 按钮（角色权限） -->
+	<select id="getAnOrder2" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select an.andm,an.qxdm,an.anmc,an.fwlj,an.andh from dm_anb an 
+			inner join dm_jsanb dr on dr.andm = an.andm 
+			where dr.jsdm = to_char(#jsdm#) and an.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 
+	</select>
+
+	<!-- 菜单（人员角色权限） -->
+	<select id="getCdOrder1" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj,qxb.qxmc as fqxmc from dm_qxb dq 
+			left join 
+			dm_qxb qxb on qxb.qxdm=dq.fqxdm and qxb.xtdm = <include refid="common.xtdm"/>
+			inner join dm_ryjsqxb dr on dr.qxdm = dq.qxdm 
+			where dq.fqxdm != '-1' and dq.kyf ='1' and dr.jsdm = to_char(#jsdm#) and dr.yhdm = #yhdm# and dq.xtdm = <include refid="common.xtdm"/> and dr.xtdm = <include refid="common.xtdm"/> 			
+			order by dq.xssx
+	</select>	
+	<!-- 菜单（角色权限） -->
+	<select id="getCdOrder2" parameterClass="UserEntity" resultClass="java.util.HashMap">
+		select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj,qxb.qxmc as fqxmc from dm_qxb dq 
+			left join 
+			dm_qxb qxb on qxb.qxdm=dq.fqxdm and qxb.xtdm = <include refid="common.xtdm"/> 		
+			inner join dm_jsqxb dj on dj.qxdm = dq.qxdm 
+			where dq.fqxdm != '-1' and dq.kyf ='1' and dj.jsdm = to_char(#jsdm#) and dj.sfmrkf = '1' and dq.xtdm = <include refid="common.xtdm"/> and dj.xtdm = <include refid="common.xtdm"/> 
+			order by dq.xssx
+	</select>
+	<!-- 根据访问路径返回一个按钮Map -->
+	<select id="getOneAn" parameterClass="string" resultClass="java.util.HashMap">
+		select an.andm,an.qxdm,an.anmc,an.andh,an.fwlj from dm_anb an where an.fwlj = #val# and an.xtdm = <include refid="common.xtdm"/>	
+	</select>
+	<!-- 根据访问路径返回一个菜单Map -->
+	<select id="getOneCd" parameterClass="string" resultClass="java.util.HashMap">
+		select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj,qxb.qxmc as fqxmc from dm_qxb dq left join 
+			dm_qxb qxb on qxb.qxdm=dq.fqxdm and qxb.xtdm = <include refid="common.xtdm"/> where dq.fwlj = #val# and dq.xtdm = <include refid="common.xtdm"/>	
+	</select>	
+	<!-- 权限拦截 end 丁起明 -->
+	
+	<!-- 获取参数表 -->
+	<select id="queryCsb" parameterClass="string" resultClass="HashMap">
+		select xtdm, csdm, csmc, cs1, cs2, cs3, cs4, cs5, cs6 from xt_csb where xtdm = <include refid="common.xtdm"/> and csdm = #csdm#
+	</select>
+	
+	<!-- 根据访问路径返回一个菜单Map -->
+	<select id="getAllCd" parameterClass="string" resultClass="java.util.HashMap">
+		select dq.qxdm,dq.qxmc,dq.fqxdm,dq.fwlj,qxb.qxmc as fqxmc from dm_qxb dq left join 
+			dm_qxb qxb on qxb.qxdm=dq.fqxdm and qxb.xtdm = <include refid="common.xtdm"/> where dq.fwlj = #val# and dq.xtdm = <include refid="common.xtdm"/>	
+	</select>
+	<insert id="updMrjs" parameterClass="String">
+		declare 
+		  i integer;
+		begin
+		      select count(*) into i from xt_dlb dlb where yhdm = #yhdm# and dlb.mrjs in (
+		                 select jsdm from dm_jsb jsb where jsb.kyf = '1' and jsb.xtdm = <include refid="common.xtdm"/>	
+		            );
+		      if i=0 then 
+		         update xt_dlb set mrjs = decode(yhlx,'1','2','3') where yhdm = #yhdm#;
+		      end if;
+		end;	
+	</insert>	
+	
+</sqlMap>

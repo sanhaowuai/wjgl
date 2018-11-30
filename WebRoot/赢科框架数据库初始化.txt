@@ -1,0 +1,175 @@
+-- 查询和框架相关的表
+select * from sz_jsxxb where zgh = 'admin';
+select * from xt_dlb where yhdm = 'admin';
+select * from dm_jsb where xtdm = 'jwweb';
+select * from dm_ryjsb where xtdm = 'jwweb';
+select * from dm_qxb where xtdm='jwweb';
+select * from dm_anb where xtdm='jwweb';
+select * from dm_jsqxb where xtdm='jwweb';
+select * from dm_jsanb where xtdm='jwweb';
+select * from dm_ryjsqxb where xtdm='jwweb';
+select * from dm_ryjsanb where xtdm='jwweb';
+select * from dm_sjqxb where xtdm='jwweb';
+select * from dm_jyssjqxb where xtdm='jwweb';
+
+-- 删除数据
+begin
+delete from sz_jsxxb
+delete from xt_dlb
+delete from dm_jsb where xtdm = 'jwweb';
+delete from dm_ryjsb where xtdm = 'jwweb';
+delete from dm_qxb where xtdm='jwweb';
+delete from dm_anb where xtdm='jwweb';
+delete from dm_jsqxb where xtdm='jwweb';
+delete from dm_jsanb where xtdm='jwweb';
+delete from dm_ryjsqxb where xtdm='jwweb';
+delete from dm_ryjsanb where xtdm='jwweb';
+delete from dm_sjqxb where xtdm='jwweb';
+delete from dm_jyssjqxb where xtdm='jwweb';
+end;
+
+
+-- 插入xt_dlb数据
+insert into xt_dlb (DLDM, YHDM, MM, XM, MRJS, YHLX, DLSJ, SFYD, MD5)
+values ('1', 'admin', 'P\X\[[', '系统管理员', '1', '1', null, '1', 'E10ADC3949BA59ABBE56E057F20F883E');
+
+--插入角色表dm_jsb
+insert into dm_jsb (JSDM, JSMC, KYF, SFSD, SFCJGLY, DLZYLJ, XTDM, MS, BZ)
+values ('1', '管理员-main_01', '1', '1', '1', 'commons/main/main_01', 'jwweb', null, null);
+
+insert into dm_jsb (JSDM, JSMC, KYF, SFSD, SFCJGLY, DLZYLJ, XTDM, MS, BZ)
+values ('2', '教师-main_02', '1', '1', '0', 'commons/main/main_02', 'jwweb', null, null);
+
+insert into dm_jsb (JSDM, JSMC, KYF, SFSD, SFCJGLY, DLZYLJ, XTDM, MS, BZ)
+values ('3', '导员-main_03', '1', '1', '0', 'commons/main/main_03', 'jwweb', null, null);
+
+--插入菜单表DM_QXB
+系统管理 	# 	 可用 	
+ 菜单管理 	/qxcdgl/queryAllQxcdgl 	 可用 	
+ 页面按钮管理 	/ymqxgl/queryAnb 	 可用 	
+ 角色管理 	/juesgl/queryJs 	 可用 	
+ 人员角色管理 	/ryjs/ryjsQuery 	 可用 	
+ 基础信息 	# 	 可用 	
+ 院系管理 	/yxgl/queryYxgl 	 可用 	
+ 专业管理 	/zygl/queryZygl 	 可用 	
+ 基础相关信息维护 	/jcxgxxwh/main 	 可用 	
+ 人员相关信息维护 	/ryxgxxwh/main 	 可用 (已经不用了，已经用代码维护替代)	
+ 代码维护 	/dmwh/queryDmwh 	 可用 	
+ 院系专业关系 	/yxzygl/queryYxZygl 	 可用 	
+ 班级管理 /bjgl/queryBjgl 可用
+ 教师管理 	/jsgl/queryJsgl 	 可用 	
+ 学生管理 	/xsgl/queryXsgl 	 可用 	
+ 系统反馈 	# 	 可用 	
+ 反馈处理 	/xtfk/queryXtfk 	 可用 	
+ 添加反馈 	/xtfk/addFkxx 	 可用 
+ 
+ --插入DM_RYJSB(只插入admin用户和角色代码为1的就可以，DM_JSQXB.RYJSDM采用序列方式SEQ_DM_JSQXB.NEXTVAL)
+ 
+--------------------------------------------------------------------------------基础代码维护 使用指南----------------------------------------------------------------------------------------------------------
+（1）添加DM_JCDMLXB（代码_基础代码类型表）
+-- Create table
+create table DM_JCDMLXB
+(
+  dm  VARCHAR2(50),
+  mc  VARCHAR2(200),
+  kyf CHAR(1)
+)
+tablespace JXYTH
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    minextents 1
+    maxextents unlimited
+  );
+-- Add comments to the table 
+comment on table DM_JCDMLXB
+  is 'DM_基础代码类型表';
+-- Add comments to the columns 
+comment on column DM_JCDMLXB.dm
+  is '代码';
+comment on column DM_JCDMLXB.mc
+  is '名称';
+comment on column DM_JCDMLXB.kyf
+  is '可用否';
+  （2）添加DM_DMWHB（基础代码维护表）
+-- Create table
+create table DM_DMWHB
+(
+  bm     VARCHAR2(100),
+  bzs    VARCHAR2(100),
+  jcdmlx VARCHAR2(200)
+)
+tablespace JXYTH
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    minextents 1
+    maxextents unlimited
+  );
+-- Add comments to the table 
+comment on table DM_DMWHB
+  is 'DM_代码维护表';
+-- Add comments to the columns 
+comment on column DM_DMWHB.bm
+  is '表名';
+comment on column DM_DMWHB.bzs
+  is '表注释';
+comment on column DM_DMWHB.jcdmlx
+  is '基础代码类型';
+（3）添加DM_DMFKB（代码外键表）
+
+-- Create table
+create table DM_DMFKB
+(
+  zbm    VARCHAR2(20),
+  zzd    VARCHAR2(20),
+  glbm   VARCHAR2(20),
+  glzd   VARCHAR2(20),
+  glfs   VARCHAR2(2),
+  gdz    VARCHAR2(2000),
+  glxszd VARCHAR2(20),
+  id     VARCHAR2(20) not null
+)
+tablespace JXYTH
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    minextents 1
+    maxextents unlimited
+  );
+-- Add comments to the table 
+comment on table DM_DMFKB
+  is 'DM_代码维护外键表';
+-- Add comments to the columns 
+comment on column DM_DMFKB.zbm
+  is '主表名';
+comment on column DM_DMFKB.zzd
+  is '主子段';
+comment on column DM_DMFKB.glbm
+  is '关联表名';
+comment on column DM_DMFKB.glzd
+  is '关联字段';
+comment on column DM_DMFKB.glfs
+  is '关联方式1：采用关联名和关联字段。2：采用固定值写法【1:是,0:否】';
+comment on column DM_DMFKB.gdz
+  is '固定值';
+comment on column DM_DMFKB.glxszd
+  is '关联显示字段';
+comment on column DM_DMFKB.id
+  is '主键';
+
+（4）在代码维护页面将DM_DMFKB、DM_DMWHB、 DM_JCDMLXB 添加进入（注：基础代码类型：需要填写JCDM）
+
+（5）维护一下DM_JCDMLXB（内容为
+JCDM 	基础代码 	1 	
+YWDM 	业务代码 	1 
+）

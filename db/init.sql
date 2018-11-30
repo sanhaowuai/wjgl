@@ -1,0 +1,23 @@
+begin
+delete from dm_yxb;
+delete from dm_zyb;
+delete from dm_xyzyb;
+delete from dm_bjb;
+delete from xj_xsxxb;
+delete from sz_jsxxb where zgh != 'admin';
+delete from xt_dlb where yhdm != 'admin';
+delete from dm_ryjsanb;
+delete from dm_ryjsqxb;
+update dm_qxb set xtdm ='incon' ;
+update dm_anb set xtdm ='incon' ;
+update dm_jsb set xtdm ='incon' ;
+update dm_jsqxb set xtdm ='incon' ;
+update dm_jsanb set xtdm ='incon' ;
+update dm_ryjsb set xtdm ='incon' ;
+end;
+select * from dm_qxb;
+select * from dm_anb;
+select * from dm_jsb;
+select * from dm_jsqxb;
+select * from dm_jsanb;
+select * from dm_ryjsb;

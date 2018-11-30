@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pubYx">
+    <typeAlias alias="PubYxPage" type="com.incon.common.pub.pubYx.page.PubYxPage"/>
+    <!-- 查询院系列表 (搜索)--> 
+	<select id="queryPubYx"  parameterClass="PubYxPage"   resultClass="HashMap">
+		   select t.yxdm,t.yxmc,t.yxjc,t.sjyxdm,t.sfglbm,t.sfyxs,t.kyf,
+			(select count(*) from DM_YXB a where a.sjyxdm=t.yxdm) xjsl 
+			from DM_YXB t  
+		  where t.sfglbm='1' and 1=1
+		 	<isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and t.yxdm in (select glyx from sz_jsxxb where zgh = #yhdm# union select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+		<![CDATA[
+		   order by t.yxdm 
+		]]>	
+	</select>
+	
+	<!--查询院系列表(添加) -->
+	<select id="queryPubYxList" resultClass="HashMap" parameterClass="PubYxPage">
+	  select t.yxdm,t.yxmc,t.yxjc,t.sjyxdm,t.sfglbm,t.sfyxs,t.kyf,
+			(select count(*) from DM_YXB a where a.sjyxdm=t.yxdm) xjsl 
+			from DM_YXB t  
+		  where t.kyf='1' and t.sjyxdm='0' and 1=1
+		 	<isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and t.yxdm in (select glyx from sz_jsxxb where zgh = #yhdm# union select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+		<![CDATA[
+		   order by t.yxdm 
+		]]>	
+	</select>
+	
+	  <!-- 查询系列表 --> 
+	<select id="queryPubX"  parameterClass="String"   resultClass="HashMap">
+		   select t.yxdm,t.yxmc,t.yxjc,t.sjyxdm,t.sfglbm,t.sfyxs,t.kyf
+			from DM_YXB t  
+		  where t.sjyxdm=#yxdm# and t.kyf='1'
+	</select>
+	
+	<select id="queryPubYxAll"  parameterClass="java.util.HashMap"  resultClass="HashMap">
+		   select t.yxdm,t.yxmc,t.yxjc,t.sjyxdm,t.sfglbm,t.sfyxs,t.kyf
+		   
+		   ,yxdm "id",'1' "idd", yxmc "name", '0' "pId" 
+			from DM_YXB t  
+		  where  t.kyf='1'
+		   <isNotEmpty  prepend="and" property="bj" >
+		   	t.sfglbm='1'
+		   </isNotEmpty>
+		   
+		   <isNotEmpty  prepend="and" property="yxmc" >
+		    (	t.yxmc like '%' || #yxmc# ||  '%'  or	t.yxdm like '%' || #yxmc# ||  '%'      )
+		   </isNotEmpty>
+		  
+	</select>
+</sqlMap>

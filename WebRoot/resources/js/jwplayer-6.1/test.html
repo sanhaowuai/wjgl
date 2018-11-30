@@ -1,0 +1,91 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>abc</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type />
+
+<script type="text/javascript" src="../jquery/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="jwplayer.js"></script>
+
+<script type="text/javascript">
+
+$(function() {
+    var MyJwPlayer = jwplayer("myElement").setup( {
+    	width : 640,
+    	height : 480,
+    	file : "test.flv",
+    	image : "test.jpg",
+    	autostart : false
+    });
+
+
+
+  //播放 暂停  
+    $('.player-play').click(function() {  
+        if (MyJwPlayer.getState() != 'PLAYING') {  
+            MyJwPlayer.play(true);  
+        } else {  
+            MyJwPlayer.play(false);  
+        }  
+    });  
+      
+    //停止  
+    $('.player-stop').click(function() { MyJwPlayer.stop(); });  
+      
+    //获取状态  
+    $('.player-status').click(function() {  
+        var state = MyJwPlayer.getState();  
+        var msg;  
+        switch (state) {  
+            case 'BUFFERING':  
+                msg = '加载中';  
+                break;  
+            case 'PLAYING':  
+                msg = '正在播放';  
+                break;  
+            case 'PAUSED':  
+                msg = '暂停';  
+                break;  
+            case 'IDLE':  
+                msg = '停止';  
+                break;  
+        }  
+        alert(msg);  
+    });  
+      
+    //获取播放进度  
+    $('.player-current').click(function() { alert(MyJwPlayer.getPosition()); });  
+
+    //跳转到指定位置播放  
+    $('.player-goto').click(function() {  
+        if (MyJwPlayer.getState() != 'PLAYING') {    //若当前未播放，先启动播放器  
+            MyJwPlayer.play();  
+        }  
+        MyJwPlayer.seek(30); //从指定位置开始播放(单位：秒)  
+    });  
+      
+    //获取视频长度  
+    $('.player-length').click(function() { alert(MyJwPlayer.getDuration()); }); 
+    
+});
+</script>
+
+</head>
+
+
+<body>
+<div id="myElement">
+  Loading the player...
+</div>
+
+<input type="button" class="player-play" value="播放/暂停" />  
+<input type="button" class="player-stop" value="停止" />  
+<input type="button" class="player-status" value="取得状态" />  
+<input type="button" class="player-current" value="当前播放秒数" />  
+<input type="button" class="player-goto" value="转到第30秒播放" />  
+<input type="button" class="player-length" value="视频时长(秒)" />  
+
+
+</body>
+</html>

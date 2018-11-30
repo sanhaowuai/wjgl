@@ -1,0 +1,26 @@
+{"total":7,"rows":[
+	{"name":"Name","value":"","group":"属性","editor":"text"},
+	{"name":"ID","value":"","group":"属性","editor":"text"},
+	{"name":"Value","value":"40","group":"属性","editor":"text"},
+	{"name":"Class","value":" ","group":"属性","editor":"text"},
+	{"name":"数据类型","value":" ","group":"属性","editor":{
+						"type":"combobox",
+						"options":{
+							"valueField":"productid",
+							"textField":"name",
+							"data":[{"productid":"01","name":"文本"},
+							        {"productid":"02","name":"数字"}
+							       ],
+							"required":true
+						}
+					}
+    },
+	{"name":"长度","value":" ","group":"属性","editor":"numberbox"},
+	{"name":"onclick","value":"false","group":"事件","editor":{
+		"type":"checkbox",
+		"options":{
+			"on":true,
+			"off":false
+		}
+	}}
+]}

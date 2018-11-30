@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+	<!-- ========数据源列表 丁起明======== -->
+	<bean id="dynamicDataSource">
+        <property>
+            <map key-type="java.lang.String">
+             	<entry value-ref="INCON32_ORCL" key="INCON32_ORCL"></entry>
+             	<entry value-ref="XXCJ_ORCL" key="XXCJ_ORCL"></entry>
+            </map>
+        </property>
+    </bean>
+	<!-- 智能填报平台 其中“bean id=codedesign”，为“智能填报”存储参数用的，不可修改id名称，可修改数据库地址等参数 -->
+	<bean id="codedesign" class="org.logicalcobwebs.proxool.ProxoolDataSource" >
+		<property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="driverUrl" value="jdbc:oracle:thin:@192.168.0.11:1521:ORCL" />
+		<property name="user" value="incon32" />
+		<property name="password" value="sa" />
+		<!--数据源的别名 -->
+		<property name="alias" value="incon32" />
+		<!-- 空闲连接个数 默认为0 -->
+		<property name="prototypeCount" value="4" />
+		<!--最小连接数(默认5个) -->
+		<property name="minimumConnectionCount" value="1" />
+		<!--最大连接数(默认15个),超过了这个连接数,再有请求时,就排在队列中等候,最大的等待请求数由maximum-new-connections决定 -->
+		<property name="maximumConnectionCount" value="30" />
+		<!-- 如果侦察线程发现闲置连接，则会使用这个SQL语句来对这些连接进行检查 -->
+		<property name="houseKeepingTestSql" value="select CURRENT_DATE FROM DUAL" />
+	</bean>
+	<bean id="INCON32_ORCL" class="org.logicalcobwebs.proxool.ProxoolDataSource" >
+		<property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="driverUrl" value="jdbc:oracle:thin:@192.168.0.11:1521:ORCL" />
+		<property name="user" value="INCON32" />
+		<property name="password" value="sa" />
+		<!--数据源的别名 -->
+		<property name="alias" value="INCON32_ORCL" />
+		<!-- 空闲连接个数 默认为0 -->
+		<property name="prototypeCount" value="4" />
+		<!--最小连接数(默认5个) -->
+		<property name="minimumConnectionCount" value="1" />
+		<!--最大连接数(默认15个),超过了这个连接数,再有请求时,就排在队列中等候,最大的等待请求数由maximum-new-connections决定 -->
+		<property name="maximumConnectionCount" value="30" />
+		<!-- 如果侦察线程发现闲置连接，则会使用这个SQL语句来对这些连接进行检查 -->
+		<property name="houseKeepingTestSql" value="select CURRENT_DATE FROM DUAL" />
+	</bean>
+	<bean id="XXCJ_ORCL" class="org.logicalcobwebs.proxool.ProxoolDataSource" >
+		<property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="driverUrl" value="jdbc:oracle:thin:@192.168.0.11:1521:ORCL" />
+		<property name="user" value="INCON32" />
+		<property name="password" value="sa" />
+		<!--数据源的别名 -->
+		<property name="alias" value="XXCJ_ORCL" />
+		<!-- 空闲连接个数 默认为0 -->
+		<property name="prototypeCount" value="4" />
+		<!--最小连接数(默认5个) -->
+		<property name="minimumConnectionCount" value="1" />
+		<!--最大连接数(默认15个),超过了这个连接数,再有请求时,就排在队列中等候,最大的等待请求数由maximum-new-connections决定 -->
+		<property name="maximumConnectionCount" value="30" />
+		<!-- 如果侦察线程发现闲置连接，则会使用这个SQL语句来对这些连接进行检查 -->
+		<property name="houseKeepingTestSql" value="select CURRENT_DATE FROM DUAL" />
+	</bean>	
+</beans>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dmwh">
+ 	<typeAlias alias="dmwhPage" type="com.incon.project.common.dmwh.page.DmwhPage"/>
+ 	<!-- 查询已设置可维护表 -->
+ 	<select id="queryTabName" resultClass="java.util.HashMap">
+	 	select 
+	 	bm, 
+	 	bzs 
+	 	from dm_dmwhb
+	 	order by rowid
+ 	</select>
+	<!-- 查询表结构-->
+	<select id="queryTabStr" parameterClass="String" resultClass="java.util.HashMap" remapResults="true">
+	    select 
+	    user_col_comments.column_name, 
+	    user_col_comments.comments,
+	    user_cons_columns.constraint_name,
+	    user_tab_columns.data_type,
+	    user_tab_columns.data_length,
+	    nvl(glfs, '0') glfs,
+	    glbm,
+	    glzd,
+	    glxszd,
+	    gdz,
+      	user_tab_columns.nullable
+	    from user_col_comments 
+	    left join user_cons_columns 
+	    on user_col_comments.table_name = user_cons_columns.table_name 
+	    and  user_cons_columns.constraint_name like 'PK_%'  
+	    and user_cons_columns.column_name = user_col_comments.column_name
+	    left join user_tab_columns 
+	    on user_col_comments.table_name = user_tab_columns.table_name 
+	    and user_tab_columns.column_name = user_col_comments.column_name
+	    left join DM_DMFKB 
+	    on upper(DM_DMFKB.zbm) = user_col_comments.table_name
+	    and upper(DM_DMFKB.zzd) = user_col_comments.column_name
+	    where user_col_comments.table_name =upper(#tabName#)
+	    order by user_cons_columns.constraint_name, user_tab_columns.column_id
+	    
+	</select>
+ 	<!-- 查询信息 -->
+	<select id="queryDmwhNotPage" parameterClass="dmwhPage" resultClass="java.util.HashMap" remapResults="true">
+				select 
+  		 	<iterate property="list" conjunction=",">
+  		 		$list[].COLUMN_NAME$
+  		 		<isEqual property="list[].GLFS" compareValue="1">,
+  		 			(select $list[].GLXSZD$ from $list[].GLBM$ t where t.$list[].GLZD$ = t1.$list[].COLUMN_NAME$) $list[].COLUMN_NAME$MC
+  		 		</isEqual>
+  		 	</iterate>
+				from $tabName$ t1
+				where 1=1
+				<isNotEmpty prepend="and" property="gjz">
+					 ($id$ like #gjz#||'%' or $mc$ like #gjz#||'%')
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="pjcdmlx">
+					jcdmlx=#pjcdmlx#
+				</isNotEmpty>
+				order by $id$
+	</select>	
+ 	<!-- 查询信息 -->
+	<select id="queryDmwh" parameterClass="dmwhPage" resultClass="java.util.HashMap" remapResults="true">
+		select t.*   from 
+		(
+			select t.*,row_number()over(order by null) orderNumber 
+			from 
+			(
+				select 
+  		 	<iterate property="list" conjunction=",">
+  		 		$list[].COLUMN_NAME$
+  		 		<isEqual property="list[].GLFS" compareValue="1">,
+  		 			(select $list[].GLXSZD$ from $list[].GLBM$ t where t.$list[].GLZD$ = t1.$list[].COLUMN_NAME$) $list[].COLUMN_NAME$MC
+  		 		</isEqual>
+  		 	</iterate>
+				from $tabName$ t1
+				where 1=1
+				<isNotEmpty prepend="and" property="gjz">
+					 ($id$ like #gjz#||'%' or $mc$ like #gjz#||'%')
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="pjcdmlx">
+					jcdmlx=#pjcdmlx#
+				</isNotEmpty>
+				order by $id$
+			) t 
+      	)t 
+      	<![CDATA[
+    	where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		]]>
+	</select>
+	<!-- 查询信息 数量-->
+	<select id="queryDmwhCount" parameterClass="dmwhPage" resultClass="int">
+		select count(*) 
+		from $tabName$
+		where 1=1
+		<isNotEmpty prepend="and" property="gjz">
+			($id$ like #gjz#||'%' or $mc$ like #gjz#||'%')
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="pjcdmlx">
+					jcdmlx=#pjcdmlx#
+		</isNotEmpty>
+	</select>
+	<!-- 查询一条 -->
+	<select id="queryByID" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" remapResults="true">
+		select 
+		 	<iterate property="list" conjunction=",">
+		 		$list[].COLUMN_NAME$
+		 		<isEqual property="list[].GLFS" compareValue="1">,
+		 			(select $list[].GLXSZD$ from $list[].GLBM$ t where t.$list[].GLZD$ = t1.$list[].COLUMN_NAME$) $list[].COLUMN_NAME$MC
+		 		</isEqual>
+		 	</iterate> 
+		from $tabName$ t1
+		where $id$ = #idVal#
+	</select>
+	<!-- 查询冲突判断 -->
+	<select id="repeatJudg" parameterClass="java.util.HashMap" resultClass="int" remapResults="true">
+		select count(*) from $tabName$ where $id$ = #idVal#
+	</select>
+	
+	<!-- 向代码维护表中添加新的可维护表时判断新添加的表在系统中是否存在 -->
+	<select id="existTable" parameterClass="String" resultClass="int" remapResults="true">
+		 select count(1) from user_tables where tablespace_name='JXYTH' and table_name=upper(trim(#tabName#))
+	</select>
+ 	
+ 	<!-- 添加 -->
+	<insert id="addDmwh" parameterClass="java.util.HashMap">
+		insert into $tabName$
+		  ( 
+			<iterate property="listKey" conjunction=",">
+  		 		$listKey[]$
+  		 	</iterate>
+		  )
+		values
+  		  ( 
+			<iterate property="listValue" conjunction=",">
+  		 		'$listValue[]$'
+  		 	</iterate>
+  		  )
+	</insert>
+	  <!-- 修改 -->
+	  <update id="updateDmwh" parameterClass="java.util.HashMap">
+			update $tabName$
+	  		 set 
+  		 	<iterate property="list" conjunction=",">
+  		 		$list[]$
+  		 	</iterate>
+	 		where 
+	 		$id$=#idVal#
+	 </update>
+	<!-- 删除代码维护 -->
+	<delete id="deleteDmwh" parameterClass="java.util.HashMap">
+		begin
+		delete $tabName$ where $id$ = #idVal#;
+		<isEqual compareValue="DM_DMWHB" property="tabName" >
+		delete DM_DMFKB where zbm = #idVal#;
+		</isEqual>
+		end;
+	</delete>
+	
+	
+	 <select id="queryDM_DMFKB" parameterClass="string"  resultClass="java.util.HashMap">
+	     select zbm,zzd,glbm,glzd,glfs,gdz,glxszd,id from DM_DMFKB  where zbm=#tablename#
+	 </select>
+	
+	
+	
+	 <select id="queryTableFK" parameterClass="string" remapResults="true" resultClass="java.util.HashMap">
+	     select $glzd$ dm ,$glxszd$ mc from $glbm$
+	 </select>
+	
+	<!-- 根据表名查询List -->
+	 <select id="queryListTabName" parameterClass="string" remapResults="true" resultClass="java.util.HashMap">
+	     select distinct * from $tablename$ 
+	 </select>
+	 
+	 <select id="queryJclxdmb" resultClass="java.util.HashMap">
+ 		select dm,mc,kyf from DM_JCDMLXB where kyf ='1'
+	 </select>
+	 
+	 <!-- 查询表 的约束条件 丁起明 20161207-->
+	 <select id="queryTabConstraints" resultClass="java.util.HashMap" parameterClass="String">
+		 select a.constraint_name,  a.column_name 
+		 from user_cons_columns a, user_constraints b 
+		 where a.constraint_name = b.constraint_name 
+		 and b.constraint_type = 'P' 
+		and a.table_name = upper(#tabName#)
+	 </select>
+</sqlMap>

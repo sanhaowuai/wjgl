@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pubXs">
+	 
+	<!--  查询学生	-->
+    <select id="queryPubXs" parameterClass="HashMap" resultClass="HashMap">
+           select t.xh,t.xm,t.xydm,t.xdm,t.zydm,t4.mc xbmc,t5.mc jgmc,t6.mc mzmc,t7.mc zzmmmc,t.sfzx,t.sfzc,t1.yxmc,t2.zymc,t3.yxmc xmc,t8.bjmc,wm_concat(t10.jsmc) jsm 
+			  from XJ_XSXXB t
+			  left join DM_YXB t1 on t.glyx=t1.yxdm
+			  left join DM_ZYB t2 on t.zydm = t2.zydm
+			  left join DM_YXB t3 on t3.yxdm = t.xdm
+			  left join DM_XBB t4 on t4.dm = t.xb
+			  left join DM_JGB t5 on t5.dm = t.jgdm
+			  left join DM_MZB t6 on t6.dm = t.mzdm
+			  left join DM_ZZMMB t7 on t7.dm = t.zzmm 
+			  left join dm_bjb t8 on t8.bjdm = t.bjdm 
+			  left join dm_ryjsb t9 on t.xh=t9.yhdm and t9.xtdm=<include refid="common.xtdm"/>
+              left join dm_jsb t10 on t10.jsdm=t9.jsdm and t10.xtdm=<include refid="common.xtdm"/>
+			  where 1=1 
+			 <isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and t.glyx in (select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+			  <isNotEmpty  prepend="and" property="yxdm">
+			       t.xydm =#yxdm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="zydm">
+			       t.zydm =#zydm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="bjdm">
+			       t.bjdm =#bjdm#
+			  </isNotEmpty>
+			  <isNotEmpty  prepend="and" property="xh">
+			      t.xm like '%'||#xh#||'%' or t.xh like '%'||#xh#||'%'
+			  </isNotEmpty>
+			 group by t.xh,t.xm,t.xydm,t.xdm,t.zydm,t4.mc ,t5.mc ,t6.mc ,t7.mc ,t.sfzx,t.sfzc,t1.yxmc,t2.zymc,t3.yxmc ,t8.bjmc 
+       <![CDATA[
+       ORDER BY Xh
+	   ]]>
+    </select>
+    
+    
+</sqlMap>

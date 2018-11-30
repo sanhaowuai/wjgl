@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fkcl">
+	<!-- 实体pojo -->		
+	<typeAlias alias="FkclEntity" type="com.incon.pojo.common.qkfkxt.FkclEntity"/>
+	<typeAlias alias="FkclPage" type="com.incon.project.qkfkxt.fkcl.page.FkclPage" />
+	
+	
+		<!-- 分页查询 -->
+	 <select id="queryFkcl" parameterClass="FkclPage" resultClass="FkclEntity">
+	 	   select * from (select  rownum rn, bb.* from ( 
+	             select q.sqdh,q.bggs,
+            q.xtdm,
+            t1.xtmc,
+            q.sqrdm,
+            t2.xm sqr,
+            q.bgtcrxm,
+            q.bglxdm,
+            t3.mc bglxmc,
+            q.jjcddm,
+            t4.mc jjcdmc,
+            TO_CHAR(q.sqsj, 'YYYY-MM-DD hh24:mi') as sqsj,
+            TO_CHAR(q.yqwcsj, 'YYYY-MM-DD hh24:mi') as yqwcsj,
+            q.lzjsrdm,
+            t6.xm as lzrmc,
+            t7.xm as lzjsrmc,
+            q.sqzt
+       from qkfkxt_fksqb q   
+       left join pt_xt_zxtb t1
+         on t1.dm = q.xtdm
+       left join xt_dlb t2
+         on t2.yhdm = q.sqrdm
+       left join qkfkxt_dm_bglxb t3
+         on t3.dm = q.bglxdm
+       left join qkfkxt_dm_jjcdb t4
+         on t4.dm = q.jjcddm        
+       left join (
+       select count(*) as sfcyg,cyb.sqdh from qkfkxt_fksqb_cyb cyb 
+       where cyb.lzjsrdm=#yhdm# 
+       
+       group by cyb.sqdh
+       
+       )  t5 on t5.sqdh=q.sqdh
+       
+        left join xt_dlb t6
+            on t6.yhdm = q.lzrdm
+          left join xt_dlb t7
+            on t7.yhdm = q.lzjsrdm      
+         where 1=1 and q.sqzt!='0' 
+         and (q.lzjsrdm=#yhdm# or t5.sfcyg > 0) 
+<!--          and q.sqzt = '2' -->
+<!--          and q.sqzt = '3' -->
+<!--          and q.sqzt = '4' -->
+<!--            and q.sqzt = '5' -->
+<!--            and q.sqzt = '6' -->
+<!--            and (q.sqzt = '3' and sysdate > YQWCSJ)  -->
+         <isNotEmpty  prepend="and" property="xtdm">
+			  q.xtdm=#xtdm#
+		 </isNotEmpty> 
+		 <isNotEmpty  prepend="and" property="bglxdm">
+			  q.bglxdm=#bglxdm#
+		 </isNotEmpty> 
+		 <isNotEmpty  prepend="and" property="jjcddm">
+			  q.jjcddm=#jjcddm#
+		 </isNotEmpty> 
+		 <isNotEmpty  prepend="and" property="sqzt">
+			  <isEqual property="sqzt" compareValue="A" >
+               sysdate> q.yqwcsj and (q.sqzt='1' or q.sqzt='2' or q.sqzt='3')
+              </isEqual>
+             <isNotEqual property="sqzt" compareValue="A">
+	            q.sqzt=#sqzt#
+              </isNotEqual>
+		 </isNotEmpty>
+		   <isNotEmpty  prepend="and" property="qssj">
+			 <![CDATA[  q.sqsj>=TO_DATE(#qssj#, 'YYYY-MM-DD hh24:mi') ]]>
+		 </isNotEmpty>
+		  <isNotEmpty  prepend="and" property="jssj">
+			  <![CDATA[ q.sqsj<=TO_DATE(#jssj#, 'YYYY-MM-DD hh24:mi')]]>
+		 </isNotEmpty>
+		  <isNotEmpty  prepend="and" property="lzjsrdm">
+			  q.lzjsrdm=#lzjsrdm#
+		 </isNotEmpty>
+		 <isNotEmpty  prepend="and" property="sqdh">
+  q.sqdh like '%'|| trim(#sqdh#) || '%'
+  </isNotEmpty>		
+  <isNotEmpty  prepend="and" property="bggs">
+  							 q.bggs like '%'|| trim(#bggs#) || '%'
+  						 </isNotEmpty>	
+		 
+          order by q.sqdh DESC
+  		  <![CDATA[
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+	
+	 <select id="queryFkclCount" parameterClass="FkclPage" resultClass="int">
+	 		select  count(*) from (
+	              select q.sqdh,q.bggs,
+            q.xtdm,
+            t1.xtmc,
+            q.sqrdm,
+            t2.xm sqr,
+            q.bgtcrxm,
+            q.bglxdm,
+            t3.mc bglxmc,
+            q.jjcddm,
+            t4.mc jjcdmc,
+            TO_CHAR(q.sqsj, 'YYYY-MM-DD hh24:mi') as sqsj,
+            TO_CHAR(q.yqwcsj, 'YYYY-MM-DD hh24:mi') as yqwcsj,
+            q.lzjsrdm,
+             t6.xm as lzrmc,
+            t7.xm as lzjsrmc,
+            q.sqzt
+       from qkfkxt_fksqb q   
+       left join pt_xt_zxtb t1
+         on t1.dm = q.xtdm
+       left join xt_dlb t2
+         on t2.yhdm = q.sqrdm
+       left join qkfkxt_dm_bglxb t3
+         on t3.dm = q.bglxdm
+       left join qkfkxt_dm_jjcdb t4
+         on t4.dm = q.jjcddm        
+       left join (
+       select count(*) as sfcyg,cyb.sqdh from qkfkxt_fksqb_cyb cyb 
+       where cyb.lzjsrdm=#yhdm#  
+       
+       group by cyb.sqdh
+       
+       )  t5 on t5.sqdh=q.sqdh
+       
+        left join xt_dlb t6
+            on t6.yhdm = q.lzrdm
+          left join xt_dlb t7
+            on t7.yhdm = q.lzjsrdm  
+         where 1=1 and q.sqzt!='0' 
+         and (q.lzjsrdm=#yhdm#  or t5.sfcyg > 0) 
+<!--          and q.sqzt = '2' -->
+<!--          and q.sqzt = '3' -->
+<!--          and q.sqzt = '4' -->
+<!--            and q.sqzt = '5' -->
+<!--            and q.sqzt = '6' -->
+<!--            and (q.sqzt = '3' and sysdate > YQWCSJ)  -->
+ <isNotEmpty  prepend="and" property="xtdm">
+			  q.xtdm=#xtdm#
+		 </isNotEmpty> 
+		 <isNotEmpty  prepend="and" property="bglxdm">
+			  q.bglxdm=#bglxdm#
+		 </isNotEmpty> 
+		 <isNotEmpty  prepend="and" property="jjcddm">
+			  q.jjcddm=#jjcddm#
+		 </isNotEmpty> 
+		 <isNotEmpty  prepend="and" property="sqzt">
+			 <isEqual property="sqzt" compareValue="A" >
+               sysdate> q.yqwcsj and (q.sqzt='1' or q.sqzt='2' or q.sqzt='3')
+              </isEqual>
+             <isNotEqual property="sqzt" compareValue="A">
+	            q.sqzt=#sqzt#
+              </isNotEqual>
+		 </isNotEmpty> 
+		  <isNotEmpty  prepend="and" property="qssj">
+			 <![CDATA[  q.sqsj>=TO_DATE(#qssj#, 'YYYY-MM-DD hh24:mi') ]]>
+		 </isNotEmpty>
+		  <isNotEmpty  prepend="and" property="jssj">
+			  <![CDATA[ q.sqsj<=TO_DATE(#jssj#, 'YYYY-MM-DD hh24:mi')]]>
+		 </isNotEmpty>
+		  <isNotEmpty  prepend="and" property="lzjsrdm">
+			  q.lzjsrdm=#lzjsrdm#
+		 </isNotEmpty>
+		 <isNotEmpty  prepend="and" property="sqdh">
+              q.sqdh like '%'|| trim(#sqdh#) || '%'
+         </isNotEmpty>		
+         <isNotEmpty  prepend="and" property="bggs">
+  							 q.bggs like '%'|| trim(#bggs#) || '%'
+  						 </isNotEmpty>	
+		 
+          order by q.sqdh DESC
+				    )
+	 </select>
+	 
+	<select id="queryFkclts" parameterClass="FkclPage" resultClass="FkclEntity">
+	 	 select q.sqdh,q.bggs,
+            q.xtdm,
+            t1.xtmc,
+            q.sqrdm,
+            t2.xm sqr,
+            q.bgtcrxm,
+            q.bglxdm,
+            t3.mc bglxmc,
+            q.jjcddm,
+            t4.mc jjcdmc,
+            TO_CHAR(q.sqsj, 'YYYY-MM-DD hh24:mi') as sqsj,
+            TO_CHAR(q.yqwcsj, 'YYYY-MM-DD hh24:mi') as yqwcsj,
+            q.lzjsrdm,
+            t6.xm as lzrmc,
+            q.sqzt,
+            q.sqrlxdh,
+            q.bgtcrlxdm
+       from qkfkxt_fksqb q   
+       left join pt_xt_zxtb t1
+         on t1.dm = q.xtdm
+       left join xt_dlb t2
+         on t2.yhdm = q.sqrdm
+       left join qkfkxt_dm_bglxb t3
+         on t3.dm = q.bglxdm
+       left join qkfkxt_dm_jjcdb t4
+         on t4.dm = q.jjcddm        
+       left join (
+       select count(*) as sfcyg,cyb.sqdh from qkfkxt_fksqb_cyb cyb 
+       where cyb.lzjsrdm=#yhdm# 
+       
+       group by cyb.sqdh
+       
+       )  t5 on t5.sqdh=q.sqdh
+       
+        left join xt_dlb t6
+         on t6.yhdm = q.lzjsrdm  
+                 
+         where 1=1 
+         and (q.lzjsrdm=#yhdm# or t5.sfcyg > 0) 
+      <isNotEmpty  prepend="and" property="sqdh">
+        q.sqdh=#sqdh#
+     </isNotEmpty>
+          order by q.sqdh 
+    </select>
+    
+    <select id="queryBySqdhAll" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	
+		select q.sqdh,
+            
+            q.sqrdm,
+            t1.xm xqrxm,
+            q.xh,
+            q.id,
+            q.lzrdm,
+            t2.xm as lzrxm,
+            TO_CHAR( q.lzsj, 'YYYY-MM-DD hh24:mi') as lzsj,
+            q.lzjsrdm,
+            t3.xm lzjsrxm,
+             TO_CHAR( q.lzjssj, 'YYYY-MM-DD hh24:mi') as lzjssj,
+            q.zt,
+            q.yj,
+             TO_CHAR( q.wcyjsj, 'YYYY-MM-DD hh24:mi') as wcyjsj
+             
+       from qkfkxt_fksqb_cyb q
+       
+        left join xt_dlb t1
+         on t1.yhdm = q.sqrdm
+          left join xt_dlb t2
+         on t2.yhdm = q.lzrdm
+           left join xt_dlb t3
+         on t3.yhdm = q.lzjsrdm
+       
+       where  q.sqdh=#sqdh#
+       and (q.sqrdm=#yhdm# or  (select count(*) from qkfkxt_fksqb_cyb cyb where cyb.lzjsrdm=#yhdm#) > 0)
+       order by q.id
+	
+	
+	
+	
+	
+	</select>
+	
+   <parameterMap id="aaa" class="java.util.HashMap">
+		<parameter property="P_ZT" javaType="String" jdbcType="VARCHAR2" mode="IN"/>
+		<parameter property="P_SQDH" javaType="String" jdbcType="varchar2" mode="IN"/>
+		<parameter property="P_YHDM" javaType="String" jdbcType="varchar2" mode="IN"/>		
+		<parameter property="P_LZJSRDM" javaType="String" jdbcType="varchar2" mode="IN"/>
+		<parameter property="P_YJ" javaType="String" jdbcType="varchar2" mode="IN"/>
+		<parameter property="P_WCYJSJ" javaType="String" jdbcType="varchar2" mode="IN"/>
+		<parameter property="flg" javaType="String" jdbcType="VARCHAR" mode="OUT"/>		
+	</parameterMap>
+    <procedure id="bhxsxk" parameterMap="aaa">
+	 	{call QKFKXT_P_LCCL(?,?,?,?,?,?,?)}
+	 </procedure>
+
+
+<select id="yhxm" parameterClass="string" resultClass="string">
+	select xm from xt_dlb where yhdm=#yhdm#
+	</select>
+
+
+<select id="sqid" parameterClass="string" resultClass="string">
+	select #sqdh#||'-'||lpad((nvl(max(xh),0)+1),4,'0') 
+from qkfkxt_fksqb_cyb 
+where sqdh= #sqdh#
+	</select>
+
+    
+</sqlMap>

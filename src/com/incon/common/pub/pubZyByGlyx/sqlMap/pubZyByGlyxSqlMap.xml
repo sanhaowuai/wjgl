@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pubZyByGlyx">
+     
+     <!-- 根据系查询专业 -->
+     <select id="queryZyByGlyx" resultClass="HashMap" parameterClass="String">
+       select t.zydm,t.zymc,t.kyf from dm_zyb t
+       left join dm_xyzyb t1 on t1.zydm = t.zydm and t1.kyf='1'
+       where t1.glyx = #xydm# and t.kyf = '1'
+       order by lpad(t.zydm,8,'0')
+     </select>
+</sqlMap>

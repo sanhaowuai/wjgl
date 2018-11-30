@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="exceptionTask">
+	<typeAlias alias="ExceptionTaskEntity" type="com.incon.common.ExceptionTask.page.ExceptionTaskEntity"/>
+	<typeAlias alias="RwrzbEntity" type="com.incon.common.ExceptionTask.page.RwrzbEntity"/>
+	<typeAlias alias="RwrzbJsonPage" type="com.incon.common.ExceptionTask.page.RwrzbJsonPage"/>
+	<!-- 查询异常（例外）任务列表 -->
+	<select id="queryExceptionTaskToList" parameterClass="ExceptionTaskEntity" resultClass="ExceptionTaskEntity">
+		select 
+		ycscrwb.id, ycscrwb.xtdm,ycscrwb.mc, ycscrwb.YCCXROWS,ycscrwb.ms, ycscrwb.yccxsql, ycscrwb.ycclsql, ycscrwb.cron, xt_dlb.xm as zhxgrdm, ycscrwb.zhxgsj 
+		from xt_ycscrwb ycscrwb 
+		left join xt_dlb on xt_dlb.yhdm = ycscrwb.zhxgrdm 
+		where ycscrwb.xtdm = <include refid="common.xtdm"/> 
+		<isNotEmpty prepend="and" property="mc">
+			(  ycscrwb.mc like '%'|| trim(#mc#)||'%')
+		</isNotEmpty>
+		<isEqual property="gnbs" prepend="and" compareValue="2">
+			ycscrwb.zhxgrdm = #zhxgrdm#
+		</isEqual>
+		<isNotEmpty prepend="and" property="sfyyc"> 
+			ycscrwb.YCCXROWS =  0 
+		</isNotEmpty>
+		order by ycscrwb.zhxgsj desc
+	</select>
+	<!-- 查询单个异常（例外）任务 -->
+	<select id="queryExceptionTaskToSin" parameterClass="ExceptionTaskEntity" resultClass="ExceptionTaskEntity">
+		select 
+		ycscrwb.id, ycscrwb.mc, ycscrwb.xtdm,ycscrwb.ms,ycscrwb.YCCXROWS, ycscrwb.yccxsql, ycscrwb.ycclsql, ycscrwb.cron, ycscrwb.zhxgrdm, ycscrwb.zhxgsj 
+		from xt_ycscrwb ycscrwb 
+		where ycscrwb.xtdm = <include refid="common.xtdm"/> 
+		and id = #id#
+	</select>
+	<!-- 删除单个异常（例外）任务 -->
+	<delete id="delExceptionTaskToSin" parameterClass="ExceptionTaskEntity">
+		delete from xt_ycscrwb where xtdm = <include refid="common.xtdm"/> and id = #id#
+	</delete>
+	
+	<!-- 新增单个异常（例外）任务 -->
+	<insert id="addExceptionTaskToSin" parameterClass="ExceptionTaskEntity">
+		insert into xt_ycscrwb
+		  (id, mc, ms, yccxsql, ycclsql, cron, zhxgrdm, zhxgsj, xtdm)
+		values
+		  (#id#, #mc#, #ms#, #yccxsql#,#ycclsql#, #cron#, #zhxgrdm#, sysdate, <include refid="common.xtdm"/>)
+	</insert>
+	<!-- 修改单个异常（例外）任务 -->
+	<update id="updExceptionTaskToSin" parameterClass="ExceptionTaskEntity">
+		update xt_ycscrwb
+		   set zhxgsj = sysdate
+		   	   <isNotEmpty property="mc" prepend=",">
+		   	   mc = #mc#
+		   	   </isNotEmpty>
+		   	   <isNotEmpty property="ms" prepend=",">
+		       ms = #ms#
+		       </isNotEmpty>
+		       <isNotEmpty property="yccxsql" prepend=",">
+		       yccxsql = #yccxsql#
+		       </isNotEmpty>
+		       <isNotEmpty property="ycclsql" prepend=",">
+		       ycclsql = #ycclsql#
+		       </isNotEmpty>
+		       <isNotEmpty property="cron" prepend=",">
+		       cron = #cron#
+		       </isNotEmpty>
+		       <isNotEmpty property="zhxgrdm" prepend=",">
+		       zhxgrdm = #zhxgrdm#
+		       </isNotEmpty>
+		 where xtdm = <include refid="common.xtdm"/>  and id = #id# 
+	</update>		
+	
+
+	<select id="queryRwrzb" resultClass="RwrzbEntity" parameterClass="RwrzbJsonPage">
+		select * from (select  rownum rn, cc.* from (
+			select id, rwlx, zxsj, rwid, xtdm, zxsql, xt_dlb.xm as zxrdm, yxhs from xt_rwrzb 
+			left join xt_dlb on xt_dlb.yhdm = xt_rwrzb.zxrdm 
+			where xtdm = <include refid="common.xtdm"/> and rwlx = #rwlx# and rwid = #rwid# 
+			order by zxsj desc			
+		<![CDATA[
+		) cc where rownum <=#page#*#rows#
+		)where rn  >(#page#-1)*(#rows#)
+		]]>
+	</select>
+	
+	<select id="queryRwrzbCount" resultClass="int" parameterClass="RwrzbJsonPage">
+		select count(*) from (
+			select id, rwlx, zxsj, rwid, xtdm, zxsql, xt_dlb.xm as zxrdm, yxhs from xt_rwrzb 
+			left join xt_dlb on xt_dlb.yhdm = xt_rwrzb.zxrdm 
+			where xtdm = <include refid="common.xtdm"/> and rwlx = #rwlx# and rwid = #rwid# 
+			order by zxsj desc
+		)
+	</select>	
+</sqlMap>

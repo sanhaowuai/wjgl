@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pubChooseMxdx"> 
+
+	<select id="queryXsxxbList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select xh "value",xm "text" from xj_xsxxb where 1=1 
+		<isEmpty property="yx">
+		<isEmpty property="xmordm">
+			AND glyx = #glyx# 
+			and nj = #nj#
+		</isEmpty>
+		<isNotEmpty property="zydm" prepend="and">
+			zydm = #zydm#
+		</isNotEmpty>
+		<isNotEmpty property="bjdm" prepend="and">
+			bjdm = #bjdm#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="xmordm">
+		(  xm like '%'|| trim(#xmordm#)||'%'  or xh  like '%'|| trim(#xmordm#)||'%'  )
+		</isNotEmpty>
+		<isNotEmpty property="dx" prepend="and">
+			xh not in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>
+		</isEmpty>						
+		<isNotEmpty property="yx" prepend="and">
+			xh in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty> 
+		order by xh 
+	</select>
+	
+	<select id="queryJsxxbList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select zgh "value",jsxm "text" from sz_jsxxb where 1=1 
+		<isEmpty property="yx">
+		<isEmpty property="xmordm">
+		and	glyx = #glyx#
+		</isEmpty>
+		<isNotEmpty property="jysdm" prepend="and">
+			JYSDM = #jysdm#
+		</isNotEmpty>	
+		<isNotEmpty prepend="and" property="xmordm">
+		(  jsxm like '%'|| trim(#xmordm#)||'%'  or zgh  like '%'|| trim(#xmordm#)||'%'  )
+		</isNotEmpty>
+		<isNotEmpty property="dx" prepend="and">
+			zgh not in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>			
+		</isEmpty>	
+		<isNotEmpty property="yx" prepend="and">
+			zgh in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>	
+		order by zgh 
+	</select>
+	
+	<select id="queryJuesxxbList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select jsdm "value",jsmc "text" from dm_jsb where 1=1 and xtdm = <include refid="common.xtdm"/>  and kyf = '1' 
+		<isEmpty property="yx">
+		<isNotEmpty prepend="and" property="xmordm">
+		(  jsmc like '%'|| trim(#xmordm#)||'%'  or jsdm  like '%'|| trim(#xmordm#)||'%'  )
+		</isNotEmpty>
+		<isNotEmpty property="dx" prepend="and">
+			jsdm not in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>				
+		</isEmpty>
+		<isNotEmpty property="yx" prepend="and">
+			jsdm in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>	
+		order by jsdm  
+	</select>
+	
+	<select id="queryQzxxbList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select qzdm "value" , qzmc "text" from pt_yx_dm_qzb where kyf = '1' and cjr = #cjrdm#  
+		<isNotEmpty property="dx" prepend="and">
+			qzdm not in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>		
+		<isNotEmpty property="yx" prepend="and">
+			qzdm in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>	
+		order by qzdm 	
+	</select>
+	
+	<select id="queryYxxxbList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select yxdm "value",yxmc "text" from dm_yxb where 1=1 and SFGLBM = '1' and kyf = '1' 
+		<isEmpty property="yx">
+		<isNotEmpty prepend="and" property="xmordm">
+		(  yxmc like '%'|| trim(#xmordm#)||'%'  or yxdm  like '%'|| trim(#xmordm#)||'%'  )
+		</isNotEmpty>
+		<isNotEmpty property="dx" prepend="and">
+			yxdm not in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>				
+		</isEmpty>
+		<isNotEmpty property="yx" prepend="and">
+			yxdm in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>		
+		order by yxdm  
+	</select>
+	
+	<select id="queryJysxxbList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select jysdm "value" ,jysmc "text" from dm_jysb where kyf = '1' 
+		<isEmpty property="yx">
+		<isNotEmpty property="glyx" prepend="and">
+			glyx = #glyx#
+		</isNotEmpty>		
+		<isNotEmpty prepend="and" property="xmordm">
+		(  jysdm like '%'|| trim(#xmordm#)||'%'  or jysmc  like '%'|| trim(#xmordm#)||'%'  )
+		</isNotEmpty>
+		<isNotEmpty property="dx" prepend="and">
+			jysdm not in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>				
+		</isEmpty>
+		<isNotEmpty property="yx" prepend="and">
+			jysdm in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>		
+		order by jysdm  
+	</select>	
+	
+	<select id="queryZyxxbList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select distinct dm_zyb.zydm "value",dm_zyb.zymc "text" from dm_zyb 
+		left join dm_xyzyb on dm_zyb.zydm=dm_xyzyb.zydm 
+		where 1=1 and dm_zyb.kyf = '1' 
+		<isEmpty property="yx">
+		<isNotEmpty  property="glyx" prepend="and">
+		dm_xyzyb.glyx = #glyx#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="xmordm">
+		(  dm_zyb.zydm like '%'|| trim(#xmordm#)||'%'  or dm_zyb.zymc  like '%'|| trim(#xmordm#)||'%'  )
+		</isNotEmpty>
+		<isNotEmpty property="dx" prepend="and">
+			dm_zyb.zydm not in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>					
+		</isEmpty>
+		<isNotEmpty property="yx" prepend="and">
+			dm_zyb.zydm in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>	
+		order by dm_zyb.zydm  
+	</select>	
+	
+	<select id="queryNjxxbList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select nj "value",njmc "text" from dm_njb where 1=1 and kyf = '1' 
+		<isNotEmpty property="dx" prepend="and">
+			nj not in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>		
+		<isNotEmpty property="yx" prepend="and">
+			nj in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>	
+		order by nj asc 
+	</select>
+	
+	<select id="queryBjxxbList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select bjdm "value",bjmc "text" from dm_bjb where 1=1 and kyf = '1' and BJLX = '1' 
+		<isEmpty property="yx">
+		<isNotEmpty  property="glyx" prepend="and">
+		GLYX = #glyx#
+		</isNotEmpty>	
+		<isNotEmpty  property="zydm" prepend="and">
+		zydm = #zydm#
+		</isNotEmpty> 	
+		<isNotEmpty  property="nj" prepend="and">
+		nj = #nj#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="xmordm">
+		( bjdm like '%'|| trim(#xmordm#)||'%'  or bjmc  like '%'|| trim(#xmordm#)||'%'  )
+		</isNotEmpty>
+		<isNotEmpty property="dx" prepend="and">
+			bjdm not in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>								
+		</isEmpty>
+		<isNotEmpty property="yx" prepend="and">
+			bjdm in (select column_value "value" from 
+				table(fn_split((select MXDXZ from PT_PUB_MXDXB where mxdxlx=#mxdxlx# and GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>),','))
+			)
+		</isNotEmpty>	
+		order by nj asc 	
+	</select>
+	
+	<insert id="saveToMxdxxxb" parameterClass="java.util.HashMap">
+		begin
+			delete from PT_PUB_MXDXB where GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>;
+			insert into pt_pub_mxdxb
+			 (id, mxdxlx, glb, glzjz, glzjm, mxdxz,mxdxxsz, mxdxsql, xtdm, cjrdm)
+			values
+			 (sys_guid(), #mxdxlx#, #glb#, #glzjz#, #glzjm#, #mxdxz#,#mxdxxsz#,pt_f_pub_mxdxsql(#mxdxlx#,#mxdxz#,#cjrdm#), <include refid="common.xtdm"/>, #cjrdm#);			
+		end;
+	</insert>
+	
+	<select id="queryMxdxlxToString" parameterClass="java.util.HashMap" resultClass="String"> 
+	select mxdxlx from PT_PUB_MXDXB where GLB=#glb# and GLZJZ=#glzjz# and GLZJM=#glzjm# and xtdm=<include refid="common.xtdm"/>
+	</select>
+
+</sqlMap>

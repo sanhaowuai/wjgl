@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pubJs">
+    <!--  查询教师	-->
+    <select id="queryPubJs" parameterClass="HashMap" resultClass="HashMap">
+              select zgh,jsxm,xydm,lxdh,t1.yxmc,wm_concat(t3.jsmc) jsm,t4.yxmc xmc,t5.jysmc 
+			  from SZ_JSXXB t
+			  left join DM_YXB t1 on t.xydm=t1.yxdm 
+			  left join dm_ryjsb t2 on t.zgh=t2.yhdm and t2.xtdm=<include refid="common.xtdm"/>
+              left join dm_jsb t3 on t3.jsdm=t2.jsdm and t3.xtdm=<include refid="common.xtdm"/>
+              left join DM_YXB t4 on t4.yxdm = t.xdm
+              left join dm_jysb t5 on t5.jysdm = t.jysdm 
+        		where 1=1 
+        	  <isNotEqual property="sfcjgly" compareValue="1">
+		 	  <isNotEqual property="gljb" compareValue="1">
+		 		<isEqual property="resultCount" compareValue="1">
+			 		and t.jysdm in ( select jysdm from dm_jyssjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		 		<isEqual property="resultCount" compareValue="0">
+			 		and t.glyx in ( select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		   	 </isNotEqual>
+		     </isNotEqual>
+				  <isNotEmpty prepend="and" property="yxdm">
+				       t.xydm =#yxdm# or xdm = #yxdm# 
+				  </isNotEmpty>
+				  <isNotEmpty prepend="and" property="jysdm">
+				       t.jysdm = #jysdm# 
+				  </isNotEmpty>
+				  <isNotEmpty prepend="and" property="jsxm">
+				       t.jsxm like '%'||#jsxm#||'%'
+				  </isNotEmpty>
+				  group by zgh,jsxm,xydm,lxdh,t1.yxmc,t4.yxmc ,t5.jysmc
+       <![CDATA[
+       ORDER BY ZGH
+	   ]]>
+    </select>
+   
+    <!-- 查询教研室数据权限表中是否有数据 -->
+   	<select id="queryJyssjqxCount" parameterClass="HashMap" resultClass="int">
+   		select count(*) from dm_jyssjqxb where xtdm = <include refid="common.xtdm"/> and  yhdm=#yhdm# and jsdm=#jsdm#
+   	</select>
+  
+  
+    
+</sqlMap>

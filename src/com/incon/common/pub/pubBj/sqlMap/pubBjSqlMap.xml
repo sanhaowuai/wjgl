@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pubBj">
+	<!--  查询班级	-->
+    <select id="queryPubBj" parameterClass="HashMap" resultClass="HashMap">
+         select bjdm,bjmc,t.xydm,t.xdm,t.zydm,t.nj,t.xiaoqu,t4.mc,t5.njmc,t3.zymc,t1.yxmc,t2.yxmc xmc,t.kyf from dm_bjb t 
+         left join dm_yxb t1 on t.xydm = t1.yxdm
+         left join dm_yxb t2 on t2.yxdm = t.xdm
+         left join dm_zyb t3 on t3.zydm = t.zydm
+         left join dm_xiaoqub t4 on t4.dm = t.xiaoqu
+         left join dm_njb t5 on t5.nj = t.nj
+         where t.kyf='1' and 1=1
+          <isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and t.glyx in (select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+         <isNotEmpty prepend="and" property="bjdm" > 
+           t.bjdm like '%'|| #bjdm# ||'%'
+      	</isNotEmpty>
+      	<isNotEmpty prepend="and" property="bjmc" > 
+           t.bjmc like '%'|| #bjmc# ||'%'
+      	</isNotEmpty>
+		<![CDATA[
+       ORDER BY bjdm
+	   ]]>
+    </select>
+    
+</sqlMap>

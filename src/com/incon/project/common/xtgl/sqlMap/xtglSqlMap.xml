@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="xtgl">
+	<!-- 实体pojo -->
+	
+
+	<typeAlias alias="XsxxbEntity" type="com.incon.pojo.common.XsxxbEntity"/>
+	<typeAlias alias="XtczbEntity" type="com.incon.pojo.common.lwgl.XtczbEntity"/>
+	<typeAlias alias="KxkzybEntity" type="com.incon.pojo.common.lwgl.KxkzybEntity"/>
+	<typeAlias alias="LwsbbEntity" type="com.incon.pojo.common.lwgl.LwsbbEntity"/>
+	<typeAlias alias="XtglPage" type="com.incon.project.common.xtgl.page.XtglPage" />
+	<typeAlias alias="XsxtbEntity" type="com.incon.pojo.common.lwgl.XsxtbEntity" />
+	
+	
+	 <select id="queryLwxt" parameterClass="XtglPage" resultClass="LwsbbEntity">
+	 	select t.*   from 
+	     (select t.*,row_number()over(order by to_number(LWID)) orderNumber from 
+	      (
+	      	 select SYSJ_LW_LWSBB.* ,SZ_JSXXB.JSXM JSXM  from SYSJ_LW_LWSBB,SZ_JSXXB where SZ_JSXXB.ZGH =SYSJ_LW_LWSBB.SBR
+	      	 and XN=#xn# and  XQ=#xq# and  MXXY=#xydm# and  SHZT='99'	
+	      	
+	      	 <isNotEmpty prepend="and" property="xtmc">
+				       (LWMC like '%'||trim(#xtmc#)||'%')
+		 	</isNotEmpty>
+	      		
+	 	  ) t 
+	     )t 
+	 	  <![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		  ]]>  	
+    </select>
+	
+	
+	 <select id="queryLwxtCount" parameterClass="XtglPage" resultClass="int">
+	 	select count(*) from SYSJ_LW_LWSBB where XN=#xn# and  XQ=#xq# and  MXXY=#xydm# and  SHZT='99'
+	 	
+	 	 <isNotEmpty prepend="and" property="xtmc">
+				       (LWMC like '%'||trim(#xtmc#)||'%')
+		 </isNotEmpty>
+		 	
+	 </select>
+	
+	
+	
+	<select id="queryXsxtinfo" parameterClass="XsxtbEntity" resultClass="XsxtbEntity">
+      select  t.* ,SZ_JSXXB.JSXM JSXM from
+       (select lw.ID ID,lw.XN XN,lw.XQ XQ,lw.XH XH,lw.LWID LWID,lwsb.LWMC LWMC ,lwsb.SBR SBR
+   			from  SYSJ_LW_XSXTB lw ,SYSJ_LW_LWSBB  lwsb where lw.LWID = lwsb.LWID
+   			and lw.XN=#XN# and lw.XQ=#XQ# and lw.XH=#XH#    ) t,SZ_JSXXB
+   where t.SBR = SZ_JSXXB.ZGH
+    </select> 
+	
+		<!--  查询是否已选题   -->
+	<select id="ifchooseXt"  parameterClass="XsxtbEntity" resultClass="int">
+	 	select count(*) from SYSJ_LW_XSXTB where XN=#XN# and XQ=#XQ# and XH=#XH#
+	 </select>
+	 
+	  <!-- 添加选题-->
+    <insert id="addXt" parameterClass="XsxtbEntity">
+         insert into SYSJ_LW_XSXTB(ID,XN,XQ,LWID,XH,XTSJ)
+      	  values(#ID#,#XN#,#XQ#,#LWID#,#XH#,#XTSJ#) 
+    </insert>
+    
+      <!-- 更新人数-->
+     <update id="upXtyxrs" parameterClass="LwsbbEntity">
+      update SYSJ_LW_LWSBB 
+       	set YXRS=#YXRS#
+      where LWID=#LWID#
+    </update>
+    
+    
+     <delete id="delXt" parameterClass="XsxtbEntity">	   
+	    	delete from SYSJ_LW_XSXTB where ID=#ID#  
+    </delete>
+    
+	
+	<!--  查询当前时间是否可以选题   -->
+	 <select id="queryXtTime"  parameterClass="String" resultClass="int">
+	 	select count(*) from SYSJ_LW_XTCZB where sysdate between XTKSSJ and XTJSSJ
+	 </select>
+	 
+	 <select id="queryXtInfo"  parameterClass="String" resultClass="XtczbEntity">
+	 	select * from SYSJ_LW_XTCZB where sysdate between XTKSSJ and XTJSSJ
+	 </select>
+	 
+	 <!--  查询可选题   -->
+	  <select id="queryZykxtInfo"  parameterClass="KxkzybEntity" resultClass="KxkzybEntity">
+	 	select * from SYSJ_LW_KXKZYB where XN=#XN# and  XQ=#XQ# and  XYDM=#XYDM# and  ZYDM=#ZYDM#
+	 </select>
+	 
+	 
+	  <!--  查询可选题   -->
+	  <select id="queryLwsbbInfo"  parameterClass="KxkzybEntity" resultClass="LwsbbEntity">
+	 	select * from SYSJ_LW_LWSBB where XN=#XN# and  XQ=#XQ# and  MXXY=#XYDM# and  SHZT='99'
+	 </select>
+	 
+	   <!--  查询一条可选题   -->
+	 <select id="queryOneLwsbbInfo"  parameterClass="LwsbbEntity" resultClass="LwsbbEntity">
+	 	select * from SYSJ_LW_LWSBB where LWID= #LWID#
+	 </select>
+	 
+
+	<!--  查询单个学生信息   -->
+    <select id="queryXsByXh" parameterClass="String" resultClass="XsxxbEntity">
+        select t.xh,t.xm,t.xydm,t.xdm,t.zydm,t.xb,t.jgdm,t.mzdm,t.zzmm,t.glyx,t.bjdm 
+        from XJ_XSXXB t
+        left join DM_YXB t1 on t.xydm=t1.yxdm
+        left join DM_ZYB t2 on t.zydm = t2.zydm
+        where xh=#xh#
+    </select> 
+    
+      <!-- 根据session中yhdm 查询 用户数据 -->
+   	<select id="queryUser" parameterClass="UserEntity" resultClass="UserEntity">
+   		select xd.dldm,
+       xd.yhdm,  
+       to_char(#jsdm#) jsdm,
+       dj.sfcjgly,
+       dr.gljb
+		  from xt_dlb xd
+		 inner join dm_jsb dj
+		    on dj.jsdm = to_char(#jsdm#)
+		  left join dm_ryjsb dr
+		    on dr.jsdm = to_char(#jsdm#)
+		   and dr.yhdm = #yhdm#
+		   and dr.xtdm = dj.xtdm
+		 where xd.yhdm = #yhdm#
+		   and dj.kyf = '1'
+		   and dj.xtdm = <include refid="common.xtdm"/>
+		   and dr.xtdm = <include refid="common.xtdm"/>
+   	</select>
+
+
+</sqlMap>

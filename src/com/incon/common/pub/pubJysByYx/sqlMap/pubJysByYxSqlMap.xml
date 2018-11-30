@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pubJysByYx">
+     
+     <!-- 根据院查询教研室 -->
+     <select id="queryJysByY" resultClass="HashMap" parameterClass="String">
+       select jysdm,jysmc from dm_jysb where kyf = '1' and xydm = #yxdm# order by jysdm
+     </select>
+     
+     <!-- 根据系查询教研室 -->
+     <select id="queryJysByX" resultClass="HashMap" parameterClass="String">
+       select jysdm,jysmc from dm_jysb where kyf = '1' and xdm = #yxdm# order by jysdm
+     </select>
+     
+     <!-- 根据管理院系查询教研室 -->
+     <select id="queryJysByGlyx" resultClass="HashMap" parameterClass="String">
+       select jysdm,jysmc from dm_jysb where kyf = '1' and glyx = #yxdm# order by jysdm
+     </select>
+</sqlMap>

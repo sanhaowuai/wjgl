@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="gzlgwgl">
+	<!-- 实体pojo -->
+	
+	<typeAlias alias="GzlgwglEntity" type="com.incon.pojo.common.gzlgwgl.GzlgwglEntity"/>
+	<typeAlias alias="RygwglEntity" type="com.incon.pojo.common.gzlgwgl.RygwglEntity"/>
+
+	<!-- 分页pojo -->
+	<typeAlias alias="RygwglPage" type="com.incon.project.common.gzlgwgl.page.RygwglPage"/>	
+	<typeAlias alias="RyxzPage" type="com.incon.project.common.gzlgwgl.page.RyxzPage"/>
+	<!-- 分页查询所有权限 -->
+	<select id="queryGzlgwgl"  resultClass="GzlgwglEntity">
+	  SELECT distinct gwdm ,gwmc ,bb.kyf ,xtdm ,sjgwdm ,ssyx ,t1.yxmc ssyxmc,
+    sys_connect_by_path(bb.gwdm,'_') treedm,
+    substr(sys_connect_by_path(sjgwdm,'_'),4) treefdm,
+        (
+case 
+  when (select count(*) from gzl_dm_gwb c where c.sjgwdm=bb.gwdm) >0  then 1
+  when (select count(*) from gzl_dm_gwb c where c.sjgwdm=bb.gwdm) =0  then 0
+end
+) as sfzzdj   
+    FROM gzl_dm_gwb bb
+     left join DM_YXB t1 on bb.ssyx=t1.yxdm 
+    where 
+      xtdm = <include refid="common.xtdm"/> 
+      start with sjgwdm='-1'  CONNECT BY PRIOR bb.gwdm = sjgwdm and xtdm = <include refid="common.xtdm"/> 
+       order by gwdm
+    </select>
+     <!-- 添加岗位 -->
+    <insert id="addGzlgwgl" parameterClass="GzlgwglEntity">
+    	declare id varchar2(20);
+      cou number;
+      i varchar2(20);
+      BEGIN
+      SELECT '0'||TO_CHAR(MAX(TO_NUMBER(gwdm))+1) into id FROM gzl_dm_gwb WHERE sjgwdm  = #sjgwdm# and xtdm = <include refid="common.xtdm"/>;
+      IF #sjgwdm# = '-1'
+       THEN 
+        if to_number(id) >= 10 then
+        id:= to_number(id);
+        end if;
+       
+      ELSE
+       SELECT count(*) into cou FROM gzl_dm_gwb WHERE sjgwdm  = #sjgwdm# and xtdm = <include refid="common.xtdm"/>;
+         if cou > 0 then        
+           select sjgwdm  into i from gzl_dm_gwb where gwdm  = #sjgwdm# and xtdm = <include refid="common.xtdm"/>;
+           if i = '-1' then
+           SELECT #sjgwdm#||lpad(TO_CHAR(MAX(TO_NUMBER(substr(gwdm ,-2)))+1),2,'0') into id FROM gzl_dm_gwb WHERE sjgwdm  = #sjgwdm# and xtdm = <include refid="common.xtdm"/>;
+           else
+           SELECT #sjgwdm#||lpad(TO_CHAR(MAX(TO_NUMBER(substr(gwdm,-2)))+1),2,'0') into id FROM gzl_dm_gwb WHERE sjgwdm = #sjgwdm# and xtdm = <include refid="common.xtdm"/>;
+           end if;
+        else        
+          SELECT #sjgwdm#||'01' into id FROM gzl_dm_gwb WHERE gwdm  = #sjgwdm# and xtdm = <include refid="common.xtdm"/>;
+        end if;
+      END IF;
+ 
+      INSERT INTO gzl_dm_gwb(gwdm ,gwmc ,kyf ,xtdm ,sjgwdm ,ssyx)
+      VALUES (id,#gwmc#,#kyf#,<include refid="common.xtdm"/>,#sjgwdm#,#ssyx#
+      );
+      END;
+    </insert>
+    <!-- 查询菜单名称 -->
+    <select id="queryGWcdgl" resultClass="GzlgwglEntity">
+    	 SELECT gwdm ,gwmc ,kyf ,xtdm ,sjgwdm ,ssyx
+      FROM gzl_dm_gwb WHERE  xtdm = <include refid="common.xtdm"/> ORDER BY gwdm
+    </select>
+    
+    <!-- 查询菜单名称(人员用)-->
+    <select id="queryGWcdglry" resultClass="GzlgwglEntity">
+    	 SELECT gwdm ,gwmc ,kyf ,xtdm ,sjgwdm ,ssyx
+      FROM gzl_dm_gwb WHERE KYF = 1 and xtdm = <include refid="common.xtdm"/> ORDER BY gwdm
+    </select>
+    
+     <!-- 根据岗位代码查询岗位 -->
+    <select id="queryByGwdm" parameterClass="String" resultClass="GzlgwglEntity">
+    	 select gwdm,gwmc,kyf,xtdm,sjgwdm,ssyx from gzl_dm_gwb
+    	WHERE gwdm = #gwdm# and xtdm = <include refid="common.xtdm"/>
+    </select>
+    
+    <!-- 根据权限代码修改权限 -->
+    <update id="updGwcd" parameterClass="GzlgwglEntity">
+    	
+    	UPDATE gzl_dm_gwb SET gwmc = #gwmc#,kyf = #kyf#,sjgwdm = #sjgwdm#,ssyx=#ssyx# 
+    	WHERE gwdm = #gwdm# and xtdm = <include refid="common.xtdm"/>
+		
+    </update>
+    
+    
+     <delete id="delGw" parameterClass="HashMap">
+     	<isNotEqual property="gwdm" compareValue="0">
+     	 delete gzl_dm_gwb where gwdm like #gwdm#||'%' 
+     	</isNotEqual>
+     	<isEqual property="gwdm" compareValue="0">
+     	BEGIN
+     	delete gzl_dm_gwb where gwdm = '0' ;
+     	delete gzl_dm_gwb where gwdm like '00'||'%';
+     	END;
+     	</isEqual>
+     </delete>
+
+
+<!--  分页查询人员岗位	-->
+    <select id="queryRygwgl" parameterClass="RygwglPage" resultClass="HashMap">
+    select t.*   from 
+       (select t.*,row_number()over(order by to_char(t.yhdm)) orderNumber from 
+        (
+    select t.rygwdm,t.yhdm,t.gwdm,t.xtdm,t1.xm yhxm,t2.gwmc from gzl_dm_rygwb t
+left join xt_dlb t1 on t.yhdm =t1.yhdm  
+left join gzl_dm_gwb t2 on t.gwdm  =t2.gwdm 
+
+where 1=1 
+
+     <isNotEmpty prepend="and" property="xh" > 
+         ( t.yhdm like '%'|| #xh# ||'%' or t1.xm like '%'|| #xh# ||'%')
+      	</isNotEmpty>
+
+   <isNotEmpty prepend="and" property="gwdm" > 
+          t.gwdm=#gwdm#
+      	</isNotEmpty>
+
+      
+       ) t 
+       )t 
+	      <![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		  ]]> 
+    </select>
+    <select id="queryRygwglCount" parameterClass="RygwglPage" resultClass="int">
+	 	select count(*) from 
+	      (
+		 	select t.rygwdm,t.yhdm,t.gwdm,t.xtdm,t1.xm yhxm,t2.gwmc from gzl_dm_rygwb t
+left join xt_dlb t1 on t.yhdm =t1.yhdm  
+left join gzl_dm_gwb t2 on t.gwdm  =t2.gwdm 
+
+where 1=1 
+
+     <isNotEmpty prepend="and" property="xh" > 
+         ( t.yhdm like '%'|| #xh# ||'%' or t1.xm like '%'|| #xh# ||'%')
+      	</isNotEmpty>
+
+   <isNotEmpty prepend="and" property="gwdm" > 
+          t.gwdm=#gwdm#
+      	</isNotEmpty>
+		 ) t
+    </select>
+    
+    
+    
+    <!--  分页查询人员岗位	-->
+    <select id="queryRyxz" parameterClass="RyxzPage" resultClass="HashMap">
+    select t.*   from 
+       (select t.*,row_number()over(order by to_char(t.yhdm)) orderNumber from 
+        (
+    select xm,yhdm from xt_dlb t
+where 1=1 
+
+     <isNotEmpty prepend="and" property="xh" > 
+         ( t.yhdm like '%'|| #xh# ||'%' or t.xm like '%'|| #xh# ||'%')
+      	</isNotEmpty>
+      
+       ) t 
+       )t 
+	      <![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		  ]]> 
+    </select>
+    <select id="queryRyxzCount" parameterClass="RyxzPage" resultClass="int">
+	 	select count(*) from 
+	      (
+		 	select xm,yhdm from xt_dlb t
+where 1=1 
+
+      <isNotEmpty prepend="and" property="xh" > 
+         ( t.yhdm like '%'|| #xh# ||'%' or t.xm like '%'|| #xh# ||'%')
+      	</isNotEmpty>
+  
+		 ) t
+    </select>
+    
+    
+    <!-- 添加人员岗位 -->
+    <insert id="addRygwgl" parameterClass="RygwglEntity">     
+INSERT INTO gzl_dm_rygwb(rygwdm,yhdm,gwdm,xtdm)
+      VALUES (sys_guid(),#yhdm#,#gwdm#,<include refid="common.xtdm"/>)
+    </insert>
+    
+    <!-- 根据岗位代码查询岗位 -->
+    <select id="queryRygwdm" parameterClass="String" resultClass="RygwglEntity">
+    	 select t.yhdm,t.gwdm,t1.xm from gzl_dm_rygwb t
+    	  left join xt_dlb t1 on t.yhdm=t1.yhdm
+    	WHERE t.rygwdm = #rygwdm# and t.xtdm = <include refid="common.xtdm"/>
+    </select>
+
+
+ <!-- 根据权限代码修改权限 -->
+    <update id="updRycd" parameterClass="RygwglEntity">
+    	
+    	UPDATE gzl_dm_rygwb SET gwdm = #gwdm#,yhdm = #yhdm#
+    	WHERE rygwdm = #rygwdm# and xtdm = <include refid="common.xtdm"/>
+		
+    </update>
+    
+    
+    <!--  删除人员岗位   -->
+     <delete id="delRy" parameterClass="String">
+    
+        delete from gzl_dm_rygwb  where rygwdm=#rygwdm#
+       
+    </delete>
+    
+    
+    <!-- 人员验证 -->
+    <select id="queryRyyz" parameterClass="RygwglEntity" resultClass="int">
+    	  select count(*) from gzl_dm_rygwb where yhdm=#yhdm# and gwdm=#gwdm#  and xtdm=<include refid="common.xtdm"/>
+    </select>
+</sqlMap>

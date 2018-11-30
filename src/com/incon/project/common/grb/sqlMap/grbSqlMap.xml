@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="grb">
+	<!-- 实体pojo -->
+	<typeAlias alias="GrbEntity" type="com.incon.pojo.common.grb.GrbEntity"/>
+	<typeAlias alias="QxEntity" type="com.incon.pojo.common.QxEntity"/>
+	<!-- 分页page -->
+	<typeAlias alias="Grbpage" type="com.incon.project.common.grb.page.Grbpage"/>
+	
+	
+	<select id="queryGrbcd" parameterClass="String" resultClass="GrbEntity">
+		select t1.qxmc,t1.fwlj,t.xtdm,t1.sfzxj, t.yhdm, t.jsdm, t.qxdm, t.xssx, t.id from dm_qxb_grb t
+			left join dm_qxb t1 on t.qxdm=t1.qxdm and t.xtdm=t1.xtdm
+			where t.xtdm=<include refid="common.xtdm"/> and t.yhdm=#yhdm#
+			order by t.xssx 
+	</select>
+	
+	<select id="queryQxb" resultClass="QxEntity">
+	      	SELECT distinct QXDM qxdm, QXMC qxmc,fqxdm fqxdm,
+		    FWLJ fwlj,XSSX xssx,kyf kyf,sfzxj sfzxj,
+		    sys_connect_by_path(qxdm,'_') treedm,
+		    substr(sys_connect_by_path(fqxdm,'_'),4) treefdm 
+		    FROM DM_QXB bb
+		    where xtdm = <include refid="common.xtdm"/> start with fqxdm='-1'  CONNECT BY PRIOR qxdm = fqxdm 
+		    order by xssx
+	</select>
+	
+	<select id="queryQxZt" parameterClass="java.util.HashMap" resultClass="int">
+		select count(*) from dm_ryjsqxb ryqxb 
+		where ryqxb.xtdm=<include refid="common.xtdm"/> and ryqxb.yhdm = #yhdm# and ryqxb.jsdm = #jsdm#
+	</select>
+	
+	<select id="queryRyjsQx" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select qxb.qxdm as "id",qxb.qxmc as "name",qxb.fqxdm as "pId",qxb.sfzxj as "idd",
+             (case when 
+             (select count(*) from dm_qxb_grb where yhdm = #yhdm# and jsdm = #jsdm# and xtdm = <include refid="common.xtdm"/> and dm_qxb_grb.qxdm=ryqxb.qxdm) > 0 
+             then 'true' else 'false' end) as "checked"               
+             from dm_ryjsqxb ryqxb 
+             left join dm_qxb qxb on qxb.qxdm=ryqxb.qxdm and qxb.xtdm = ryqxb.xtdm
+             where qxb.kyf = '1' 
+             and ryqxb.xtdm = <include refid="common.xtdm"/>
+             and ryqxb.yhdm = #yhdm#
+             and ryqxb.jsdm = #jsdm#
+	</select>
+	
+	<select id="queryJsQx" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		 select qxb.qxdm as "id",qxb.qxmc as "name",qxb.fqxdm as "pId",qxb.sfzxj as "idd" ,
+             (case when 
+             (select count(*) from dm_qxb_grb where yhdm = #yhdm# and jsdm = #jsdm# and xtdm = <include refid="common.xtdm"/> and dm_qxb_grb.qxdm=ryqxb.qxdm) > 0 
+             then 'true' else 'false' end) as "checked" 
+             from dm_jsqxb ryqxb 
+             left join dm_qxb qxb on qxb.qxdm=ryqxb.qxdm and qxb.xtdm = ryqxb.xtdm
+             where qxb.kyf = '1' 
+             and ryqxb.xtdm = <include refid="common.xtdm"/>
+             and ryqxb.jsdm = #jsdm#
+	</select>
+	
+	<delete id="delGrbsj" parameterClass="GrbEntity">
+		delete dm_qxb_grb where yhdm = #yhdm# and jsdm = #jsdm# and xtdm=<include refid="common.xtdm"/>
+	</delete>
+	
+	<delete id="delGrb" parameterClass="String">				
+		delete dm_qxb_grb where xtdm = <include refid="common.xtdm"/> and id=#ids#
+	</delete>
+	
+	<insert id="addGrbCd" parameterClass="GrbEntity">
+		insert into dm_qxb_grb
+		  (xtdm, yhdm, jsdm, qxdm, xssx, id)
+		values
+		  (<include refid="common.xtdm"/>, #yhdm#, #jsdm#, #qxdm#, (select count(*)+1 from dm_qxb_grb), (select count(*)+1 from dm_qxb_grb))
+	</insert>
+	
+	<update id="updBcsx" parameterClass="GrbEntity">
+		update dm_qxb_grb
+		   set xtdm = <include refid="common.xtdm"/>,
+		       xssx = #xssx#
+		 where xtdm = <include refid="common.xtdm"/>
+		   and jsdm = #jsdm#		   
+		   and yhdm = #yhdm#
+		   and id = #id#			
+	</update>
+	
+</sqlMap>

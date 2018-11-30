@@ -1,0 +1,7 @@
+--2018.01.19角色管理增加上下级（段奕飞）
+alter table DM_JSB add fjsdm VARCHAR2(50);
+comment on column DM_JSB.fjsdm
+  is '父角色代码';
+update dm_jsb set fjsdm='-1';
+commit;
+

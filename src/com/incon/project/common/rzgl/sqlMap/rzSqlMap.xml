@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rz">
+	<!-- 实体pojo -->
+	<typeAlias alias="RzEntity" type="com.incon.pojo.common.RzEntity"/>
+	<typeAlias alias="JsbEntity" type="com.incon.pojo.common.JsbEntity"/>
+	<!-- 分页pojo -->
+	<typeAlias alias="RzPage" type="com.incon.project.common.rzgl.page.RzPage"/>	
+	
+	<!-- 查询日志page -->
+	<select id="queryRz" parameterClass="RzPage" resultClass="RzEntity">
+		select t.*   from 
+		(
+			select t.*,row_number()over(order by czsj desc) orderNumber 
+			from 
+			(
+				select rzbdm, czr, to_char(czsj,'yyyy-mm-dd HH24:mm:ss') czsj, czff, czffms, cs, czrip, czrjs, xtdm from dm_rzb 
+				where 1=1 and xtdm=<include refid="common.xtdm"/>
+				<isNotEmpty  prepend="and" property="pczr">
+				       czr like '%'||trim(#pczr#)||'%' 
+				</isNotEmpty>
+				<isNotEmpty  prepend="and" property="pczsjq">				      
+				       czsj <![CDATA[<]]> to_date(#pczsjq#,'yyyy-MM-dd')				       
+				</isNotEmpty>
+				<isNotEmpty  prepend="and" property="pczsjh">				       
+				       czsj <![CDATA[>]]> to_date(#pczsjh#,'yyyy-MM-dd')				       
+				</isNotEmpty> 
+				<isNotEmpty  prepend="and" property="pczff">
+				       czff like '%'||trim(#pczff#)||'%'
+				</isNotEmpty>   
+				<isNotEmpty  prepend="and" property="pczrjs">
+				      czrjs =#pczrjs#
+				</isNotEmpty>   								
+			) t 
+	      	)t 
+      	<![CDATA[
+    	where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		]]>
+	</select>
+	<!-- 查询日志Count -->
+	<select id="queryRzCount" parameterClass="RzPage" resultClass="int">
+		select count(*) from 
+	      ( 
+	      	select * from dm_rzb 
+				where 1=1 and  xtdm=<include refid="common.xtdm"/>
+				<isNotEmpty  prepend="and" property="pczr">
+				       czr like '%'||trim(#pczr#)||'%' 
+				</isNotEmpty>
+				<isNotEmpty  prepend="and" property="pczsjq">				      
+				       czsj <![CDATA[<]]> to_date(#pczsjq#,'yyyy-MM-dd')				       
+				</isNotEmpty>
+				<isNotEmpty  prepend="and" property="pczsjh">				       
+				       czsj <![CDATA[>]]> to_date(#pczsjh#,'yyyy-MM-dd')				       
+				</isNotEmpty> 
+				<isNotEmpty  prepend="and" property="pczff">
+				       czff like '%'||trim(#pczff#)||'%'
+				</isNotEmpty>   
+				<isNotEmpty  prepend="and" property="pczrjs">
+				      czrjs =#pczrjs#
+				</isNotEmpty> 
+	      ) t	
+	</select>
+	
+	<select id="queryJsmc" resultClass="JsbEntity">
+		select jsdm, jsmc, kyf, sfsd, sfcjgly, dlzylj, xtdm, ms, bz from dm_jsb 
+		where xtdm=<include refid="common.xtdm"/>
+	</select>
+	
+	<!-- 添加日志 -->
+	<insert id="save" parameterClass="RzEntity">
+		INSERT INTO DM_RZB(RZBDM,CZR,CZSJ,CZFF,CZFFMS,CS,CZRJS,XTDM)
+		VALUES (SEQ_DM_RZB.NEXTVAL,#czr#,sysdate,#czff#,#czffms#,#cs#,#czrjs#,<include refid="common.xtdm"/>)
+	</insert>
+	
+	<!-- 查询操作人角色 -->
+	<select id="query" parameterClass="Integer" resultClass="String">
+		SELECT JSMC FROM DM_JSB WHERE JSDM = TO_CHAR(#jsdm#) and xtdm = <include refid="common.xtdm"/>
+	</select>
+</sqlMap>

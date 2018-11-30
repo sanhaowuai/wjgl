@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="xxts">
+
+	<insert id="addxx" parameterClass="java.util.HashMap">
+		insert into pt_xxb
+		  (xxid, xxbt, xxsj, sfyd, url, xxjsrdm, zxtdm)
+		values
+		  (sys_guid(), #xxbt#, sysdate, '0', #url#, #xxjsrdm#, #zxtdm#)
+	</insert>	
+	
+</sqlMap>

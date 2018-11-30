@@ -1,0 +1,16 @@
+1.增加方法以add为前缀开头				例：addDemo
+2.修改方法以upd为前缀开头				例：updDemo
+3.删除方法以del为前缀开头				例：delDemo
+4.查询方法建议以query为前缀开头（不记录日志）		例：queryDemo
+5.在接口的实现类方法前加 @MethodLog(description="demo")标签	demo为描述本方法内容
+6.存在的项目名称ibatis路径
+/incon3.0/src/com/incon/common/button/sqlMap/buttonSqlMap.xml
+/incon3.0/src/com/incon/common/login/sqlMap/LoginSqlMap.xml
+/incon3.0/src/com/incon/common/treetable/sqlMap/treeTableSqlMap.xml
+/incon3.0/src/com/incon/project/common/jsgl/sqlMap/jsglSqlMap.xml
+/incon3.0/src/com/incon/project/common/juesgl/sqlMap/juesglSqlMap.xml
+/incon3.0/src/com/incon/project/common/qxcdgl/sqlMap/qxcdglSqlMap.xml
+/incon3.0/src/com/incon/project/common/rygl/sqlMap/ryjsSqlMap.xml
+/incon3.0/src/com/incon/project/common/rzgl/sqlMap/rzSqlMap.xml
+/incon3.0/src/com/incon/project/common/xsgl/sqlMap/xsglSqlMap.xml
+/incon3.0/src/com/incon/project/common/ymqxgl/sqlMap/ymqxglSqlMap.xml

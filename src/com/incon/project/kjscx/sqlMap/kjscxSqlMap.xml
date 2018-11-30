@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="kjscx">
+ 	<typeAlias alias="kjscxPage" type="com.incon.project.kjscx.page.KjscxPage"/>
+
+	<sql id="kjscx.where_kjscx" >
+	  	<isNotEmpty  prepend="and" property="pageXiaoqu"> dm_jxcd.xiaoqu=#pageXiaoqu# </isNotEmpty> 
+	  	<isNotEmpty  prepend="and" property="pageLhdm"> dm_jxcd.lhdm =#pageLhdm# </isNotEmpty> 
+	  	<isNotEmpty  prepend="and" property="pageCddm"> dm_jxcd.dm=#pageCddm# </isNotEmpty> 			
+    </sql> 
+    
+   <!--  查询课表节次表节次总数	-->
+ 	 <select id="kjscx.queryPkjc"  parameterClass="kjscxPage" resultClass="java.util.HashMap">
+	 	select REPLACE(jcmc, '-' ,',') jcmc  ,jc from JW_PK_KBJCB where 1=1 
+	 	<isNotEmpty  prepend="and" property="pageXnxq"> xn=#pageXn# and xq=#pageXq# </isNotEmpty> 
+	 	order by jc
+	 </select> 
+
+     <!--  查询空教室结果集	-->
+     <select id="kjscx.queryKjsPage" parameterClass="kjscxPage" resultClass="java.util.HashMap">
+      select m.* from 
+	     (select t.*,row_number()over(order by null) orderNumber from 
+	      ( $pageSql$  where  dm_jxcd.kyf='1' and  nvl(fzxjs,0)='0' <include refid="kjscx.where_kjscx"/>  order by dm_jxcd.dm    ) t )m
+	 	 <![CDATA[
+	       where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		 ]]>   
+    </select>
+    
+     <!--  查询空教室总数 -->
+    <select id="kjscx.queryKjsPageCount" parameterClass="kjscxPage" resultClass="int">
+        select  count(*) from ( $pageSql$  where dm_jxcd.kyf='1'  and  nvl(fzxjs,0)='0'  <include refid="kjscx.where_kjscx"/>   )
+    </select>
+    
+     <!--  通过校区查楼号	-->
+    <select id="kjscx.queryJxlListBySjid" parameterClass="String" resultClass="java.util.HashMap">
+        select dm, mc, kyf from dm_jxl where kyf=1 and xiaoqu=#id#  order by dm,mc
+    </select>
+    
+      <!--  通过楼号查场地	-->
+    <select id="kjscx.queryJxcdListBySjid" parameterClass="String" resultClass="java.util.HashMap">
+        select dm,mc from dm_jxcd t1 where  t1.lhdm=#id# and t1.kyf='1' order by t1.dm,t1.mc
+    </select>
+    
+    <!-- 通过学年学期查周次 -->
+    <select id="kjscx.queryzclistByxnxq" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	select distinct zc from jw_xt_rlb where xn=#xn# and xq=#xq# and zc!='0' order by zc
+    </select>
+</sqlMap>

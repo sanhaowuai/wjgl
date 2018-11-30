@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dmbwh">
+<typeAlias alias="dmbwhPage" type="com.incon.common.dmbwh.page.DmbwhPage"/>
+<!-- 查询出代码表List-->
+<select id="queryDmbwh" parameterClass="dmbwhPage" resultClass="java.util.HashMap">
+   select t.*,ROW_NUMBER()OVER(ORDER BY null) ORDERNUMBER from (
+   	 		select a.*,ROW_NUMBER()OVER(ORDER BY null) ORDERNUMBER from SYS_IMP_CODECHK a where 1=1
+	    	<isNotEmpty prepend="and" property="cxtablename">
+				 a.tablename like '%'|| #cxtablename# ||'%'
+			</isNotEmpty>
+	    	
+		order by a.tablename
+	)t
+	<![CDATA[
+        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+	  ]]>
+</select>
+<!-- 查询出代码表Count -->
+<select id="queryDmbwhCount" parameterClass="dmbwhPage" resultClass="int">
+   select count(*) from (
+   		select a.* from SYS_IMP_CODECHK a where 1=1
+	    	<isNotEmpty prepend="and" property="cxtablename">
+				 a.tablename like '%'|| #cxtablename# ||'%'
+			</isNotEmpty>
+	)t
+</select>
+<!-- 查询tablename是否存在-->
+<select id="queryByTableName" parameterClass="String" resultClass="int">
+	 select count(1) from  SYS_IMP_CODECHK where REGEXP_LIKE(tablename, #tablename#, 'i')
+</select>
+<!-- 插入代码表维护-->
+<insert id="saveAddDmbwh" parameterClass="java.util.HashMap">
+	insert into SYS_IMP_CODECHK(tablename,dm,mc) values(#tablename#,#dm#,#mc#)
+</insert>
+<!-- 查询实体-->
+<select id="queryEntity" parameterClass="String" resultClass="java.util.HashMap">
+	 select * from  SYS_IMP_CODECHK where tablename=#tablename#
+</select>
+<!-- 修改保存 -->
+<update id="updateAddDmbwh" parameterClass="java.util.HashMap">
+	update SYS_IMP_CODECHK set dm=#dm#,mc=#mc# where tablename=#tablename#
+</update>
+<!-- 删除代码表-->
+<delete id="delDmbwh" parameterClass="String">
+	delete from SYS_IMP_CODECHK where tablename=#tablename#
+</delete>
+<!-- 是否存在于系统表中-->
+<select id="queryTabExist" parameterClass="String" resultClass="int">
+	 select count(1) from user_tables where table_name=#tablename# 
+</select>
+<!-- 此表是否存在字段及字段名-->
+<select id="queryColExist" parameterClass="java.util.HashMap" resultClass="int">
+	 SELECT count(1) FROM user_tab_columns WHERE COLUMN_NAME in (#dm#,#mc#) and Table_name=#tablename#
+</select>
+</sqlMap>

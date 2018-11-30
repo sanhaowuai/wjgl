@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ymqxgl">
+	<!-- 分页page -->
+	<typeAlias alias="ymqxglPage" type="com.incon.project.common.ymqxgl.page.YmqxglPage"/>
+	<!-- 实体pojo -->
+	<typeAlias alias="AnbEntity" type="com.incon.pojo.common.AnbEntity"/>
+	<typeAlias alias="QxbEntity" type="com.incon.pojo.common.QxbEntity"/>
+    <!-- 查询按钮 -->
+    <select id="queryAnb" parameterClass="ymqxglPage" resultClass="AnbEntity">
+    	select t.*   from 
+	     (select t.*,row_number()over(order by to_number(andm)) orderNumber from 
+	      (
+       select andm,anmc,t1.qxmc qxmc,andh,t2.fwlj
+       from DM_ANB t2  
+       left join DM_QXB t1 on t2.qxdm=t1.qxdm  where t2.xtdm = <include refid="common.xtdm"/> and t1.xtdm = <include refid="common.xtdm"/> 
+	  <isNotEmpty  prepend="and" property="yxqxdm">
+	       t2.qxdm = #yxqxdm#
+	  </isNotEmpty>	  	
+	  	 ) t 
+	     )t 
+		<![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		]]>	
+    </select>
+    
+     <select id="queryAnbCount" parameterClass="ymqxglPage" resultClass="int">
+	 	select count(*) from 
+	      (
+      select andm,anmc,t1.qxmc qxmc,andh,t2.fwlj
+       from DM_ANB t2  
+       left join DM_QXB t1 on t2.qxdm=t1.qxdm  where t2.xtdm = <include refid="common.xtdm"/> and t1.xtdm = <include refid="common.xtdm"/> 
+	  <isNotEmpty  prepend="and" property="yxqxdm">
+	       t2.qxdm = #yxqxdm#
+	  </isNotEmpty>
+		 ) t
+	 </select>
+     <!-- 权限列表 -->
+      <select id="queryQxb" resultClass="QxbEntity">
+       select qxdm,qxmc,xssx,fqxdm,fwlj,kyf,bz,sfzxj,length(qxdm) jb 
+		from DM_QXB t where kyf = '1' and xtdm = <include refid="common.xtdm"/> 
+		order by xssx
+    </select>
+    <!-- 添加按钮 -->
+    <insert id="addAn" parameterClass="AnbEntity">
+         insert into　DM_ANB(andm,anmc,qxdm,andh,xtdm,fwlj)
+      		values((select case when length(#qxdm#) = '1' then #qxdm#||'0000' when length(#qxdm#) = '4' then #qxdm#||'00' when length(#qxdm#) = '6' then #qxdm# end 
+			|| 
+			(select case when length(nvl(substr(max(andm),7,2),0)+1) = '1' 
+			then '0'||to_char(nvl(substr(max(andm),7,2),0)+1) 
+			else to_char(nvl(substr(max(andm),7,2),0)+1) end from DM_ANB where qxdm = #qxdm# and xtdm = <include refid="common.xtdm"/>) 
+			from dual ),#anmc#,#qxdm#,#andh#,<include refid="common.xtdm"/>,#fwlj#)
+    </insert>
+    <!-- 查询一个按钮 -->
+    <select id="queryOneAn" parameterClass="String" resultClass="AnbEntity">
+       select andm,anmc,t.qxdm,andh,t.fwlj from DM_ANB t
+       left join DM_QXB t1 on t.qxdm=t1.qxdm
+       where andm=#andm# and t.xtdm = <include refid="common.xtdm"/> and t1.xtdm = <include refid="common.xtdm"/> 
+    </select>
+    <!-- 修改按钮 -->
+    <update id="updAn" parameterClass="AnbEntity">
+       update DM_ANB 
+       set anmc=#anmc#,qxdm=#qxdm#,andh=#andh#,fwlj=#fwlj#
+       where andm=#andm# and xtdm = <include refid="common.xtdm"/>
+    </update>
+    <!-- 删除按钮-->
+    <delete id="delAn" parameterClass="String">
+    begin
+    delete from DM_ANB where andm=#andm# and xtdm = <include refid="common.xtdm"/>;
+	delete from DM_RYJSANB where andm=#andm# and xtdm = <include refid="common.xtdm"/>;
+    end; 
+    </delete>
+    <!-- 查询andh是否重复(权限，访问路径) -->
+	<select id="queryByAndhCount" parameterClass="AnbEntity" resultClass="Integer">
+		select count(*) from dm_anb where andh = #andh# and qxdm = #qxdm# and fwlj=#fwlj# and xtdm = <include refid="common.xtdm"/>
+	</select>
+	<!-- 按钮功能表 丁起明 20170717 -->
+	<select id="queryAngnbList" resultClass="AnbEntity">
+		select andm, anmc, title, xtdm, fwlj, icon, xssx, tcfs,kyf from dm_angnb where xtdm = <include refid="common.xtdm"/> order by xssx asc
+	</select>
+	<select id="queryAngnbListOnQy" resultClass="AnbEntity">
+		select andm, anmc, title, xtdm, fwlj, icon, xssx, tcfs,kyf from dm_angnb where xtdm = <include refid="common.xtdm"/> and kyf='1' order by xssx asc
+	</select>	
+	<insert id="addAngnb" parameterClass="AnbEntity">
+		insert into dm_angnb
+		  (andm, anmc, title, xtdm, fwlj, icon, xssx, tcfs,kyf)
+		values
+		  (sys_guid(), #anmc#, #title#, <include refid="common.xtdm"/>, #fwlj#, #icon#, #xssx#, #tcfs#,#kyf#)	
+	</insert>	
+	<update id="updAngnb" parameterClass="AnbEntity">
+		update dm_angnb
+		   set anmc = #anmc#,
+		       title = #title#,
+		       fwlj = #fwlj#,
+		       icon = #icon#,
+		       xssx = #xssx#,
+		       kyf = #kyf#,
+		       tcfs = #tcfs#
+		 where andm = #andm#
+		   and xtdm = <include refid="common.xtdm"/>
+	</update>
+	<delete id="delAngnb" parameterClass="String">
+		delete dm_angnb where andm = #andm# and xtdm = <include refid="common.xtdm"/>
+	</delete>
+	<!-- 按钮功能表 丁起明 20170717 -->	
+</sqlMap>

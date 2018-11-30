@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="skin">
+<!-- 分页pojo -->
+<typeAlias alias="SkinPage" type="com.incon.project.common.skin.page.SkinPage"/>
+	<!-- 保存皮肤 -->
+	<insert id="saveUserSkin" parameterClass="java.util.HashMap">
+		insert into user_skin (yhdm,namkey) values(#yhdm#,#namKey#) 
+	</insert>
+	<update id="updateUserSkin" parameterClass="java.util.HashMap">
+		update user_skin set namkey=#namKey# 
+		where yhdm=#yhdm#
+	</update>
+	<!-- <insert id="saveUserSkins" parameterClass="java.util.HashMap">
+		insert into user_skin (yhdm,namkeys) values(#yhdm#,#namKeys#) 
+	</insert>
+	<update id="updateUserSkins" parameterClass="java.util.HashMap">
+		update user_skin set namkeys=#namKeys# 
+		where yhdm=#yhdm#
+	</update> -->
+	<!-- 保存皮肤 -->
+	<insert id="saveUserSkin1" parameterClass="java.util.HashMap">
+		insert into user_skin values(#yhdm#,#boxColorA#,#boxColorB#,#boxColorC#,#boxColorD#,#boxColorE#,#boxColorF#,#boxColorG#,#boxColorDd#,#boxColorEe#,#boxColorFf#,#boxColorFfs#
+		,#topFontColor#,#topFontColorR#,#topFontLogo#,#navBtnBg#,#leftIconColB#,#leftIconColC#,#leftTextColA#,#leftTextColB#,#leftTextColC#,#leftColorHovB#,#leftColorHovC#,#mainNavCol#,#navMainBg#,#contentBg#,#topHovR#) 
+	</insert>
+	<update id="updateUserSkin1" parameterClass="java.util.HashMap">
+		update user_skin set 
+		<isNotEqual compareProperty="boxColorA" compareValue="#FFFFFF">
+		 boxColorA=#boxColorA#
+		</isNotEqual>
+		<isNotEqual compareProperty="boxColorB" compareValue="#FFFFFF">
+		 boxColorB=#boxColorB#
+		 </isNotEqual>
+		 <isNotEqual compareProperty="boxColorC" compareValue="#FFFFFF">
+		 boxColorC=#boxColorC#
+		 </isNotEqual>
+		 <isNotEqual compareProperty="boxColorD" compareValue="#FFFFFF">
+		 boxColorD=#boxColorD#
+		 </isNotEqual>
+		 <isNotEqual compareProperty="boxColorE" compareValue="#FFFFFF">
+		 boxColorE=#boxColorE# 
+		 </isNotEqual>
+		 <isNotEqual compareProperty="boxColorF" compareValue="#FFFFFF">
+		 boxColorF=#boxColorF# 
+		 </isNotEqual>
+		 <isNotEqual compareProperty="boxColorG" compareValue="#FFFFFF">
+		 boxColorG=#boxColorG# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="boxColorDd" compareValue="#FFFFFF">
+		 boxColorDd=#boxColorDd# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="boxColorEe" compareValue="#FFFFFF">
+		 boxColorEe=#boxColorEe# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="boxColorFf" compareValue="#FFFFFF">
+		 boxColorFf=#boxColorFf# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="boxColorEfs" compareValue="#FFFFFF">
+		 boxColorEfs=#boxColorEfs# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="topFontColor" compareValue="#FFFFFF">
+		 topFontColor=#topFontColor# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="topFontColorR" compareValue="#FFFFFF">
+		 topFontColorR=#topFontColorR# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="topFontLogo" compareValue="#FFFFFF">
+		 topFontLogo=#topFontLogo# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="navBtnBg" compareValue="#FFFFFF">
+		 navBtnBg=#navBtnBg# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="leftIconColB" compareValue="#FFFFFF">
+		 leftIconColB=#leftIconColB# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="leftIconColC" compareValue="#FFFFFF">
+		 leftIconColC=#leftIconColC# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="leftTextColA" compareValue="#FFFFFF">
+		 leftTextColA=#leftTextColA# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="leftTextColB" compareValue="#FFFFFF">
+		 leftTextColB=#leftTextColB# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="leftTextColC" compareValue="#FFFFFF">
+		 leftTextColC=#leftTextColC# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="leftColorHovB" compareValue="#FFFFFF">
+		 leftColorHovB=#leftColorHovB# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="leftColorHovC" compareValue="#FFFFFF">
+		 leftColorHovC=#leftColorHovC# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="mainNavCol" compareValue="#FFFFFF">
+		 mainNavCol=#mainNavCol# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="navMainBg" compareValue="#FFFFFF">
+		 navMainBg=#navMainBg# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="contentBg" compareValue="#FFFFFF">
+		 contentBg=#contentBg# 
+		 </isNotEqual> 
+		 <isNotEqual compareProperty="topHovR" compareValue="#FFFFFF">
+		 contentBg=#topHovR# 
+		 </isNotEqual> 
+		where yhdm=#yhdm#
+	</update>
+	<!-- 查询皮肤数据 -->
+	<select id="querySkin" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select boxColorA,boxColorB,boxColorC,boxColorD,boxColorE,boxColorF,boxColorG,boxColorDd,boxColorEe,boxColorFf,boxColorFfs,namkey,namkeys,syym
+		,topFontColor,topFontColorR,topFontLogo,navBtnBg,leftIconColB,leftIconColC,leftTextColA,leftTextColB,leftTextColC,leftColorHovB,leftColorHovC,mainNavCol,navMainBg,contentBg,topHovR
+		 from user_skin where syym=#syym# and skinId in (select skinId from user_skindyb where yhdm=#yhdm#)
+	</select>
+	<!-- 查询是否已有皮肤 -->
+	<select id="querySkinSfyy" parameterClass="java.util.HashMap" resultClass="int"> 
+		select count(*) from user_skin where skinId=(select skinId from user_skindyb where yhdm=#yhdm#)
+	</select>
+	<!-- 查询皮肤列表页 -->
+	<select id="querySkinPage" parameterClass="SkinPage" resultClass="java.util.HashMap" > 
+		select * from (select  rownum rn, cc.* from ( 
+		select * from user_skin where sfky='1' and syym=#syym# order by skinId
+		<![CDATA[
+		) cc where rownum <=#pageNo#*#pageSize#
+		)where rn  >(#pageNo#-1)*(#pageSize#)
+	]]>
+	</select>
+	<!-- 查询皮肤列表count -->
+	<select id="querySkinPageCount" parameterClass="SkinPage" resultClass="int"> 
+		select count(*) from user_skin where sfky='1' and syym=#syym# 
+	</select>
+	<!-- 查询正在使用的皮肤模板 -->
+	<select id="querySkinUsed" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"> 
+		select user_skindyb.yhdm,user_skindyb.skinid from user_skindyb 
+		left join user_skin on user_skindyb.skinid=user_skin.skinid
+		where user_skindyb.yhdm=#yhdm# and user_skin.syym=#syym#
+	</select>
+	
+	<!-- 取消皮肤选中 -->
+	<delete id="celchooseSkin" parameterClass="java.util.HashMap">
+		delete from user_skindyb where yhdm=#yhdm# and skinid in (select skinid from user_skin where syym=#syym#)
+	</delete>
+	<!-- 选中皮肤 -->
+	<insert id="chooseSkin" parameterClass="java.util.HashMap">
+		insert into user_skindyb values(#yhdm#,#skinId#)
+	</insert>
+	<!-- 删除皮肤 -->
+	<delete id="deleteSkin" parameterClass="String">
+		begin
+			delete from user_skindyb where skinid=#skinId#;
+			delete from user_skin where skinid=#skinId#;
+		end;
+	</delete>
+	<!-- 编辑前先查询皮肤数据 -->
+	<select id="querySkinForUp" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+		select boxColorA,boxColorB,boxColorC,boxColorD,boxColorE,boxColorF,boxColorG,boxColorDd,boxColorEe,boxColorFf,boxColorFfs,namKey,namKeys,skinName
+		,topFontColor,topFontColorR,topFontLogo,navBtnBg,leftIconColB,leftIconColC,leftTextColA,leftTextColB,leftTextColC,leftColorHovB,leftColorHovC,mainNavCol,navMainBg,contentBg,topHovR
+		 from user_skin where skinid=#skinId#
+	</select>
+	
+	<!-- ///////////////////////////////////////////////////////////////// -->
+	
+	<!-- 保存皮肤 -->
+	<insert id="saveSkinModel" parameterClass="java.util.HashMap">
+		insert into user_skin values(#yhdm#,#namKey#,#boxColorA#,#boxColorB#,#boxColorC#,#boxColorD#,#boxColorE#,#boxColorF#,#boxColorG#,skin_seq.nextval,#skinName#,'1',#boxColorDd#,#boxColorEe#,#boxColorFf#,#boxColorFfs#,#syym#
+		,#topFontColor#,#topFontColorR#,#topFontLogo#,#navBtnBg#,#leftIconColB#,#leftIconColC#,#leftTextColA#,#leftTextColB#,#leftTextColC#,#leftColorHovB#,#leftColorHovC#,#mainNavCol#,#navMainBg#,#contentBg#,#namKeys#,#topHovR#) 
+	</insert>
+	<update id="updateSkinModel" parameterClass="java.util.HashMap">
+		update user_skin set 
+		 boxColorA=#boxColorA#,
+		 boxColorB=#boxColorB#,
+		 boxColorC=#boxColorC#,
+		 boxColorD=#boxColorD#,
+		 boxColorE=#boxColorE#,
+		 boxColorF=#boxColorF#,
+		 boxColorG=#boxColorG#,
+		 boxColorDd=#boxColorDd#,
+		 boxColorEe=#boxColorEe#,
+		 boxColorFf=#boxColorFf#,
+		 boxColorFfs=#boxColorFfs#
+		 ,topFontColor=#topFontColor#
+		 ,topFontColorR=#topFontColorR#
+		 ,topFontLogo=#topFontLogo#
+		 ,navBtnBg=#navBtnBg#
+		 ,leftIconColB=#leftIconColB#
+		 ,leftIconColC=#leftIconColC#
+		 ,leftTextColA=#leftTextColA#
+		 ,leftTextColB=#leftTextColB#
+		 ,leftTextColC=#leftTextColC#
+		 ,leftColorHovB=#leftColorHovB#
+		 ,leftColorHovC=#leftColorHovC#
+		 ,mainNavCol=#mainNavCol#
+		 ,navMainBg=#navMainBg#
+		 ,contentBg=#contentBg#
+		 ,namKeys=#namKeys#
+		 ,namKey=#namKey# 
+		 ,topHovR=#topHovR#, 
+		 skinName=#skinName#,
+		 syym=#syym#
+		where skinid=#skinId#
+	</update>
+	<delete id="celchooseSkin00" parameterClass="java.util.HashMap">
+		delete from user_skindyb where skinid in (select skinid from user_skin where syym=#syym#)
+	</delete>
+	
+	<insert id="chooseSkin00" parameterClass="java.util.HashMap">
+		insert into user_skindyb values(#yhdm#,(select skinid from user_skin where skinname=#pfbj#))
+	</insert>
+	<!-- 查询00或09正在使用的皮肤模板 -->
+	<select id="querySkinUsed00" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"> 
+		select user_skindyb.yhdm,user_skindyb.skinid,user_skin.skinname from user_skindyb 
+		left join user_skin on user_skindyb.skinid=user_skin.skinid
+		where user_skindyb.yhdm=#yhdm# and user_skin.syym=#syym#
+	</select>
+</sqlMap>

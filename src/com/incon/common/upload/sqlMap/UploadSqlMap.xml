@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="upload">
+	<typeAlias alias="FjbEntity" type="com.incon.pojo.common.FjbEntity"/>
+  
+    <select id="queryFj" parameterClass="java.util.HashMap" resultClass="FjbEntity">
+        SELECT FJBH fjid,CCLJ,XSM XSMC,CCM,GLZJM glzj,SCSJ,SCR,GLB,GLZJZ FROM DEMO_XT_FJB
+        	WHERE GLZJM=#GLZJ# AND GLB=#GLB# AND GLZJZ=#GLZJZ#
+    </select>
+ 	
+ 	<delete id="deleteFj" parameterClass="string">
+ 		DELETE DEMO_XT_FJB WHERE FJBH=#ID#
+ 	</delete>
+ 	
+	<!-- 添加项目附件 -->
+	<insert id="addFj" parameterClass="java.util.HashMap">
+		INSERT INTO DEMO_XT_FJB
+	  		(fjbh,CCLJ,XSM,CCM,GLZJM,SCSJ,SCR,GLB,GLZJZ)
+			VALUES
+			(SEQ_DEMO_XT_FJB.nextval,#CCLJ#,#XSMC#,#CCM#,#GLZJ#,sysdate,#SCR#,#GLB#,#GLZJZ#)
+	</insert>
+</sqlMap>

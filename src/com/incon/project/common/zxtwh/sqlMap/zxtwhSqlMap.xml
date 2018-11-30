@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="zxtwh">
+	<!-- 实体pojo -->
+	<typeAlias alias="ZxtwhEntity" type="com.incon.pojo.common.zxtwh.ZxtwhEntity"/>
+	<typeAlias alias="JsyyxtljbEntity" type="com.incon.pojo.common.zxtwh.JsyyxtljbEntity"/>
+	
+	<!-- 分页page -->
+	<typeAlias alias="ZxtwhPage" type="com.incon.project.common.zxtwh.page.ZxtwhPage"/>
+	<typeAlias alias="ZxtwhJsqxPage" type="com.incon.project.common.zxtwh.page.ZxtwhJsqxPage"/>
+	<typeAlias alias="ZxtwhRyjsqxPage" type="com.incon.project.common.zxtwh.page.ZxtwhRyjsqxPage"/>
+	
+	
+	<!--   子系统维护     -->
+	<select id="queryZxtwh" parameterClass="ZxtwhPage" resultClass="ZxtwhEntity">
+      select t.*  from 
+	     (select t.*,row_number()over(order by dm) orderNumber from 
+	      (
+	       	select t.dm,t.xtmc,t.xtdm,t.fwlj,t.kyf,t.appid,t.xtlx ,t.icon ,t.xssx 
+			from pt_xt_zxtb t
+	       	where 1=1 
+<!--	       	and t.xtdm=<include refid="common.xtdm"/> 				 -->
+			  <isNotEmpty  prepend="and" property="pzxtmc">
+			       t.xtmc like '%'||trim(#pzxtmc#)||'%'
+			  </isNotEmpty> 
+			  order by t.dm
+      	) t 
+	    )t
+	 	 <![CDATA[
+	       where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		 ]]>   
+    </select>
+    
+     <select id="queryZxtwhCount" parameterClass="ZxtwhPage" resultClass="int">
+	 	select count(*) from 
+	      (
+       		 select t.dm,t.xtmc,t.xtdm,t.fwlj,t.kyf,t.appid,t.xtlx 
+			from pt_xt_zxtb t
+	       	where 1=1 
+<!--	       	and t.xtdm=<include refid="common.xtdm"/> 				 -->
+			  <isNotEmpty  prepend="and" property="pzxtmc">
+			       t.xtmc like '%'||trim(#pzxtmc#)||'%'
+			  </isNotEmpty> 
+		 ) t 
+	 </select>
+	 
+	 <!-- 添加时校验 -->
+	 <select id="checkXtdm" parameterClass="String" resultClass="String">
+	 	select 
+	 		case when (select count(1) from pt_xt_zxtb where xtdm = #xtdm#) = 0
+	 		 then '1'
+	 		else '0'
+	 		end a
+	 	from dual
+	 </select>
+	 
+	 
+	 <!--  添加   -->
+	 <insert id="addZxtwh" parameterClass="ZxtwhEntity">
+         insert into pt_xt_zxtb
+			  (dm, xtmc, xtdm, fwlj, kyf, appid, xtlx,icon,xssx)
+		 values
+			  (sys_guid(),#xtmc#, #xtdm#, #fwlj#, #kyf#, #appid#,#xtlx#,#icon#,#xssx#) 
+    </insert>
+    
+    <!--  修改              -->
+    <update id="UpdZxtwh" parameterClass="ZxtwhEntity">
+      update pt_xt_zxtb
+	   set 
+	       xtmc = #xtmc#,
+	       xtdm = #xtdm#,
+	       fwlj = #fwlj#,
+	       kyf = #kyf#,
+	       appid = #appid#,
+	       xtlx = #xtlx#,
+	       icon = #icon#,
+	       xssx = #xssx# 
+	 where dm = #dm#
+    </update>
+    
+    <!--   修改查询     -->
+    <select id="queryZxtwhOne" parameterClass="String" resultClass="ZxtwhEntity">
+    	select t.dm,t.xtmc,t.xtdm,t.fwlj,t.kyf,t.appid,t.xtlx ,t.icon,t.xssx 
+		from pt_xt_zxtb t
+		where t.dm = #dm#
+    </select>
+    
+    <!--    删除             -->
+    <delete id="delZxtwh" parameterClass="String">
+    	begin
+	       delete from pt_jsyyxtljb where zxtdm in (select xtdm from pt_xt_zxtb where dm = #dm#);
+	       delete from pt_ryjsyyxtljb where zxtdm in (select xtdm from pt_xt_zxtb where dm = #dm#);
+	       delete from pt_xt_zxtb where dm = #dm#;
+	    end; 
+    </delete>
+    <!--    删除 (角色授权保存时)            -->
+    <delete id="delZxtwhJssq" parameterClass="java.util.HashMap">
+    	delete from pt_jsyyxtljb t where t.jsdm = #jsdm#
+    	<isNotEmpty  prepend="and" property="pxtmc">
+        	exists (select 1 from pt_xt_zxtb t1 where t1.xtdm = t.zxtdm and t1.xtmc like '%'||trim(#pxtmc#)||'%')
+        </isNotEmpty> 
+    </delete>
+    
+    <!--   角色管理  权限   -->
+    <select id="queryZxtqx" parameterClass="ZxtwhJsqxPage" resultClass="ZxtwhEntity">	 	
+	       	select t.dm,t.xtmc,t.xtdm,t.fwlj,t.kyf,t.appid,t.xtlx ,icon,
+	       		   case 
+	       		    when (select count(1) from pt_jsyyxtljb t1 where t1.zxtdm = t.xtdm and t1.jsdm = #pjsdm#) > 0
+	       		     then '1'
+	       		    else
+	       		      '0'
+	       		   end sfxz
+			from pt_xt_zxtb t
+			where 1= 1
+			<isNotEmpty  prepend="and" property="pxtmc">
+			       t.xtmc like '%'||trim(#pxtmc#)||'%'
+			  </isNotEmpty> 
+		      order by t.dm
+	 </select>
+	 
+	 <select id="queryZxtqxCount" parameterClass="ZxtwhJsqxPage" resultClass="int">
+	 	select count(*) from 
+	      (
+       		 	select t.dm,t.xtmc,t.xtdm,t.fwlj,t.kyf,t.appid,t.xtlx ,
+	       		   case 
+	       		    when (select count(1) from pt_jsyyxtljb t1 where t1.zxtdm = t.xtdm and t1.jsdm = #pjsdm#) > 0
+	       		     then '1'
+	       		    else
+	       		      '0'
+	       		   end sfxz
+			from pt_xt_zxtb t
+			where 1= 1
+			<isNotEmpty  prepend="and" property="pxtmc">
+			       t.xtmc like '%'||trim(#pxtmc#)||'%'
+			  </isNotEmpty> 
+		 ) t 
+	 </select>
+	<!--   角色授权 保存     -->
+	<insert id="addJsZxtsq" parameterClass="java.util.HashMap">
+		begin
+<!--			delete from pt_jsyyxtljb where jsdm = #jsdm#;-->
+			
+			insert into  pt_jsyyxtljb
+			(jsdm,zxtdm)
+			values
+			(#jsdm#,#zxtdm#) ;
+		 
+		end;
+	</insert>    
+    
+    
+    
+    <!--    人员角色授权   ZxtwhRyjsqxPage   -->
+    <select id="queryRyjsZxtqx" parameterClass="ZxtwhRyjsqxPage" resultClass="ZxtwhEntity">	 	
+		select t.dm,t.xtmc,t.xtdm,t.fwlj,t.kyf,t.appid,t.xtlx ,t.icon,
+	       		   case 
+	       		    when (select count(1) from pt_ryjsyyxtljb t1 
+	       		    		where t1.zxtdm = t.xtdm 
+	       		    		  and t1.jsdm = #jsdm#
+	       		    		  and t1.yhdm = #yhdm#) > 0
+	       		     then '1'
+	       		    else
+	       		      '0'
+	       		   end sfxz
+			from pt_xt_zxtb t
+			where 1= 1
+			<isNotEmpty  prepend="and" property="pxtmc">
+			       t.xtmc like '%'||trim(#pxtmc#)||'%'
+			  </isNotEmpty> 
+		      order by t.dm
+	 </select>
+	 
+	 <select id="queryRyjsZxtqxCount" parameterClass="ZxtwhRyjsqxPage" resultClass="int">
+	 	select count(*) from 
+	      (
+       		 select t.dm,t.xtmc,t.xtdm,t.fwlj,t.kyf,t.appid,t.xtlx ,
+	       		   case 
+	       		    when (select count(1) from pt_ryjsyyxtljb t1 
+	       		    		where t1.zxtdm = t.xtdm 
+	       		    		  and t1.jsdm = #jsdm#
+	       		    		  and t1.yhdm = #yhdm#) > 0
+	       		     then '1'
+	       		    else
+	       		      '0'
+	       		   end sfxz
+			from pt_xt_zxtb t
+			where 1= 1
+			<isNotEmpty  prepend="and" property="pxtmc">
+			       t.xtmc like '%'||trim(#pxtmc#)||'%'
+			  </isNotEmpty> 
+		 ) t 
+	 </select>
+	 
+	 
+	<!--  删除人员角色授权   -->
+	<delete id="delRyjsZxtsq" parameterClass="java.util.HashMap">
+		delete from pt_ryjsyyxtljb where jsdm = #jsdm# and yhdm = #yhdm#
+	</delete>  
+	
+	<!--       人员角色授权  保存             -->
+	<insert id="addRyjsZxtsq" parameterClass="java.util.HashMap">
+		insert into pt_ryjsyyxtljb
+		(jsdm,yhdm,zxtdm)
+		values
+		(#jsdm#,#yhdm#,#zxtdm#)
+	</insert>
+    
+    
+    
+</sqlMap>

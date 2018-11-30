@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="yxzygl">
+	<!-- 实体pojo -->
+	<typeAlias alias="ZybEntity" type="com.incon.pojo.common.ZybEntity"/>
+	<typeAlias alias="YxdmbEntity" type="com.incon.pojo.common.YxdmbEntity"/>
+	<!-- 分页page -->
+	<typeAlias alias="yxzyglPage" type="com.incon.project.common.yxzygl.page.YxZyglPage"/>
+    <!-- 查询专业 -->
+    <select id="queryYxZyb" parameterClass="yxzyglPage" resultClass="ZybEntity">
+      select t.*   from 
+	     (select t.*,row_number()over(order by id desc,ssy,zymc) orderNumber from 
+	      (
+          select t1.id,t1.kyf,zyb.zymc, yxb1.yxmc as ssy, yxb2.yxmc as ssx,yxb3.yxmc as glyx from DM_XYZYB t1  
+           left join dm_zyb zyb on zyb.zydm = t1.zydm 
+           left join dm_yxb yxb1 on yxb1.yxdm = t1.xydm
+           left join dm_yxb yxb2 on yxb2.yxdm = t1.xdm
+           left join dm_yxb yxb3 on yxb3.yxdm = t1.glyx 
+			where 1=1 
+	  <isNotEmpty  prepend="and" property="dmmc">
+	       (zyb.zymc like  '%'||trim(#dmmc#)||'%' or yxb1.yxmc like '%'||trim(#dmmc#)||'%')
+	  </isNotEmpty>  
+      	) t 
+	    )t
+	 	 <![CDATA[
+	       where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		 ]]>   
+    </select>
+    
+     <select id="queryYxZyCount" parameterClass="yxzyglPage" resultClass="int">
+	 	select count(*) from 
+	      (
+          select t1.id,t1.kyf,zyb.zymc, yxb1.yxmc as ssy, yxb2.yxmc as ssx,yxb3.yxmc as glyx from DM_XYZYB t1  
+           left join dm_zyb zyb on zyb.zydm = t1.zydm 
+           left join dm_yxb yxb1 on yxb1.yxdm = t1.xydm
+           left join dm_yxb yxb2 on yxb2.yxdm = t1.xdm
+           left join dm_yxb yxb3 on yxb3.yxdm = t1.glyx 
+			where 1=1 
+	  <isNotEmpty  prepend="and" property="dmmc">
+	       (zyb.zymc like  '%'||trim(#dmmc#)||'%' or yxb1.yxmc like '%'||trim(#dmmc#)||'%')
+	  </isNotEmpty> 
+		 ) t 
+	 </select>
+    <!-- 添加专业 -->
+    <insert id="addYxZy" parameterClass="ZybEntity">
+      	   Merge into DM_XYZYB p using 
+        (select count(*) count from DM_XYZYB where XYDM  = #ssy# and XDM = #ssx# and ZYDM = #zydm#)num2 on 
+        (num2.count  <![CDATA[<>]]>0 ) when not matched then insert (id, xydm, xdm, glyx, zydm, kyf) 
+        values ((select nvl(max(id),0)+1 from DM_XYZYB),#ssy#,#ssx#,#glyx#,#zydm#,#kyf#)
+    </insert>
+     <!--所属院系列表 -->
+	 <select id="querySsyx" parameterClass="String" resultClass="java.util.HashMap">
+		select distinct t.yxdm, t.yxmc
+  			from dm_yxb t
+  			inner join DM_XYZYB t1
+    	on t1.xydm=t.yxdm
+	 </select>
+	 <!--所属系列表 -->
+	 <select id="querySsx" parameterClass="String" resultClass="java.util.HashMap">
+		select distinct t.yxdm, t.yxmc
+  			from dm_yxb t
+  			inner join DM_XYZYB t1
+    	on t1.xdm=t.yxdm
+	 </select>
+    <!-- 删除专业 -->
+    <delete id="delZy" parameterClass="String">
+	    	delete DM_XYZYB where id= #ids# 
+    </delete>
+	<!-- 查询管理院系 -->
+	<select id="queryYx" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select yxdm, yxmc, yxjc, zjm, yxywmc, sjyxdm, sfglbm, sfyxs, sfkkbm, sxh, kyf, sfycxy from dm_yxb
+			where sjyxdm = '0' and kyf = '1' and SFGLBM = '1'
+			<isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and t.yxdm in (select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+	</select>
+	<!-- 查询所有专业 -->
+	<select id="queryZy" resultClass="ZybEntity">
+	 	select * from dm_zyb where kyf = '1'
+	</select>
+	<!-- 修改院系专业可用否 -->
+	<update id="updYxzyKyf" parameterClass="ZybEntity">
+		update DM_XYZYB set kyf = #kyf# where id = #id#
+	</update>
+</sqlMap>

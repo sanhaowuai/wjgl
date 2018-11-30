@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="grrc">
+	<typeAlias alias="GrrcEntity" type="com.incon.common.grrc.page.GrrcEntity"/>
+	
+	<select id="queryGrrcJson" parameterClass="GrrcEntity" resultClass="GrrcEntity">
+		select to_char(RCSJ,'yyyy-mm-dd') as "START", title as title, url, zxtdm, appurl, id from pt_grrcb 
+		where rcsj >= to_date(#start#,'yyyy-mm-dd') 
+		and rcsj <![CDATA[<=]]> to_date(#end#,'yyyy-mm-dd') 
+		and yhdm = #yhdm#
+	</select>
+	
+	<select id="querySinGrrc" parameterClass="GrrcEntity" resultClass="GrrcEntity">
+		select yhdm, to_char(RCSJ,'yyyy-mm-dd') as rcsj, title, url, zxtdm, appurl, id,czbs from pt_grrcb where yhdm=#yhdm# and id = #id#
+	</select>
+	
+	<delete id="delSinGrrc" parameterClass="GrrcEntity">
+		delete from pt_grrcb where yhdm=#yhdm# and id = #id#
+	</delete>
+	<insert id="addShumitSinGrrc" parameterClass="GrrcEntity">
+		insert into pt_grrcb
+		  (yhdm, rcsj, title, url, zxtdm, appurl, id,czbs)
+		values
+		  (#yhdm#, to_date(#rcsj#,'yyyy-mm-dd hh24:mi'), #title#, #url#, #zxtdm#, #appurl#, SYS_GUID(),#czbs#)
+	</insert>
+	
+	<insert id="updShumitSinGrrc" parameterClass="GrrcEntity">
+		update pt_grrcb
+		   set rcsj = to_date(#rcsj#,'yyyy-mm-dd hh24:mi'),
+		       title = #title#,
+		       url = #url#,
+		       zxtdm = #zxtdm#,
+		       appurl = #appurl#
+		 where yhdm=#yhdm# and id = #id# and czbs = '0'
+	</insert>	
+	
+</sqlMap>

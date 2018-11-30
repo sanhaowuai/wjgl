@@ -1,0 +1,40 @@
+@charset "utf-8";
+/* CSS Document */
+ 
+.ui-widget-content {
+    border: 1px solid rgb(250,250,250,0.1);
+    background: 0!important;
+    color: #fff!important;
+}
+.ui-widget-header{
+	border: 1px solid rgb(250,250,250,0.1);
+    background: 0!important;
+    color: #fff!important;
+}
+.fc-event{
+	border: 1px solid #3fc990!important;
+	background-color: #3fc990!important;	
+}
+.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+    border: 1px solid #3fc990;
+    background: #3fc990 !important;
+    color: #fff!important;
+}
+.fc-toolbar{
+	margin:1em 0!important
+}
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+    border: 1px solid rgb(250,250,250,0.2);
+    background: rgb(0,0,0,0.2);
+    font-weight: bold;
+    color: #fff !important;
+}
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+    border: 1px solid rgb(250,250,250,0.2);
+    background: rgb(0,0,0,0.2);
+    font-weight: bold;
+    color: #fff !important;
+}
+.fc-toolbar h2 {
+    color: #fff;
+}

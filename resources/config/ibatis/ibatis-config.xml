@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+<sqlMapConfig>
+	<settings cacheModelsEnabled="true" enhancementEnabled="true" errorTracingEnabled="true" lazyLoadingEnabled="true" maxRequests="32" maxSessions="10" maxTransactions="5" useStatementNamespaces="true"/>
+	<typeHandler callback="org.springframework.orm.ibatis.support.BlobByteArrayTypeHandler" javaType="[B" jdbcType="BLOB"/>
+	<typeHandler callback="org.springframework.orm.ibatis.support.ClobStringTypeHandler" javaType="java.lang.String" jdbcType="CLOB"/>
+ 
+	<sqlMap resource="com/incon/project/common/demo/sqlMap/demoSqlMap.xml"/>
+<!-- 演示 -->
+	<sqlMap resource="config/ibatis/ibatis-common.xml"/>
+<!-- 全局参数配置 -->
+	<sqlMap resource="com/incon/common/login/sqlMap/LoginSqlMap.xml"/>
+	<sqlMap resource="com/incon/common/pub/pubChoose/sqlMap/PubChooseMxdxSqlMap.xml"/><!-- 丁起明 -->
+<!--  登陆模块-->
+	<sqlMap resource="com/incon/project/common/qxcdgl/sqlMap/qxcdglSqlMap.xml"/>
+<!-- 权限（菜单）管理 -->
+	<sqlMap resource="com/incon/project/common/rygl/sqlMap/ryjsSqlMap.xml"/>
+<!-- 权限（菜单）管理 -->
+	<sqlMap resource="com/incon/common/upload/sqlMap/UploadSqlMap.xml"/> <!-- 附件上传  -->
+	<sqlMap resource="com/incon/common/treetable/sqlMap/treeTableSqlMap.xml"/> <!-- treetable  -->
+	<sqlMap resource="com/incon/project/common/rzgl/sqlMap/rzSqlMap.xml"/>  <!--	日志记录  -->
+
+	<sqlMap resource="com/incon/project/common/juesgl/sqlMap/juesglSqlMap.xml"/>
+<!-- 角色管理 -->
+	<sqlMap resource="com/incon/project/common/jsgl/sqlMap/jsglSqlMap.xml"/> <!-- 教师管理  -->
+	<sqlMap resource="com/incon/project/common/xsgl/sqlMap/xsglSqlMap.xml"/> <!-- 学生管理  -->
+	<sqlMap resource="com/incon/project/common/yxgl/sqlMap/yxglSqlMap.xml"/> <!-- 院系管理  -->
+	<sqlMap resource="com/incon/project/common/zygl/sqlMap/zyglSqlMap.xml"/> <!-- 专业管理  -->
+	<sqlMap resource="com/incon/project/common/yxzygl/sqlMap/YxzyglSqlMap.xml"/> <!-- 院系专业关系  -->
+	<sqlMap resource="com/incon/project/common/ymqxgl/sqlMap/ymqxglSqlMap.xml"/> <!-- 页面权限管理  -->
+	<sqlMap resource="com/incon/common/button/sqlMap/buttonSqlMap.xml"/> <!-- 页面权限查询  -->
+	<sqlMap resource="com/incon/project/common/xtfk/sqlMap/xtfkSqlMap.xml"/> <!-- 系统反馈  -->
+	<sqlMap resource="com/incon/project/common/dmwh/sqlMap/dmwhSqlMap.xml"/> <!-- 代码维护  -->
+	<!-- 基础相关信息维护 -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/zylb/sqlMap/zylbglSqlMap.xml"/> <!-- 专业类别管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/rxlx/sqlMap/rxlxglSqlMap.xml"/> <!-- 入校类型管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/dq/sqlMap/dqglSqlMap.xml"/> <!-- 地区管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/cdlb/sqlMap/cdlbglSqlMap.xml"/> <!-- 场地类别管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/xnxq/sqlMap/xnxqglSqlMap.xml"/> <!-- 学年学期管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/gwlx/sqlMap/gwlxglSqlMap.xml"/> <!-- 岗位类型管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/gw/sqlMap/gwglSqlMap.xml"/> <!-- 岗位管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/nj/sqlMap/njglSqlMap.xml"/> <!-- 年级管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/jxcd/sqlMap/jxcdglSqlMap.xml"/> <!-- 教学场地管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/jxl/sqlMap/jxlglSqlMap.xml"/> <!-- 教学楼管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/jyslx/sqlMap/jyslxglSqlMap.xml"/> <!-- 教研室类型管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/jys/sqlMap/jysglSqlMap.xml"/> <!-- 教研室管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/xiaoqu/sqlMap/xiaoquglSqlMap.xml"/> <!-- 校区管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/kl/sqlMap/klglSqlMap.xml"/> <!-- 科类管理  -->
+	<sqlMap resource="com/incon/project/common/jcxgxxwh/bj/sqlMap/bjglSqlMap.xml"/> <!-- 班级管理  -->	
+	<!-- 人员相关信息维护 -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/jgb/sqlMap/jgbSqlMap.xml"/> <!-- 籍贯表管理  -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/mzb/sqlMap/mzbSqlMap.xml"/> <!-- 民族表管理  -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/ryflb/sqlMap/ryflbSqlMap.xml"/> <!-- 人员分类表管理  -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/whcdb/sqlMap/whcdbSqlMap.xml"/> <!-- 文化程度表管理  -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/xbb/sqlMap/xbbSqlMap.xml"/> <!-- 性别表管理  -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/xlb/sqlMap/xlbSqlMap.xml"/> <!-- 学历表管理  -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/xwb/sqlMap/xwbSqlMap.xml"/> <!-- 学位表管理  -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/xwlbb/sqlMap/xwlbbSqlMap.xml"/> <!-- 学位类别表管理  -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/xzjbb/sqlMap/xzjbbSqlMap.xml"/> <!-- 行政级别表管理  -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/yzb/sqlMap/yzbSqlMap.xml"/> <!-- 语种表管理  -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/zcb/sqlMap/zcbSqlMap.xml"/> <!-- 职称表管理  -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/zzmmb/sqlMap/zzmmbSqlMap.xml"/> <!-- 政治面貌表管理  -->
+	<sqlMap resource="com/incon/project/common/ryxgxxwh/gj/sqlMap/gjglSqlMap.xml"/> <!-- 国籍管理  -->
+	<sqlMap resource="com/incon/project/common/helpgl/sqlMap/helpglSqlMap.xml"/> <!-- 系统帮助  -->
+	
+	<!-- 论文 -->
+	<sqlMap resource="com/incon/project/common/xtgl/sqlMap/xtglSqlMap.xml"/>
+	<sqlMap resource="com/incon/project/common/wdlw/sqlMap/wdlwSqlMap.xml"/> <!-- 我的论文  -->
+	<!-- 论文 -->
+	
+	<!-- 公共模块 -->
+	<sqlMap resource="com/incon/common/pub/pubYx/sqlMap/pubYxSqlMap.xml"/> <!-- 院系 -->
+	<sqlMap resource="com/incon/common/pub/pubZy/sqlMap/pubZySqlMap.xml"/> <!-- 专业-->
+	<sqlMap resource="com/incon/common/pub/pubBj/sqlMap/pubBjSqlMap.xml"/> <!-- 班级-->
+	<sqlMap resource="com/incon/common/pub/pubXnxq/sqlMap/pubXnxqSqlMap.xml"/> <!-- 学年学期-->
+	<sqlMap resource="com/incon/common/pub/pubNj/sqlMap/pubNjSqlMap.xml"/> <!-- 年级-->
+	<sqlMap resource="com/incon/common/pub/pubXs/sqlMap/pubXsSqlMap.xml"/> <!-- 学生-->
+	<sqlMap resource="com/incon/common/pub/pubJs/sqlMap/pubJsSqlMap.xml"/> <!-- 教师-->
+	<sqlMap resource="com/incon/common/pub/pubJys/sqlMap/pubJysSqlMap.xml"/> <!-- 教研室-->
+	<sqlMap resource="com/incon/common/pub/pubJccx/sqlMap/pubJccxSqlMap.xml"/> <!-- 基础查询公共-->
+	<sqlMap resource="com/incon/common/pub/pubXByYx/sqlMap/pubXByYxSqlMap.xml"/> <!-- 院查系-->
+	<sqlMap resource="com/incon/common/pub/pubZyByYx/sqlMap/pubZyByYxSqlMap.xml"/> <!-- 院查专业-->
+	<sqlMap resource="com/incon/common/pub/pubZyByX/sqlMap/pubZyByXSqlMap.xml"/> <!-- 系查专业-->
+	<sqlMap resource="com/incon/common/pub/pubBjByZy/sqlMap/pubBjByZySqlMap.xml"/> <!-- 专业查班级-->
+	<sqlMap resource="com/incon/common/pub/pubJysByYx/sqlMap/pubJysByYxSqlMap.xml"/> <!-- 院查教研室-->
+	<sqlMap resource="com/incon/common/pub/pubZyByGlyx/sqlMap/pubZyByGlyxSqlMap.xml"/> <!-- 管理院系查询专业-->
+	<sqlMap resource="com/incon/common/pub/pubzj/sqlMap/PubZjSqlMap.xml"/> <!-- 组件 -->
+	
+	<!-- 公共模块 -->
+	
+	<sqlMap resource="com/incon/project/common/zjwh/sqlMap/zjwhSqlMap.xml"/> <!-- 组件维护  高阳-->
+	<sqlMap resource="com/incon/project/common/grb/sqlMap/grbSqlMap.xml"/>
+<!-- 个人表维护  高阳-->
+	
+	
+	
+	
+	<!-- 赵玥    代办提醒 -->
+	<sqlMap resource="com/incon/project/dbsx/sqlMap/dbsxSqlMap.xml"/>
+	<sqlMap resource="com/incon/project/swtx/sqlMap/swtxSqlMap.xml"/>
+	<sqlMap resource="com/incon/project/common/bmxxgl/sqlMap/bmxxglSqlMap.xml"/>
+	<!-- 安智博 学校发布信息 -->
+	<sqlMap resource="com/incon/project/common/xxfbxx/sqlMap/xxfbxxSqlMap.xml"/>
+	<!-- 张继男 子系统维护 -->
+	<sqlMap resource="com/incon/project/common/zxtwh/sqlMap/zxtwhSqlMap.xml"/>
+	
+	<!-- 赵玥   手机菜单-->
+	<sqlMap resource="com/incon/project/common/shoujcd/sqlMap/shoujcdSqlMap.xml"/>
+	<!-- 高阳   PT_人员磁盘空间例外表-->
+	<sqlMap resource="com/incon/project/common/rycpckjlwb/sqlMap/rycpckjlwbSqlMap.xml"/>
+	
+	<!-- 个人日程 丁起明  2016-09-02 -->
+	<sqlMap resource="com/incon/common/grrc/sqlMap/grrcSqlMap.xml"/>
+	
+	<!-- 消息推送接口 丁起明 2016-09-09 -->
+	<sqlMap resource="com/incon/common/xxts/sqlMap/xxtsSqlMap.xml"/>
+	
+		<!--  空教室查询	-->
+	<sqlMap resource="com/incon/project/kjscx/sqlMap/kjscxSqlMap.xml"/>
+	<!--  个人课表查询	-->
+	<sqlMap resource="com/incon/project/kbcx/sqlMap/KbcxSqlMap.xml"/>
+	<!--  期末成绩查询	-->
+	<sqlMap resource="com/incon/project/cjcx/sqlMap/cjcxSqlMap.xml"/>
+	<sqlMap resource="com/incon/project/common/zxtrywh/sqlMap/zxtrywhSqlMap.xml"/>
+
+	<!-- 流程图功能 丁起明 2016年11月11日 -->
+	<sqlMap resource="com/incon/project/lctp/sqlMap/LctpSqlMap.xml"/> <!-- 流程图片--> 
+
+	<!-- 2016-11-10  消息弹出   赵玥 -->
+	<sqlMap resource="com/incon/project/common/xxtc/sqlMap/xxtcSqlMap.xml"/>
+	
+	<!-- 异常（例外）任务 丁起明 2016年12月19日 -->
+	<sqlMap resource="com/incon/common/ExceptionTask/sqlMap/exceptionTaskSqlMap.xml"/>
+	<!-- 垃圾数据清理 任务 丁起明 2016年12月21日 -->
+	<sqlMap resource="com/incon/common/DirtyDataTask/sqlMap/dirtyDataTaskSqlMap.xml"/>
+	<!-- 执行SQL 任务 -->
+	<sqlMap resource="com/incon/common/ExecuteSQLTask/sqlMap/executeSQLTaskSqlMap.xml"/>
+	
+	<!-- 保存用户皮肤数据 -->
+	<sqlMap resource="com/incon/project/common/skin/sqlMap/skinSqlMap.xml"/>
+	
+	<!-- 自定义导入导出 -->
+	<sqlMap resource="com/incon/common/customImpOrExp/sqlMap/customImpOrExpSqlMap.xml" /><!-- 自定义导入导出-->
+	<sqlMap resource="com/incon/common/consumerExp/sqlMap/consumerExpMap.xml" /><!-- 自定义导出-->
+	<sqlMap resource="com/incon/common/dmbwh/sqlMap/dmbwhSqlMap.xml" /><!-- 代码表维护-->
+	<!-- 生成JSP页面 mengweiliang -->
+	<sqlMap resource="com/incon/project/common/pageGenerate/sqlMap/pageGenerateSqlMap.xml"/>	
+
+	
+	<!-- 反馈处理 -->
+	<sqlMap resource="/com/incon/project/qkfkxt/fkcl/sqlMap/fkclSqlMap.xml"/>
+	<sqlMap resource="/com/incon/project/qkfkxt/qkfkxtcx/sqlMap/QkfkxtcxSqlMap.xml"/>
+	<sqlMap resource="com/incon/project/qkfkxt/qkfkycl/sqlMap/qkfkyclSqlMap.xml"/>
+
+
+
+	<!-- 工作流 丁起明 20180305 -->
+	<sqlMap resource="com/incon/project/common/gzljcsz/sqlMap/GzljcszSqlMap.xml"/>
+  	<sqlMap resource="com/incon/project/common/gzlshywlc/sqlMap/gzlShywlcSqlMap.xml"/>
+  	<sqlMap resource="com/incon/project/common/gzlshywlc/sqlMap/qjSqlMap.xml"/>
+  	<sqlMap resource="com/incon/project/common/gzlgwgl/sqlMap/gzlgwglSqlMap.xml"/>	
+  	<!-- 工作流 丁起明 20180305 -->
+
+	<sqlMap resource="com/incon/wjgl/sqlMap/wjglSqlMap.xml"/>
+</sqlMapConfig>

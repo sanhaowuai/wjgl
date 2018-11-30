@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="juesgl">
+	<!-- 分页page -->
+	<typeAlias alias="juesglPage" type="com.incon.project.common.juesgl.page.JuesglPage"/>
+	<!-- 实体pojo -->
+	<typeAlias alias="JsbEntity" type="com.incon.pojo.common.JsbEntity"/>
+	<typeAlias alias="JsqxbEntity" type="com.incon.pojo.common.JsqxbEntity"/>
+	<typeAlias alias="JsanbEntity" type="com.incon.pojo.common.JsanbEntity"/>
+	
+	<!-- 查询角色列表 -->
+	<select id="queryJs" parameterClass="juesglPage" resultClass="JsbEntity">
+	     select t.* from
+	      (
+	      <isEqual property="sfcjgly" compareValue="1">
+			select jsdm,jsmc,dlzylj,kyf,ms,sfsd,xtdm,fjsdm from dm_jsb where xtdm = <include refid="common.xtdm"/>
+     		<isNotEmpty prepend="and" property="jsdm">
+				jsdm!=#jsdm#
+				and jsdm not in(
+				select jsdm from dm_jsb where xtdm=<include refid="common.xtdm"/> start with fjsdm=#jsdm# CONNECT BY PRIOR jsdm = fjsdm and xtdm=<include refid="common.xtdm"/>
+				)
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="dmmc" >
+				  jsmc like '%'|| trim(#dmmc#) ||'%'
+			</isNotEmpty>
+		 </isEqual>
+		 <isNotEqual property="sfcjgly" compareValue="1">
+		 select js.jsdm,js.jsmc,js.dlzylj,js.kyf,js.ms,js.sfsd,js.xtdm,js.fjsdm from dm_jsb js
+			right join dm_ryjsb ryjs on ryjs.jsdm=js.jsdm
+			where js.xtdm = <include refid="common.xtdm"/> and ryjs.xtdm= <include refid="common.xtdm"/>
+			and ryjs.yhdm=#yhdm#
+			<isNotEmpty prepend="and" property="jsdm">
+				 jsdm!=#jsdm#
+				 and jsdm not in(
+				 select jsdm from dm_jsb where xtdm=<include refid="common.xtdm"/>
+				 start with fjsdm=#jsdm# CONNECT BY PRIOR jsdm = fjsdm and xtdm=<include refid="common.xtdm"/>
+				 )
+			 </isNotEmpty>
+			<isNotEmpty prepend="and" property="dmmc" > 
+				  jsmc like '%'|| trim(#dmmc#) ||'%'
+			</isNotEmpty>
+		 </isNotEqual>
+		) t
+		start with fjsdm='-1' CONNECT BY PRIOR jsdm = fjsdm and xtdm =<include refid="common.xtdm"/> order siblings by jsdm
+	</select>
+
+	 <!-- 增加角色 -->
+	 <insert id="addJs" parameterClass="JsbEntity">
+	 	insert into dm_jsb(jsdm,jsmc,kyf,sfsd,dlzylj,xtdm,ms,fjsdm)
+			values 
+			(#jsdm#,#jsmc#,#kyf#,'0',ltrim(rtrim(#dlzylj#)),<include refid="common.xtdm"/>,#ms#,#fjsdm#)
+	 </insert>
+	 
+	 <!-- 根据角色代码查询角色 -->
+	 <select id="queryJsByJsdm" parameterClass="String" resultClass="JsbEntity">
+	 	select jsdm,jsmc,fjsdm,dlzylj,kyf,ms from dm_jsb where jsdm = #jsdm# and xtdm = <include refid="common.xtdm"/>
+	 </select>
+	 
+	 <!-- 根据角色代码修改角色 -->
+	 <update id="updJsByJsdm" parameterClass="JsbEntity">
+	 	update dm_jsb set jsmc = #jsmc#,dlzylj = ltrim(rtrim(#dlzylj#)),kyf = #kyf#,ms = #ms#,fjsdm=#fjsdm# where jsdm = #jsdm# and xtdm = <include refid="common.xtdm"/>
+	 </update>
+	 
+	 <!-- 获取权限树形菜单 -->
+	<select id="queryQx" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<isEqual property="sfcjgly" compareValue="1">
+		select dq.qxdm "id",dq.qxmc "name",dq.fqxdm "pId",'1' "idd",
+			(case when (select count(*) from dm_jsqxb dj where dj.qxdm=dq.qxdm and dj.jsdm = #jsdm# and dj.sfmrkf = '1' and dj.xtdm = <include refid="common.xtdm"/>)>0 
+			then 'true' else 'false' end) "checked" 
+			from dm_qxb dq 
+			where dq.kyf = '1' and dq.xtdm = <include refid="common.xtdm"/>
+		union
+		select da.andm "id",da.anmc "name",da.qxdm "pId",'2' "idd",
+			(case when (select count(*) from dm_jsanb dj where dj.andm=da.andm and dj.jsdm = #jsdm# and dj.xtdm = <include refid="common.xtdm"/>)>0
+			then 'true' else 'false' end) "checked" from dm_anb da 
+			where da.xtdm = <include refid="common.xtdm"/>
+	</isEqual>
+	<isNotEqual property="sfcjgly" compareValue="1">
+	<isEqual property="zt" compareValue="1">
+	select dq.qxdm "id",dq.qxmc "name",dq.fqxdm "pId",'1' "idd",
+			(case when (select count(*) from dm_jsqxb dj where dj.qxdm=dq.qxdm and dj.jsdm = #jsdm# and dj.sfmrkf = '1' and dj.xtdm = <include refid="common.xtdm"/>)>0 
+			then 'true' else 'false' end) "checked" 
+			from dm_qxb dq 
+			where dq.kyf = '1' and dq.xtdm = <include refid="common.xtdm"/> and dq.qxdm in (select qxdm from dm_ryjsqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#yhjsdm#)
+    union
+    select da.andm "id",da.anmc "name",da.qxdm "pId",'2' "idd",
+			(case when (select count(*) from dm_jsanb dj where dj.andm=da.andm and dj.jsdm = #jsdm# and dj.xtdm = <include refid="common.xtdm"/>)>0
+			then 'true' else 'false' end) "checked" from dm_anb da 
+			where da.xtdm = <include refid="common.xtdm"/> and da.andm in (select andm from dm_ryjsanb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#yhjsdm#)
+      </isEqual>
+      <isNotEqual property="zt" compareValue="1">
+      select dq.qxdm "id",dq.qxmc "name",dq.fqxdm "pId",'1' "idd",
+			(case when (select count(*) from dm_jsqxb dj where dj.qxdm=dq.qxdm and dj.jsdm = #jsdm# and dj.sfmrkf = '1' and dj.xtdm = <include refid="common.xtdm"/>)>0 
+			then 'true' else 'false' end) "checked" 
+			from dm_qxb dq 
+			where dq.kyf = '1' and dq.xtdm = <include refid="common.xtdm"/>  and dq.qxdm in (select qxdm from dm_jsqxb where xtdm=<include refid="common.xtdm"/> and jsdm=#yhjsdm#)
+    union
+    select da.andm "id",da.anmc "name",da.qxdm "pId",'2' "idd",
+			(case when (select count(*) from dm_jsanb dj where dj.andm=da.andm and dj.jsdm = #jsdm# and dj.xtdm = <include refid="common.xtdm"/>)>0
+			then 'true' else 'false' end) "checked" from dm_anb da 
+			where da.xtdm = <include refid="common.xtdm"/> and da.andm in (select andm from dm_jsanb where xtdm=<include refid="common.xtdm"/>  and jsdm=#yhjsdm# )
+      </isNotEqual>
+      
+	</isNotEqual>		
+			
+	</select>
+	<!-- 查询权限状态 查看人员权限表是否有记录 -->
+	<select id="queryQxZt" parameterClass="java.util.HashMap" resultClass="int">
+		select count(1) from dm_ryjsqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#yhjsdm#
+	</select>
+	<!-- 获取要修改权限的角色的当前权限（比对去掉的以及新加的） -->
+	<select id="queryJsqxByJsdm" parameterClass="String" resultClass="java.util.HashMap">
+		select dj.qxdm,dq.fqxdm fdm,'1' jb from dm_jsqxb dj 
+			inner join dm_qxb dq on dj.qxdm = dq.qxdm 
+			where dj.jsdm = #jsdm# and dj.sfmrkf = '1' and dq.xtdm = <include refid="common.xtdm"/> and dj.xtdm = <include refid="common.xtdm"/>
+		union
+		select dj.andm qxdm,dj.sscddm fdm,'2' jb from dm_jsanb dj 
+			inner join dm_anb da on dj.andm = da.andm 
+			where dj.jsdm = #jsdm# and dj.xtdm = <include refid="common.xtdm"/> and da.xtdm = <include refid="common.xtdm"/>
+	</select>
+	
+	<!-- 查询人员角色权限表中是否有记录 -->
+	<select id="queryReCount" resultClass="int" parameterClass="JsqxbEntity">
+		select count(*) from dm_ryjsqxb where yhdm = #dqYhdm# and jsdm = #dqJsdm# and xtdm = <include refid="common.xtdm"/>
+	</select>
+	
+	<!-- 删除要删除的权限 -->
+	<delete id="delQx" parameterClass="JsqxbEntity">
+	<isEqual property="sfcjgly" compareValue="1">
+		begin
+			delete from dm_jsqxb where jsdm = #jsdm# and qxdm = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+			<!-- 
+			delete from dm_ryjsqxb where jsdm = #jsdm# and qxdm = #qxdm# and xtdm = <include refid="common.xtdm"/>;
+			-->
+		end;
+	</isEqual>
+	<isNotEqual property="sfcjgly" compareValue="1">
+		begin
+			delete from dm_jsqxb where jsdm = #jsdm# and qxdm = #qxdm# and xtdm = <include refid="common.xtdm"/>
+			and qxdm in 
+			 <isEqual property="reCount" compareValue="0">
+			(select qxdm from dm_jsqxb where jsdm = #dqJsdm# and xtdm = <include refid="common.xtdm"/>)
+			</isEqual>
+			<isNotEqual property="reCount" compareValue="0">
+			(select qxdm from dm_ryjsqxb where yhdm = #dqYhdm# and jsdm = #dqJsdm# and xtdm = <include refid="common.xtdm"/>)
+			</isNotEqual>
+			;
+			<!-- 
+			delete from dm_ryjsqxb where jsdm = #jsdm# and qxdm = #qxdm# and xtdm = <include refid="common.xtdm"/> 
+			and qxdm in (select qxdm from dm_ryjsqxb where yhdm = #dqYhdm# and jsdm = #dqJsdm# and xtdm = <include refid="common.xtdm"/>);
+			-->
+		end;
+	</isNotEqual>
+	</delete>
+	
+	<!-- 删除要删除的权限 -->
+	<delete id="delJsan" parameterClass="JsanbEntity">
+		<isEqual property="sfcjgly" compareValue="1">
+		begin
+			delete from dm_jsanb where jsdm = #jsdm# and andm = #andm# and sscddm = #sscddm# and xtdm = <include refid="common.xtdm"/>;
+			<!-- delete from dm_ryjsanb where jsdm = #jsdm# and andm = #andm# and sscddm = #sscddm# and xtdm = <include refid="common.xtdm"/>; -->
+		end;
+		</isEqual>
+		<isNotEqual property="sfcjgly" compareValue="1">
+		begin
+			delete from dm_jsanb where jsdm = #jsdm# and andm = #andm# and sscddm = #sscddm# and xtdm = <include refid="common.xtdm"/>
+			and andm in
+			 <isEqual property="reCount" compareValue="0">
+			(select andm from dm_jsanb where jsdm = #dqJsdm# and xtdm = <include refid="common.xtdm"/> and sscddm = #sscddm#)
+			</isEqual>
+			 <isNotEqual property="reCount" compareValue="0">
+			 (select andm from dm_ryjsanb where yhdm = #dqYhdm# and jsdm = #dqJsdm# and xtdm = <include refid="common.xtdm"/> and sscddm = #sscddm#)
+			 </isNotEqual>
+			;
+			<!--  
+			delete from dm_ryjsanb where jsdm = #jsdm# and andm = #andm# and sscddm = #sscddm# and xtdm = <include refid="common.xtdm"/>
+			and andm in (select andm from dm_ryjsanb where yhdm = #dqYhdm# and jsdm = #dqJsdm# and xtdm = <include refid="common.xtdm"/> and sscddm = #sscddm#);
+			-->
+		end;		
+		</isNotEqual>
+	</delete>
+	
+	<!-- 增加新增的权限 -->
+	<insert id="addQx" parameterClass="JsqxbEntity">
+		insert into dm_jsqxb (jsqxdm,jsdm,qxdm,sfmrkf,xtdm) 
+			values (seq_dm_jsqxb.nextval,#jsdm#,#qxdm#,'1',<include refid="common.xtdm"/>)
+	</insert>
+	
+	<!-- 增加新增的角色按钮权限 -->
+	<insert id="addJsan" parameterClass="JsanbEntity">
+		insert into dm_jsanb (jsandm,jsdm,andm,sscddm,xtdm)
+			values (seq_dm_jsanb.nextval,#jsdm#,#andm#,#sscddm#,<include refid="common.xtdm"/>)
+	</insert>
+	
+	<!-- 删除角色 -->
+	<delete id="delJs" parameterClass="string">
+		begin
+			delete from dm_ryjsb where jsdm=#jsdm# or jsdm in(
+				select jsdm from dm_jsb where xtdm=<include refid="common.xtdm"/> start with fjsdm=#jsdm# CONNECT BY PRIOR jsdm = fjsdm and xtdm=<include refid="common.xtdm"/>
+			) and xtdm = <include refid="common.xtdm"/>;
+			delete from dm_jsqxb where jsdm=#jsdm# or jsdm in(
+				select jsdm from dm_jsb where xtdm=<include refid="common.xtdm"/> start with fjsdm=#jsdm# CONNECT BY PRIOR jsdm = fjsdm and xtdm=<include refid="common.xtdm"/>
+			) and xtdm = <include refid="common.xtdm"/>;
+			delete from dm_jsanb where jsdm=#jsdm# or jsdm in(
+				select jsdm from dm_jsb where xtdm=<include refid="common.xtdm"/> start with fjsdm=#jsdm# CONNECT BY PRIOR jsdm = fjsdm and xtdm=<include refid="common.xtdm"/>
+			) and xtdm = <include refid="common.xtdm"/>;
+			delete from dm_ryjsqxb where jsdm=#jsdm# or jsdm in(
+				select jsdm from dm_jsb where xtdm=<include refid="common.xtdm"/> start with fjsdm=#jsdm# CONNECT BY PRIOR jsdm = fjsdm and xtdm=<include refid="common.xtdm"/>
+			) and xtdm = <include refid="common.xtdm"/>;
+			delete from dm_ryjsanb where jsdm=#jsdm# or jsdm in(
+				select jsdm from dm_jsb where xtdm=<include refid="common.xtdm"/> start with fjsdm=#jsdm# CONNECT BY PRIOR jsdm = fjsdm and xtdm=<include refid="common.xtdm"/>
+			) and xtdm = <include refid="common.xtdm"/>;
+			delete from dm_jsb where jsdm=#jsdm# or jsdm in(
+				select jsdm from dm_jsb where xtdm=<include refid="common.xtdm"/> start with fjsdm=#jsdm# CONNECT BY PRIOR jsdm = fjsdm and xtdm=<include refid="common.xtdm"/>
+			) and xtdm =<include refid="common.xtdm"/>;
+		end;
+	</delete>
+	
+	<!-- 查询jsdm是否重复 -->
+	<select id="queryByJsdmCount" parameterClass="string" resultClass="Integer">
+		select count(*) from dm_jsb where jsdm = #jsdm# and xtdm = <include refid="common.xtdm"/>
+	</select>
+	<!-- //根据角色代码批量插入用户角色比表 -->
+	<insert id="addRyjsbByJsdm" parameterClass="HashMap">
+		insert into dm_ryjsb
+		  	(ryjsdm, yhdm, jsdm, gljb, xtdm, cjr, cjsj)
+		select 
+			seq_dm_ryjsb.nextval,yhdm,#jsdm#,'2',<include refid="common.xtdm"/>,#yhdm#,sysdate 
+		from xt_dlb 
+		where not exists 
+		(select 'x' from dm_ryjsb where dm_ryjsb.jsdm=#jsdm# 
+		and dm_ryjsb.xtdm=<include refid="common.xtdm"/> and dm_ryjsb.yhdm=xt_dlb.yhdm)
+		<isEqual property="jsdm" compareValue="2">
+		and xt_dlb.yhlx = '1'
+		</isEqual> 
+		<isEqual property="jsdm" compareValue="3">
+		and xt_dlb.yhlx = '2'
+		</isEqual> 			
+	</insert>
+	
+	<!-- 查询主页路径 -->
+	<select id="queryZyljdzList" parameterClass="String" resultClass="HashMap">
+		select id,lj,mbmc from dm_zyljb
+	</select>
+</sqlMap>

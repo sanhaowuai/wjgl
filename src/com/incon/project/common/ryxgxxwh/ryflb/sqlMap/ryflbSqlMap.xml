@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ryflbgl">
+	<!-- 分页page -->
+	<typeAlias alias="ryflbPage" type="com.incon.project.common.ryxgxxwh.ryflb.page.RyflbPage"/>
+	<!-- 实体pojo -->
+	<typeAlias alias="RyflbEntity" type="com.incon.pojo.common.ryxgxxwh.RyflbEntity"/>
+	
+	<!-- 查询籍贯列表 -->
+	<select id="queryRyfl" parameterClass="ryflbPage" resultClass="ryflbEntity">
+	  select t.*   from 
+	     (select t.*,row_number()over(order by to_number(dm)) orderNumber from 
+	      (
+			select dm,mc,kyf from dm_ryflb where 1=1 
+     		<isNotEmpty prepend="and" property="dmmc" > 
+				  mc like '%'|| trim(#dmmc#) ||'%'
+			</isNotEmpty>
+	 	  ) t 
+	     )t 
+	      <![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		  ]]>  
+	 </select>
+ 
+	 <select id="queryRyflCount" parameterClass="ryflbPage" resultClass="int">
+	 	select count(*) from 
+	      (
+		 	select dm,mc,kyf from dm_ryflb where 1=1  
+     		<isNotEmpty prepend="and" property="dmmc" > 
+				  mc like '%'|| trim(#dmmc#) ||'%'
+			</isNotEmpty>
+		 ) t 
+	 </select>	 
+	 <!-- 增加人员分类 -->
+	 <insert id="addRyfl" parameterClass="RyflbEntity">
+	 	insert into dm_ryflb(dm,mc,kyf) 
+			values (#dm#,#mc#,#kyf#)
+	 </insert>
+	 <!-- 查询一条人员分类 -->
+	 <select id="queryRyflByDm" parameterClass="String" resultClass="RyflbEntity">
+	 	select dm,mc,kyf from dm_ryflb where dm = #dm#
+	 </select> 
+	 <!-- 修改人员分类 -->
+	 <update id="updRyflByDm" parameterClass="RyflbEntity">
+	 	update dm_ryflb set mc = #mc#,kyf = #kyf# where dm = #dm#
+	 </update>
+	<!-- 删除人员分类 -->
+	<delete id="delRyfl" parameterClass="string">
+		delete from dm_ryflb where dm=#dm#
+	</delete>
+	<!-- 查询dm是否重复 -->
+	<select id="queryByDmCount" parameterClass="string" resultClass="Integer">
+		select count(*) from dm_ryflb where dm = #dm# 
+	</select>
+</sqlMap>

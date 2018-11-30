@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="qkfkycl">
+<typeAlias alias="qkfkxtFksqbEntity" type="com.incon.pojo.common.qkfkxt.QkfkxtFksqbEntity"/>
+<typeAlias alias="qkfkyclPage" type="com.incon.project.qkfkxt.qkfkycl.page.QkfkyclPage"/>
+<typeAlias alias="FkclEntity" type="com.incon.pojo.common.qkfkxt.FkclEntity"/>
+<typeAlias alias="FkclPage" type="com.incon.project.qkfkxt.fkcl.page.FkclPage" />
+<select id="queryxmmc" resultClass="java.util.HashMap">
+select dm,xtmc from pt_xt_zxtb
+</select>
+<select id="queryjjcd" resultClass="java.util.HashMap">
+select dm, mc from qkfkxt_dm_jjcdb  where kyf='1'
+</select>
+<select id="queryqkfklx" resultClass="java.util.HashMap">
+select dm, sjdm, mc,kyf
+FROM  qkfkxt_dm_bglxb  
+       start with sjdm='-1'
+       connect by prior dm =sjdm 
+       and kyf='1'
+</select>
+<select id="queryjs" resultClass="java.util.HashMap">
+select yhdm,yhdm||'/'||xm||' '||(select F_TRANS_PINYIN_CAPITAL_ORACLE(xm) from dual) as xm  from xt_dlb where yhlx='1'
+</select>
+<select id="queryqkfkByone" resultClass="qkfkxtFksqbEntity" parameterClass="String">
+select sqdh,
+       (select xm from xt_dlb where yhdm = sqrdm) as sqrxm,
+       sqrdm,
+       to_char(sqsj, 'yyyy-mm-dd HH24:mi') as sqsj,
+       sqrlxdh,
+       bgtcrxm,
+       bgtcrlxdm,
+       (select mc from qkfkxt_dm_bglxb where dm = bglxdm) as bglxmc,
+       bglxdm,
+       (select mc from qkfkxt_dm_jjcdb where dm = jjcddm) as jjcdmc,
+       jjcddm,
+      to_char(yqwcsj, 'yyyy-mm-dd HH24:mi') as yqwcsj,
+       bggs,
+       (case
+         when sqzt = 0 then
+          '保存'
+         when sqzt = 1 then
+          '提交'
+         when sqzt = 2 then
+          '已流转'
+         when sqzt = 3 then
+          '已接收'
+         when sqzt = 4 then
+          '退回'
+         when sqzt = 5 then
+          '已确认完成'
+         when sqzt = 6 then
+          '已确认未完成'
+         when sqzt = 99 then
+          '最终完成'
+         when sqzt = '-99' then
+          '最终未完成'
+         when sqzt = 'A' then
+          '逾期'
+       
+       end) as ztmc,
+       sqzt,
+       (select xm from xt_dlb where yhdm = lzjsrdm) as lzjsrmc,
+       lzjsrdm,
+       (select xtmc from pt_xt_zxtb zx where zx.dm = t.xtdm) as xmmc,
+       xtdm 
+  from qkfkxt_fksqb t
+  where t.sqdh=#sqdh#
+</select>
+<select id="queryqkfkList" resultClass="qkfkxtFksqbEntity" parameterClass="qkfkyclPage">
+select t.*   from 
+	     (select t.*,row_number()over(order by sqdh DESC) orderNumber from 
+	      (
+select sqdh,
+       (select xm from xt_dlb where yhdm = sqrdm) as sqrxm,
+       sqrdm,
+       to_char(sqsj, 'yyyy-mm-dd HH24:mi') as sqsj,
+       sqrlxdh,
+       bgtcrxm,
+       bgtcrlxdm,
+       (select mc from qkfkxt_dm_bglxb where dm = bglxdm) as bglxmc,
+       bglxdm,
+       (select mc from qkfkxt_dm_jjcdb where dm = jjcddm) as jjcdmc,
+       jjcddm,
+       to_char(yqwcsj, 'yyyy-mm-dd HH24:mi') as yqwcsj,
+       bggs,
+       (case
+         when sqzt = 0 then
+          '保存'
+         when sqzt = 1 then
+          '提交'
+         when sqzt = 2 then
+          '已流转'
+         when sqzt = 3 then
+          '已接收'
+         when sqzt = 4 then
+          '退回'
+         when sqzt = 5 then
+          '已确认完成'
+         when sqzt = 6 then
+          '已确认未完成'
+         when sqzt = 99 then
+          '最终完成'
+         when sqzt = '-99' then
+          '最终未完成'
+         when sqzt = 'A' then
+          '逾期'
+       
+       end) as ztmc,
+       sqzt,
+       (select xm from xt_dlb where yhdm = lzjsrdm) as lzjsrmc,
+       lzjsrdm,
+       (select xtmc from pt_xt_zxtb zx where zx.dm = t.xtdm) as xmmc,
+       xtdm,
+       (select xm from xt_dlb where yhdm = lzrdm) as lzrmc,
+       lzrdm
+  from qkfkxt_fksqb t
+ where 1 = 1
+ and sqrdm=#sqrdm#
+  <isNotEmpty  prepend="and" property="xtdm">
+	     xtdm=#xtdm#
+  </isNotEmpty> 
+  <isNotEmpty  prepend="and" property="bglx">
+	      bglxdm=#bglx#
+  </isNotEmpty> 
+  <isNotEmpty  prepend="and" property="jjcddm">
+	      jjcddm=#jjcddm#
+  </isNotEmpty> 
+  <isNotEmpty  prepend="and" property="zt">
+  <isEqual property="zt" compareValue="A" >
+   sysdate> yqwcsj and (sqzt='1' or sqzt='2' or sqzt='3')
+  </isEqual>
+  <isNotEqual property="zt" compareValue="A">
+	 sqzt=#zt#
+ </isNotEqual>
+  </isNotEmpty> 
+  <isNotEmpty prepend="and" property="qssj">
+   <![CDATA[
+  sqsj>=TO_DATE(#qssj#, 'YYYY-MM-DD') 
+  ]]>
+  </isNotEmpty>
+  <isNotEmpty prepend="and" property="jssj">
+  <![CDATA[
+  sqsj<=TO_DATE(#jssj#, 'YYYY-MM-DD')
+  ]]>	
+  </isNotEmpty>
+  <isNotEmpty  prepend="and" property="lzjsrdm">
+  lzjsrdm=#lzjsrdm#
+  </isNotEmpty>
+  <isNotEmpty  prepend="and" property="sqdh">
+  sqdh like '%'|| trim(#sqdh#) || '%'
+  </isNotEmpty>		
+  <isNotEmpty  prepend="and" property="bggs">
+  							 bggs like '%'|| trim(#bggs#) || '%'
+  						 </isNotEmpty>
+ 
+  ) t 
+	     )t 	
+		<![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		]]>	
+</select>
+<select id="queryqkfkListCount" resultClass="int" parameterClass="qkfkyclPage">
+select count(*) from 
+	      (
+select sqdh,
+       (select xm from xt_dlb where yhdm = sqrdm) as sqrxm,
+       sqrdm,
+       to_char(sqsj, 'yyyy-mm-dd HH24:mi') as sqsj,
+       sqrlxdh,
+       bgtcrxm,
+       bgtcrlxdm,
+       (select mc from qkfkxt_dm_bglxb where dm = bglxdm) as bglxmc,
+       bglxdm,
+       (select mc from qkfkxt_dm_jjcdb where dm = jjcddm) as jjcdmc,
+       jjcddm,
+       to_char(yqwcsj, 'yyyy-mm-dd HH24:mi') as yqwcsj,
+       bggs,
+       (case
+         when sqzt = 0 then
+          '保存'
+         when sqzt = 1 then
+          '提交'
+         when sqzt = 2 then
+          '已流转'
+         when sqzt = 3 then
+          '已接收'
+         when sqzt = 4 then
+          '退回'
+         when sqzt = 5 then
+          '已确认完成'
+         when sqzt = 6 then
+          '已确认未完成'
+         when sqzt = 99 then
+          '最终完成'
+         when sqzt = '-99' then
+          '最终未完成'
+         when sqzt = 'A' then
+          '逾期'
+       
+       end) as ztmc,
+       sqzt,
+       (select xm from xt_dlb where yhdm = lzjsrdm) as lzjsrmc,
+       lzjsrdm,
+       (select xtmc from pt_xt_zxtb zx where zx.dm = t.xtdm) as xmmc,
+       xtdm,
+        (select xm from xt_dlb where yhdm = lzrdm) as lzrmc,
+       lzrdm
+  from qkfkxt_fksqb t
+ where 1 = 1   
+ and sqrdm=#sqrdm#
+ <isNotEmpty  prepend="and" property="xtdm">
+	     xtdm=#xtdm#
+  </isNotEmpty> 
+  <isNotEmpty  prepend="and" property="bglx">
+	      bglxdm=#bglx#
+  </isNotEmpty> 
+  <isNotEmpty  prepend="and" property="jjcddm">
+	      jjcddm=#jjcddm#
+  </isNotEmpty> 
+  <isNotEmpty  prepend="and" property="zt">
+  <isEqual property="zt" compareValue="A" >
+   sysdate> yqwcsj and (sqzt='1' or sqzt='2' or sqzt='3')
+  </isEqual>
+  <isNotEqual property="zt" compareValue="A">
+	 sqzt=#zt#
+ </isNotEqual>
+  </isNotEmpty> 
+  <isNotEmpty prepend="and" property="qssj">
+   <![CDATA[
+  sqsj>=TO_DATE(#qssj#, 'YYYY-MM-DD') 
+  ]]>
+  </isNotEmpty>
+  <isNotEmpty prepend="and" property="jssj">
+  <![CDATA[
+  sqsj<=TO_DATE(#jssj#, 'YYYY-MM-DD')
+  ]]>	
+  </isNotEmpty>
+  <isNotEmpty  prepend="and" property="lzjsrdm">
+  lzjsrdm=#lzjsrdm#
+  </isNotEmpty>
+  <isNotEmpty  prepend="and" property="sqdh">
+  sqdh like '%'|| trim(#sqdh#) || '%'
+  </isNotEmpty>		
+  <isNotEmpty  prepend="and" property="bggs">
+  							 bggs like '%'|| trim(#bggs#) || '%'
+  						 </isNotEmpty>
+  order by sqdh DESC
+   ) t
+</select>
+ <delete id="delqkfk" parameterClass="String">
+begin
+delete qkfkxt_fksqb where sqdh=#id#;
+delete DEMO_XT_FJB where glb='QKFKXT_FKSQB' and glzjm='SQDH' and glzjz=#id#;
+delete  from qkfkxt_fksqb_cyb where sqdh=#id#;
+end;
+ </delete>
+<update id="tjqkfk" parameterClass="String">
+update qkfkxt_fksqb
+   set
+       sqzt = '1'
+ where sqdh = #sqdh#
+</update>
+
+<insert id="addqkfk" parameterClass="qkfkxtFksqbEntity">
+		<selectKey resultClass="String" keyProperty="sqdh">
+select to_char(sysdate,'yyyymmdd')||lpad((nvl(max(substr(sqdh,9,4)),0)+1),4,'0') from qkfkxt_fksqb 
+ where substr(sqdh,0,8) = to_char(sysdate,'yyyymmdd')
+		</selectKey>
+	insert into qkfkxt_fksqb
+  (sqdh, sqrdm, sqsj, sqrlxdh, bgtcrxm, bgtcrlxdm, bglxdm, jjcddm, yqwcsj, bggs, sqzt, lzjsrdm, xtdm)
+values
+  (#sqdh#, #sqrdm#, to_date(#sqsj#, 'yyyy-mm-dd HH24:mi'), #sqrlxdh#, #bgtcrxm#, #bgtcrlxdm#, #bglxdm#, #jjcddm#,to_date(#yqwcsj#, 'yyyy-mm-dd HH24:mi'), #bggs#, #sqzt#, #lzjsrdm#, #xtdm#)
+	</insert>
+<update id="updqkfk" parameterClass="qkfkxtFksqbEntity">
+		update qkfkxt_fksqb
+   set sqrdm = #sqrdm#,
+       sqsj = to_date(#sqsj#, 'yyyy-mm-dd HH24:mi'),
+       sqrlxdh = #sqrlxdh#,
+       bgtcrxm = #bgtcrxm#,
+       bgtcrlxdm = #bgtcrlxdm#,
+       bglxdm = #bglxdm#,
+       jjcddm = #jjcddm#,
+       yqwcsj = to_date(#yqwcsj#, 'yyyy-mm-dd HH24:mi'),
+       bggs = #bggs#,
+       sqzt = #sqzt#,
+       lzjsrdm = #lzjsrdm#,
+       xtdm = #xtdm#
+ where sqdh = #sqdh#
+</update>
+<select id="queryFkclts" parameterClass="FkclPage" resultClass="FkclEntity">
+	 	 select q.sqdh,
+            q.xtdm,
+            t1.xtmc,
+            q.sqrdm,
+            t2.xm sqr,
+            q.bgtcrxm,
+            q.bglxdm,
+            t3.mc bglxmc,
+            q.jjcddm,
+            t4.mc jjcdmc,
+            TO_CHAR(q.sqsj, 'YYYY-MM-DD hh24:mi') as sqsj,
+            TO_CHAR(q.yqwcsj, 'YYYY-MM-DD hh24:mi') as yqwcsj,
+            q.lzjsrdm,
+            t6.xm as lzrmc,
+            q.sqzt  
+       from qkfkxt_fksqb q   
+       left join pt_xt_zxtb t1
+         on t1.dm = q.xtdm
+       left join xt_dlb t2
+         on t2.yhdm = q.sqrdm
+       left join qkfkxt_dm_bglxb t3
+         on t3.dm = q.bglxdm
+       left join qkfkxt_dm_jjcdb t4
+         on t4.dm = q.jjcddm        
+       left join (
+       select count(*) as sfcyg,cyb.sqdh from qkfkxt_fksqb_cyb cyb 
+       where cyb.lzjsrdm=#yhdm# 
+       
+       group by cyb.sqdh
+       
+       )  t5 on t5.sqdh=q.sqdh
+       
+        left join xt_dlb t6
+         on t6.yhdm = q.lzjsrdm  
+                 
+         where 1=1 
+      <isNotEmpty  prepend="and" property="sqdh">
+        q.sqdh=#sqdh#
+     </isNotEmpty>
+          order by q.sqdh 
+    </select>
+<parameterMap class="java.util.HashMap" id="aa">
+	<parameter property="P_ZT" javaType="String" jdbcType="VARCHAR2" mode="IN"/>
+	<parameter property="P_SQDH" javaType="String" jdbcType="varchar2" mode="IN"/>
+	<parameter property="P_YHDM" javaType="String" jdbcType="varchar2" mode="IN"/>		
+	<parameter property="P_LZJSRDM" javaType="String" jdbcType="varchar2" mode="IN"/>
+	<parameter property="P_YJ" javaType="String" jdbcType="varchar2" mode="IN"/>
+	<parameter property="P_WCYJSJ" javaType="String" jdbcType="varchar2" mode="IN"/>
+	<parameter property="flg" javaType="String" jdbcType="VARCHAR" mode="OUT"/>	
+</parameterMap>
+<procedure id="df" parameterMap="aa">
+	{call QKFKXT_P_LCCL(?,?,?,?,?,?,?)}
+</procedure>
+</sqlMap>

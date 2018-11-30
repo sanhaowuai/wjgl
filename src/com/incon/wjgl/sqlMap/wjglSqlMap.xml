@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="wjgl">
+    <typeAlias alias="WjXxFkb" type="com.incon.wjgl.pojo.WjXxFkb"/>
+    <typeAlias alias="WjglPage" type="com.incon.wjgl.page.WjglPage"/>
+
+    <select id="queryWjglList" parameterClass="WjglPage" resultClass="WjXxFkb">
+        select * from (select  rownum rn, bb.* from (
+        select * from wjgl_wjxxb where 1=1
+        <isNotEmpty prepend="and" property="wjm" >
+            wjm like '%'|| trim(#wjm#) ||'%'
+        </isNotEmpty>
+        <![CDATA[
+           ) bb where rownum <=#pageNo#*#pageSize#
+           )where rn  >(#pageNo#-1)*(#pageSize#)
+         ]]>
+    </select>
+    <select id="queryWjglListCount" parameterClass="WjglPage" resultClass="int">
+        select count(1) from wjgl_wjxxb
+        where 1=1
+        <isNotEmpty prepend="and" property="wjm" >
+            wjm like '%'|| trim(#wjm#) ||'%'
+        </isNotEmpty>
+    </select>
+
+	<select id="queryWjxxbByMd5" parameterClass="String" resultClass="WjXxFkb">
+        select * from wjgl_wjxxb where MD5=#md5#
+    </select>
+    <update id="updWjxxStatus" parameterClass="WjXxFkb">
+        update wjgl_wjxxb  set md5=#md5#
+        <isNotEmpty  property="wjwz">
+            ,wzbs=#wzbs#
+        </isNotEmpty>
+        <isNotEmpty  property="wjwz">
+            ,wjwz=#wjwz#
+        </isNotEmpty>
+        <isNotEmpty  property="stwjscbz">
+            ,stwjscbz=#stwjscbz#
+        </isNotEmpty>
+        where md5=#md5#
+    </update>
+    <insert id="saveWjxx" parameterClass="WjXxFkb">
+        insert into wjgl_wjxxb(md5,lx,wjm,crsj,czrip,czrmac) values (#md5#,#lx#,#wjm#,#crsj#,#czrip#,#czrmac#)
+    </insert>
+    <select id="queryWjfkbByMd5Sx" parameterClass="String" resultClass="WjXxFkb">
+        select a.md5,a.wjksx,b.* from wjgl_wjfkb a left join wjgl_wjkb b on a.wjkmd5=b.wjkmd5 where a.md5=#md5#
+    </select>
+    <insert id="saveWjfkb" parameterClass="WjXxFkb">
+      begin
+        insert into wjgl_wjfkb(md5,wjkmd5,wjksx) values(#md5#,#wjkmd5#,#wjksx#);
+        insert into wjgl_wjkb(wjkmd5,wj,czsj,czrip,czrmac) values(#wjkmd5#,#wj#,#czsj#,#czrip#,#czrmac#);
+      end;
+    </insert>
+    <select id="queryWzbs" parameterClass="String" resultClass="WjXxFkb">
+        select * from wjgl_wjxxb where md5=#md5#
+    </select>
+    <delete id="deleteDb" parameterClass="String">
+        begin
+          delete from wjgl_wjkb where  wjkmd5 in(select wjkmd5 from wjgl_wjfkb where md5=#md5#);
+          delete from wjgl_wjfkb where md5=#md5#;
+          delete from wjgl_wjxxb where md5=#md5#;
+        end;
+    </delete>
+</sqlMap>

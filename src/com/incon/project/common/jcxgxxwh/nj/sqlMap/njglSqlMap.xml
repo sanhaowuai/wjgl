@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="njgl">
+	<!-- 实体pojo -->
+	<typeAlias alias="NjbEntity" type="com.incon.pojo.common.jcxgxxwh.NjbEntity"/>
+	<typeAlias alias="NjglPage" type="com.incon.project.common.jcxgxxwh.nj.page.NjglPage" />
+<!--  分页查询年级	-->
+    <select id="queryNjgl" parameterClass="NjglPage" resultClass="NjbEntity">
+    select t.*   from 
+       (select t.*,row_number()over(order by to_number(nj)) orderNumber from 
+        (
+      select nj,njmc,kyf from dm_njb where 1=1
+         <isNotEmpty prepend="and" property="dmmc" > 
+          njmc like '%'|| trim(#dmmc#) ||'%'
+      	</isNotEmpty>
+       ) t 
+       )t 
+	      <![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		  ]]> 
+    </select>
+    <select id="queryNjglCount" parameterClass="NjglPage" resultClass="int">
+	 	select count(*) from 
+	      (
+		 	 select nj,njmc,kyf from dm_njb where 1=1
+     		<isNotEmpty prepend="and" property="dmmc" > 
+				  njmc like '%'|| trim(#dmmc#) ||'%'
+			</isNotEmpty>
+		 ) t
+    </select>
+	<!--  添加年级-->
+    <insert id="addNj" parameterClass="NjbEntity"  >
+       	insert into DM_NJB(nj,njmc,kyf) values(#nj#,#njmc#,#kyf#)
+    </insert>
+	<!--  修改年级信息  -->
+     <update id="updNj" parameterClass="NjbEntity">
+         update DM_NJB
+         set nj=#nj#,njmc=#njmc#,kyf=#kyf# 
+         where nj=#nj#
+     </update>
+<!-- 判断岗位类型是否被使用 -->
+<select id="queryExit" parameterClass="String" resultClass="Integer">
+	select count(*) from dm_bjb where nj = #id#
+</select>  
+<!--  删除年级-->
+     <delete id="delNj" parameterClass="String">
+        delete from DM_NJB  where nj=#nj#
+    </delete>
+<!--  查询代码是否存在  -->
+    <select id="queryByDmCount" parameterClass="String" resultClass="int">
+		select count(*) from dm_njb where nj = #nj#
+    </select>
+<!--  查询单个年级信息   -->
+    <select id="queryNjByDm" parameterClass="String" resultClass="NjbEntity">
+        select nj,njmc,kyf
+        from DM_NJB 
+        where nj=#nj#
+    </select>
+</sqlMap>

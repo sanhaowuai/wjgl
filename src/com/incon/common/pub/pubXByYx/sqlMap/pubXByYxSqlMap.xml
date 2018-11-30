@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pubXByYx">
+     
+     <!-- 根据院查询系 -->
+     <select id="queryXByYx" resultClass="HashMap" parameterClass="String">
+      select t.yxdm,t.yxmc,t.kyf from DM_YXB t 
+      where t.sjyxdm=#yxdm# and t.kyf='1'
+		order by lpad(yxdm,8,'0') asc
+     </select>
+</sqlMap>

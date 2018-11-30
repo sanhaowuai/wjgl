@@ -1,0 +1,95 @@
+@charset "utf-8";
+/* CSS Document */
+
+*{padding:0; margin:0} 
+body{font-size:12px; color:#5a5d65; font-family:"微软雅黑"; }
+ 
+.blue{ color:#307ecc;}
+.red{ color:#d15b47;}
+a.red{ color:#d15b47;}
+a.red:hover{ color:#e24e35;}
+ 
+.fd_address{  height:38px; line-height:38px; background:#307ecc; font-size:16px; padding-left:15px;  color:#fff;}
+.search_inpt{ width:120px; height:24px; line-height:26px; border:1px solid #d5d5d5; padding-left:2px; margin-right:5px;}
+.search_inpt input{ border:none; background:none; width:116px; height:24px; line-height:24px;}
+ .fd_content{ display:block;overflow:hidden;  line-height:18px;}
+
+ul.fd_ontop{float:right; }
+ul.fd_ontop li{ float:left; color:#307ecc; padding:0 5px;}
+
+.fd_title{height:30px; background:#edf1f5; line-height:30px; padding-left:5px;margin-bottom: 15px;}
+
+.fd_list{ border-collapse:collapse;color:#393939; margin-top:20px;}
+.fd_list th{ border:1px solid #d2d2d2; background:#edf1f5; height:30px; line-height:30px; text-align:center; font-weight:normal; font-size:14px; }
+.fd_list td{ border:1px solid #d2d2d2; height:30px; line-height:30px; text-align:center;}
+
+.fd_con{ text-align:left; padding-left:20px;}
+.bgcolor{ background:#f5f8fa;}
+.txt_hidden{ display:block; float:left;margin-right: 5px;max-width:600px; overflow:hidden; white-space:nowrap;text-overflow: ellipsis;}
+.fd_title1{display: block; float:left; height: 30px; line-height: 30px; overflow: hidden; padding-left: 45px; position: relative; text-align: left; text-overflow: ellipsis; white-space: nowrap;width: 400px;}
+.fd_title2{display: block; float:left; height: 30px; line-height: 30px; overflow: hidden; padding-left: 45px; position: relative; text-align: left; text-overflow: ellipsis; white-space: nowrap;width:850px;}
+.icon2{ position:absolute; top:0px; left:20px;}
+
+.fd_page{ width:100%; height:32px; background:#d6dee5; margin:10px 0;  position:absolute; bottom:0;overflow:hidden; padding-top:4px}
+/*.fd_page ul{ position:absolute; right:25px; top:18px; height:64px;}
+.fd_page ul li{ float:left;}
+.fd_page ul li a{ display:block;border:1px solid #d4dfe3; border-right:none; background:#fafafa; width:30px; height:30px; line-height:30px; text-align:center; color:#2283c9;}
+.fd_page ul li a:hover{ background:#6faed9; color:#ffffff;}
+
+/*icon*/
+.fd_icon{ display:block; float:left; width:30px; height:30px; background:url(../images/xtfk/icon1.png) no-repeat;}
+.icon1{ background-position:7px 8px;}
+.icon2{ background-position:0 -25px;}
+.icon3{ background-position:0 -69px;}
+.icon4{ background-position:0 -110px;}
+/*button*/
+.button1{ display:block; float:left;height:26px; line-height:26px; text-align:center; color:#ffffff; font-size:14px; padding:0 10px; background-color:#d15b47;}
+.button1:hover{background:#dd6651;color:#ffffff;}
+.button2{ display:block; float:left;height:26px; line-height:26px; text-align:center; color:#ffffff; font-size:14px; padding:0 18px; background-color:#45B6B0;border-radius:3px;}
+.button2:hover{ background:#3DA09A;color:#ffffff;}
+.button3 { display:block;width: 45px; height:26px; line-height:26px; margin-left:15px; padding-left:20px; background:url(../images/xtfk/icon1.png) 5px -65px no-repeat; color:#307ecc}
+.button4{ display:block; float:left;height:26px; line-height:26px; text-align:center; color:#ffffff; font-size:14px; padding:0 10px; background-color:#769db6; cursor:pointer;}
+.button4:hover{ background:#7da6c0;}
+.button5 { display:block;width: 45px; height:26px; line-height:26px; margin-left:26px; padding-left:20px; background:url(../images/xtfk/icon1.png) 8px -104px no-repeat; color:#307ecc}
+/*弹出*/
+
+.fd_popup_title{float: left;width:100%;line-height:40px;height:40px; background:#307ecc; color:#fff; font-size:14px;}
+.fd_popup{ margin:10px;}
+.fd_close{ float:right; margin-right:17px; width:16px; height:16px; background:url(../images/xtfk/close.png) no-repeat; margin-top:14px;}
+.fd_popup_left{  font-weight:bold; float:left; font-size: 14px; }
+.fd_addlist{ border-collapse:collapse;}
+.fd_addlist td{line-height:30px; padding-left:2px}
+.fd_addlist th{font-weight:normal;line-height:30px;text-align: right;padding-right:10px;} 
+#BOX_overlay {position: absolute;z-index:80;top: 0px;left: 0px;background-color:#000;filter:alpha(opacity=60);-moz-opacity: 0.6;opacity: 0.6;}
+
+.list-page-detail {float: left; padding: 3px 0; font-size: 12px; color: #333;}
+.list-page li{display:block; text-align:center; float:left; text-decoration:none; list-style-type: none; margin-left: 5px;
+overflow:hidden; line-height: 14px;border:1px solid #ccc; border-radius:3px }
+.list-page li:hover{border:1px solid #31ACE2}
+.list-page-detail span {padding: 3px 1px; color: #333; display: inline-block; float: left; background: #fffffff}
+
+.list-page {padding: 1px 10px 1px 0;float: right}
+.list-page a { padding: 5px 10px; color: #333; display: inline-block; float: left;background: #ffffff;}
+.list-page a.cur{}
+.list-page a.cur,.task-list-page a:hover,.list-page a:hover {color: #fff;background: #31ACE2;text-decoration: none;}
+.list-page a.cur {font-weight: bold}
+.dis{ padding: 5px 10px;  display: inline-block; float: left;  background: #fff;  }
+
+
+.xtkf_list{width:100%;    min-height:376px; height:auto; _height:376px; }
+
+.fk_bg{border:1px solid #bbd7e9; position:relative; margin-left:30px; margin-bottom:10px; margin-right:10px; margin-top:10px; padding:5px }
+.fk_row{ width:18px; height:11px;  position:absolute; top:-11px; left:20px;background:url(../images/xtfk/icon1.png) 0px -130px  no-repeat;}
+
+.fd_page input[type="text"] {
+    height: 14px !important;
+    width: 45px !important;
+    color: #999 !important;
+    border-width: 0px 0px 0px !important;
+}
+.addlist_button1 a span {
+    height: auto!important;
+}
+.addlist_button1 a:hover span {
+    height: auto!important;
+}

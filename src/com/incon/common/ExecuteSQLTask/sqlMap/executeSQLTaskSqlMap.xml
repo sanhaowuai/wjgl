@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ExecuteSQLTask">
+	<typeAlias alias="ExecuteSQLTaskEntity" type="com.incon.common.ExecuteSQLTask.page.ExecuteSQLTaskEntity"/>
+	<typeAlias alias="RwrzbEntity" type="com.incon.common.ExceptionTask.page.RwrzbEntity"/>
+	<typeAlias alias="RwrzbJsonPage" type="com.incon.common.ExceptionTask.page.RwrzbJsonPage"/>
+	<!-- 查询执行SQL任务列表 -->
+	<select id="queryExecuteSQLTaskToList" parameterClass="ExecuteSQLTaskEntity" resultClass="ExecuteSQLTaskEntity">
+		select 
+		zxsqlwb.id, zxsqlwb.xtdm,zxsqlwb.mc, zxsqlwb.clsqlrows,zxsqlwb.ms, zxsqlwb.clsql, zxsqlwb.cron, xt_dlb.xm as zhxgrdm, zxsqlwb.zhxgsj 
+		from xt_zxsqlwb zxsqlwb 
+		left join xt_dlb on xt_dlb.yhdm = zxsqlwb.zhxgrdm 
+		where zxsqlwb.xtdm = <include refid="common.xtdm"/> 
+		<isNotEmpty prepend="and" property="mc">
+			(  zxsqlwb.mc like '%'|| trim(#mc#)||'%')
+		</isNotEmpty>
+		<isEqual property="gnbs" prepend="and" compareValue="2">
+			zxsqlwb.zhxgrdm = #zhxgrdm#
+		</isEqual>
+		<isNotEmpty prepend="and" property="sfyyc"> 
+			zxsqlwb.YCCXROWS =  0 
+		</isNotEmpty>
+		order by zxsqlwb.zhxgsj desc
+	</select>
+	<!-- 查询执行SQL任务 -->
+	<select id="queryExecuteSQLTaskToSin" parameterClass="ExecuteSQLTaskEntity" resultClass="ExecuteSQLTaskEntity">
+		select 
+		zxsqlwb.id, zxsqlwb.mc, zxsqlwb.xtdm,zxsqlwb.ms,zxsqlwb.clsqlrows, zxsqlwb.clsql, zxsqlwb.cron, zxsqlwb.zhxgrdm, zxsqlwb.zhxgsj 
+		from xt_zxsqlwb zxsqlwb 
+		where zxsqlwb.xtdm = <include refid="common.xtdm"/> 
+		and id = #id#
+	</select>
+	<!-- 删除执行SQL任务 -->
+	<delete id="delExecuteSQLTaskToSin" parameterClass="ExecuteSQLTaskEntity">
+		delete from xt_zxsqlwb where xtdm = <include refid="common.xtdm"/> and id = #id#
+	</delete>
+	
+	<!-- 新增执行SQL任务 -->
+	<insert id="addExecuteSQLTaskToSin" parameterClass="ExecuteSQLTaskEntity">
+		insert into xt_zxsqlwb
+		  (id, mc, ms, clsql, cron, zhxgrdm, zhxgsj, xtdm)
+		values
+		  (#id#, #mc#, #ms#, #clsql#, #cron#, #zhxgrdm#, sysdate, <include refid="common.xtdm"/>)
+	</insert>
+	<!-- 修改执行SQL任务 -->
+	<update id="updExecuteSQLTaskToSin" parameterClass="ExecuteSQLTaskEntity">
+		update xt_zxsqlwb
+		   set mc = nvl(#mc#,mc),
+		       ms = nvl(#ms#,ms),
+		       clsql = nvl(#clsql#,clsql),
+		       cron = nvl(#cron#,cron),
+		       zhxgrdm = #zhxgrdm#,
+		       zhxgsj = sysdate
+		 where xtdm = <include refid="common.xtdm"/>  and id = #id# 
+	</update>		
+	
+
+	<select id="queryRwrzb" resultClass="RwrzbEntity" parameterClass="RwrzbJsonPage">
+		select * from (select  rownum rn, cc.* from (
+			select id, rwlx, zxsj, rwid, xtdm, zxsql, xt_dlb.xm as zxrdm, yxhs from xt_rwrzb 
+			left join xt_dlb on xt_dlb.yhdm = xt_rwrzb.zxrdm 
+			where xtdm = <include refid="common.xtdm"/> and rwlx = #rwlx# and rwid = #rwid# 
+			order by zxsj desc			
+		<![CDATA[
+		) cc where rownum <=#page#*#rows#
+		)where rn  >(#page#-1)*(#rows#)
+		]]>
+	</select>
+	
+	<select id="queryRwrzbCount" resultClass="int" parameterClass="RwrzbJsonPage">
+		select count(*) from (
+			select id, rwlx, zxsj, rwid, xtdm, zxsql, xt_dlb.xm as zxrdm, yxhs from xt_rwrzb 
+			left join xt_dlb on xt_dlb.yhdm = xt_rwrzb.zxrdm 
+			where xtdm = <include refid="common.xtdm"/> and rwlx = #rwlx# and rwid = #rwid# 
+			order by zxsj desc
+		)
+	</select>	
+</sqlMap>

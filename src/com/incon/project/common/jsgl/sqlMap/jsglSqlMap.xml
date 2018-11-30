@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="jsgl">
+	<!-- 实体pojo -->
+	<typeAlias alias="JsxxbEntity" type="com.incon.pojo.common.JsxxbEntity"/>
+	<typeAlias alias="YxdmbEntity" type="com.incon.pojo.common.YxdmbEntity"/>
+	<typeAlias alias="JsglPage" type="com.incon.project.common.jsgl.page.JsglPage" />
+	<typeAlias alias="PtxzJsPage" type="com.incon.project.common.jsgl.page.PtxzJsPage" />
+	<typeAlias alias="XbbEntity" type="com.incon.pojo.common.ryxgxxwh.XbbEntity"/>
+	<typeAlias alias="JgbEntity" type="com.incon.pojo.common.ryxgxxwh.JgbEntity"/>
+	<typeAlias alias="MzbEntity" type="com.incon.pojo.common.ryxgxxwh.MzbEntity"/>
+	<typeAlias alias="WhcdbEntity" type="com.incon.pojo.common.ryxgxxwh.WhcdbEntity"/>
+	<typeAlias alias="XlbEntity" type="com.incon.pojo.common.ryxgxxwh.XlbEntity"/>
+	<typeAlias alias="XwbEntity" type="com.incon.pojo.common.ryxgxxwh.XwbEntity"/>
+	<typeAlias alias="XzjbbEntity" type="com.incon.pojo.common.ryxgxxwh.XzjbbEntity"/>
+	<typeAlias alias="ZcbEntity" type="com.incon.pojo.common.ryxgxxwh.ZcbEntity"/>
+	<typeAlias alias="ZzmmbEntity" type="com.incon.pojo.common.ryxgxxwh.ZzmmbEntity"/>
+	<typeAlias alias="JysbEntity" type="com.incon.pojo.common.jcxgxxwh.JysbEntity"/>
+<!--  分页查询教师	-->
+    <select id="queryJsgl" parameterClass="JsglPage" resultClass="JsxxbEntity">
+       select * from (select  rownum rn, bb.* from ( 
+              select t.zgh,t.jsxm,t5.mc xbmc,t6.mc jgmc,t7.mc mzmc,t8.mc whcdmc,t9.mc xlmc,t10.mc xwmc,
+              t11.mc xzjbmc,t12.mc zcmc,t13.mc zzmmmc,t.xydm,t.lxdh,t1.yxmc,wm_concat(t3.jsmc) jsm,t4.yxmc xmc,
+              t14.jysmc ,t.kyf
+			  from SZ_JSXXB t
+			  left join DM_YXB t1 on t.xydm=t1.yxdm 
+			  left join dm_ryjsb t2 on t.zgh=t2.yhdm and t2.xtdm=<include refid="common.xtdm"/>
+              left join dm_jsb t3 on t3.jsdm=t2.jsdm and t3.xtdm=<include refid="common.xtdm"/>
+              left join DM_YXB t4 on t4.yxdm = t.xdm
+              left join DM_XBB t5 on t5.dm = t.xb and t5.kyf='1'
+        	  left join DM_JGB t6 on t6.dm = t.jg and t6.kyf='1'
+              left join DM_MZB t7 on t7.dm = t.mz and t7.kyf='1'
+              left join DM_WHCDB t8 on t8.dm = t.whcd and t8.kyf='1'
+              left join DM_XLB t9 on t9.dm = t.xl and t9.kyf='1'
+              left join DM_XWB t10 on t10.dm = t.xw and t10.kyf='1'
+              left join DM_XZJBB t11 on t11.dm = t.xzjb and t11.kyf='1'
+              left join DM_ZCB t12 on t12.dm = t.zc and t12.kyf='1'
+              left join DM_ZZMMB t13 on t13.dm = t.zzmm  and t13.kyf='1' 
+              left join dm_jysb t14 on t14.jysdm = t.jysdm 
+        		where 1=1 
+        	  <isNotEqual property="sfcjgly" compareValue="1">
+		 	  <isNotEqual property="gljb" compareValue="1">
+		 		<isEqual property="resultCount" compareValue="1">
+			 		and jysdm in ( select jysdm from dm_jyssjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		 		<isEqual property="resultCount" compareValue="0">
+			 		and glyx in ( select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		   	 </isNotEqual>
+		     </isNotEqual>
+				  <isNotEmpty prepend="and" property="jsyxdm">
+				       (t.xydm =#jsyxdm# or t.xdm = #jsyxdm# )
+				  </isNotEmpty>
+				  <isNotEmpty prepend="and" property="jsjysdm">
+				       t.jysdm = #jsjysdm# 
+				  </isNotEmpty>
+				  <isNotEmpty prepend="and" property="dmmc">
+				       (t.jsxm like '%'||trim(#dmmc#)||'%' or t.zgh like '%'||trim(#dmmc#)||'%')
+				  </isNotEmpty>
+				  group by t.zgh,t.jsxm,t5.mc,t6.mc,t7.mc,t8.mc,t9.mc,t10.mc,t11.mc,t12.mc,t13.mc,t.xydm,t.lxdh,t1.yxmc,t4.yxmc,t14.jysmc ,t.kyf
+       <![CDATA[
+       ORDER BY ZGH
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+    <select id="queryJsglCount" parameterClass="JsglPage" resultClass="int">
+        select  count(*) from (
+	          select t.zgh,t.jsxm,t5.mc xbmc,t6.mc jgmc,t7.mc mzmc,t8.mc whcdmc,t9.mc xlmc,t10.mc xwmc,
+	          t11.mc xzjbmc,t12.mc zcmc,t13.mc zzmmmc,t.xydm,t.lxdh,t1.yxmc,wm_concat(t3.jsmc) jsm,t4.yxmc xmc,
+	          t14.jysmc ,t.kyf
+			  from SZ_JSXXB t
+			  left join DM_YXB t1 on t.xydm=t1.yxdm 
+			  left join dm_ryjsb t2 on t.zgh=t2.yhdm and t2.xtdm=<include refid="common.xtdm"/>
+        		left join dm_jsb t3 on t3.jsdm=t2.jsdm and t3.xtdm=<include refid="common.xtdm"/>
+        		left join DM_YXB t4 on t4.yxdm = t.xdm
+        		left join DM_XBB t5 on t5.dm = t.xb and t5.kyf='1'
+        		left join DM_JGB t6 on t6.dm = t.jg and t6.kyf='1'
+              left join DM_MZB t7 on t7.dm = t.mz and t7.kyf='1'
+              left join DM_WHCDB t8 on t8.dm = t.whcd and t8.kyf='1'
+              left join DM_XLB t9 on t9.dm = t.xl and t9.kyf='1'
+              left join DM_XWB t10 on t10.dm = t.xw and t10.kyf='1'
+              left join DM_XZJBB t11 on t11.dm = t.xzjb and t11.kyf='1'
+              left join DM_ZCB t12 on t12.dm = t.zc and t12.kyf='1'
+              left join DM_ZZMMB t13 on t13.dm = t.zzmm  and t13.kyf='1' 
+              left join dm_jysb t14 on t14.jysdm = t.jysdm 
+        		where 1=1 
+      		   <isNotEqual property="sfcjgly" compareValue="1">
+		 	  <isNotEqual property="gljb" compareValue="1">
+		 		<isEqual property="resultCount" compareValue="1">
+			 		and jysdm in ( select jysdm from dm_jyssjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		 		<isEqual property="resultCount" compareValue="0">
+			 		and glyx in ( select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		   	 </isNotEqual>
+		     </isNotEqual>
+				 <isNotEmpty prepend="and" property="jsyxdm">
+				       (t.xydm =#jsyxdm# or t.xdm = #jsyxdm# )
+				  </isNotEmpty>
+				  <isNotEmpty prepend="and" property="jsjysdm">
+				       t.jysdm = #jsjysdm# 
+				  </isNotEmpty>
+				  <isNotEmpty prepend="and" property="dmmc">
+				       (t.jsxm like '%'||trim(#dmmc#)||'%' or t.zgh like '%'||trim(#dmmc#)||'%')
+				  </isNotEmpty>
+				  group by t.zgh,t.jsxm,t5.mc,t6.mc,t7.mc,t8.mc,t9.mc,t10.mc,t11.mc,t12.mc,t13.mc,t.xydm,t.lxdh,t1.yxmc,t4.yxmc,t14.jysmc ,t.kyf
+				  )
+    </select>
+<!--  分页查询教师	-->
+    <select id="queryPtxzJs" parameterClass="PtxzJsPage" resultClass="JsxxbEntity">
+       select * from (select  rownum rn, bb.* from ( 
+              select t.zgh,t.jsxm,t5.mc xbmc,t6.mc jgmc,t7.mc mzmc,t8.mc whcdmc,t9.mc xlmc,t10.mc xwmc,
+              t11.mc xzjbmc,t12.mc zcmc,t13.mc zzmmmc,t.xydm,t.lxdh,t1.yxmc,wm_concat(t3.jsmc) jsm,t4.yxmc xmc,
+              t14.jysmc 
+			  from PT_SZ_JSXXB t
+			  left join DM_YXB t1 on t.xydm=t1.yxdm 
+			  left join dm_ryjsb t2 on t.zgh=t2.yhdm and t2.xtdm=<include refid="common.xtdm"/>
+              left join dm_jsb t3 on t3.jsdm=t2.jsdm and t3.xtdm=<include refid="common.xtdm"/>
+              left join DM_YXB t4 on t4.yxdm = t.xdm
+              left join DM_XBB t5 on t5.dm = t.xb and t5.kyf='1'
+        	  left join DM_JGB t6 on t6.dm = t.jg and t6.kyf='1'
+              left join DM_MZB t7 on t7.dm = t.mz and t7.kyf='1'
+              left join DM_WHCDB t8 on t8.dm = t.whcd and t8.kyf='1'
+              left join DM_XLB t9 on t9.dm = t.xl and t9.kyf='1'
+              left join DM_XWB t10 on t10.dm = t.xw and t10.kyf='1'
+              left join DM_XZJBB t11 on t11.dm = t.xzjb and t11.kyf='1'
+              left join DM_ZCB t12 on t12.dm = t.zc and t12.kyf='1'
+              left join DM_ZZMMB t13 on t13.dm = t.zzmm  and t13.kyf='1' 
+              left join dm_jysb t14 on t14.jysdm = t.jysdm 
+        		where 1=1 and not exists (select 1 from sz_jsxxb tt where tt.zgh = t.zgh)
+        	  <isNotEqual property="sfcjgly" compareValue="1">
+		 	  <isNotEqual property="gljb" compareValue="1">
+		 		<isEqual property="resultCount" compareValue="1">
+			 		and jysdm in ( select jysdm from dm_jyssjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		 		<isEqual property="resultCount" compareValue="0">
+			 		and glyx in ( select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		   	 </isNotEqual>
+		     </isNotEqual>
+				  <isNotEmpty prepend="and" property="pjsyxdm">
+				       (t.xydm =#pjsyxdm# or t.xdm = #pjsyxdm# )
+				  </isNotEmpty>
+				  <isNotEmpty prepend="and" property="pjsjysdm">
+				       t.jysdm = #pjsjysdm# 
+				  </isNotEmpty>
+				  <isNotEmpty prepend="and" property="pdmmc">
+				       (t.jsxm like '%'||trim(#pdmmc#)||'%' or t.zgh like '%'||trim(#pdmmc#)||'%')
+				  </isNotEmpty>
+				  group by t.zgh,t.jsxm,t5.mc,t6.mc,t7.mc,t8.mc,t9.mc,t10.mc,t11.mc,t12.mc,t13.mc,t.xydm,t.lxdh,t1.yxmc,t4.yxmc,t14.jysmc 
+       <![CDATA[
+       ORDER BY ZGH
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+    <select id="queryPtxzJsCount" parameterClass="PtxzJsPage" resultClass="int">
+        select  count(*) from (
+	          select t.zgh,t.jsxm,t5.mc xbmc,t6.mc jgmc,t7.mc mzmc,t8.mc whcdmc,t9.mc xlmc,t10.mc xwmc,
+	          t11.mc xzjbmc,t12.mc zcmc,t13.mc zzmmmc,t.xydm,t.lxdh,t1.yxmc,wm_concat(t3.jsmc) jsm,t4.yxmc xmc,
+	          t14.jysmc 
+			  from PT_SZ_JSXXB t
+			  left join DM_YXB t1 on t.xydm=t1.yxdm 
+			  left join dm_ryjsb t2 on t.zgh=t2.yhdm and t2.xtdm=<include refid="common.xtdm"/>
+        		left join dm_jsb t3 on t3.jsdm=t2.jsdm and t3.xtdm=<include refid="common.xtdm"/>
+        		left join DM_YXB t4 on t4.yxdm = t.xdm
+        		left join DM_XBB t5 on t5.dm = t.xb and t5.kyf='1'
+        		left join DM_JGB t6 on t6.dm = t.jg and t6.kyf='1'
+              left join DM_MZB t7 on t7.dm = t.mz and t7.kyf='1'
+              left join DM_WHCDB t8 on t8.dm = t.whcd and t8.kyf='1'
+              left join DM_XLB t9 on t9.dm = t.xl and t9.kyf='1'
+              left join DM_XWB t10 on t10.dm = t.xw and t10.kyf='1'
+              left join DM_XZJBB t11 on t11.dm = t.xzjb and t11.kyf='1'
+              left join DM_ZCB t12 on t12.dm = t.zc and t12.kyf='1'
+              left join DM_ZZMMB t13 on t13.dm = t.zzmm  and t13.kyf='1' 
+              left join dm_jysb t14 on t14.jysdm = t.jysdm 
+        		where 1=1 and not exists (select 1 from sz_jsxxb tt where tt.zgh = t.zgh)
+      		   <isNotEqual property="sfcjgly" compareValue="1">
+		 	  <isNotEqual property="gljb" compareValue="1">
+		 		<isEqual property="resultCount" compareValue="1">
+			 		and jysdm in ( select jysdm from dm_jyssjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		 		<isEqual property="resultCount" compareValue="0">
+			 		and glyx in ( select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		   	 </isNotEqual>
+		     </isNotEqual>
+				 <isNotEmpty prepend="and" property="pjsyxdm">
+				       (t.xydm =#pjsyxdm# or t.xdm = #pjsyxdm# )
+				  </isNotEmpty>
+				  <isNotEmpty prepend="and" property="pjsjysdm">
+				       t.jysdm = #pjsjysdm# 
+				  </isNotEmpty>
+				  <isNotEmpty prepend="and" property="pdmmc">
+				       (t.jsxm like '%'||trim(#pdmmc#)||'%' or t.zgh like '%'||trim(#pdmmc#)||'%')
+				  </isNotEmpty>
+				  group by t.zgh,t.jsxm,t5.mc,t6.mc,t7.mc,t8.mc,t9.mc,t10.mc,t11.mc,t12.mc,t13.mc,t.xydm,t.lxdh,t1.yxmc,t4.yxmc,t14.jysmc 
+				  )
+    </select>
+    <!-- 查询院系列表 -->
+    <select id="queryYxList" resultClass="YxdmbEntity">
+        select yxdm,yxmc from dm_yxb where kyf = '1' and sfglbm = '1' order by yxdm
+    </select>
+    
+    <!-- 查询教研室 -->
+    <select id="queryJysList" resultClass="JysbEntity">
+    	select jysdm,jysmc from dm_jysb where kyf = '1' and glyx = #yxdm# order by jysdm
+    </select>
+    
+	<!--  添加教师  -->
+    <insert id="addJs" parameterClass="JsxxbEntity"  >
+    	begin
+    		insert into xt_dlb(dldm,yhdm,mm,xm,mrjs,yhlx) values 
+			(seq_xt_dlb.nextval,#zgh#,#mm#,#jsxm#,'2','1');
+       		insert into SZ_JSXXB(zgh,jsxm,xb,jg,mz,whcd,xl,xw,xzjb,zc,zzmm,xydm,xdm,jysdm,glyx,bszplj)
+                   values(#zgh#,#jsxm#,#xb#,#jg#,#mz#,#whcd#,#xl#,#xw#,#xzjb#,#zc#,#zzmm#,#xydm#,#xdm#,#jysdm#,#glyx#,#bszplj#);
+     		insert into dm_ryjsb(ryjsdm,yhdm,jsdm,gljb,xtdm,cjr,cjsj) values(SEQ_DM_RYJSB.NEXTVAL,#zgh#,'2','2',<include refid="common.xtdm"/>,#cjr#,sysdate);
+     end; 
+    </insert>
+	<!--  添加教师  -->
+    <insert id="addXzjs" parameterClass="JsxxbEntity">
+    	begin
+    		insert into xt_dlb(dldm,yhdm,mm,xm,mrjs,yhlx) 
+    		select seq_xt_dlb.nextval,zgh,#mm#,jsxm,'2','1' from pt_sz_jsxxb where zgh = #zgh#;
+    		insert into sz_jsxxb(zgh, rsxtzgh, jsxm, jsjc, ywmc, zjm, csrq, xb, zc, xl, xw, xydm, xdm, jysdm, sfrk, sfwp, sfzg, lxdh, dzyx, byxx, jsjj, yjfx, mz, zzmm, jg, sfzh, zp, bz, zzxlsfwgqd, sfwys, sfwj, sfwxwjzjs, gwlx, abcl, prsj, ryfl, jsdj, xzzw, xzjb, rzsj, jbsj, whcd, rxsj, bysj, sxzy, rxiaosj, rxlx, cjgzsj, sfyjszgz, jszgzh, czrxsj, bszplj, glyx, sskkyx, zhsjzt, zhxgr, zhxgsj, kyf, sftgxysgzgsc, qq, wx, gj, ryzt, jslb, gw, sfgly, zw, sjqxlb, zjlx, yszgh, rszgh, zksj, jfzxpxsj, zrsj, renzsj, jg_s, jg_x, jsskqx)
+    		select zgh, rsxtzgh, jsxm, jsjc, ywmc, zjm, csrq, xb, zc, xl, xw, xydm, xdm, jysdm, sfrk, sfwp, sfzg, lxdh, dzyx, byxx, jsjj, yjfx, mz, zzmm, jg, sfzh, zp, bz, zzxlsfwgqd, sfwys, sfwj, sfwxwjzjs, gwlx, abcl, prsj, ryfl, jsdj, xzzw, xzjb, rzsj, jbsj, whcd, rxsj, bysj, sxzy, rxiaosj, rxlx, cjgzsj, sfyjszgz, jszgzh, czrxsj, bszplj, glyx, sskkyx, zhsjzt, zhxgr, zhxgsj, kyf, sftgxysgzgsc, qq, wx, gj, ryzt, jslb, gw, sfgly, zw, sjqxlb, zjlx, yszgh, rszgh, zksj, jfzxpxsj, zrsj, renzsj, jg_s, jg_x, jsskqx from pt_sz_jsxxb
+    		where zgh = #zgh#;
+			insert into dm_ryjsb(ryjsdm,yhdm,jsdm,gljb,xtdm,cjr,cjsj) 
+			select SEQ_DM_RYJSB.NEXTVAL,zgh,'2','2',<include refid="common.xtdm"/>,#cjr#,sysdate from pt_sz_jsxxb
+			where zgh = #zgh#;
+     	end; 
+    </insert>
+	<!--  修改教师信息  -->
+     <update id="updJs" parameterClass="JsxxbEntity">
+     begin
+         update SZ_JSXXB
+         set zgh=#zgh#,jsxm=#jsxm#,xb=#xb#,jg=#jg#,mz=#mz#,whcd=#whcd#,xl=#xl#,xw=#xw#,xzjb=#xzjb#,zc=#zc#,zzmm=#zzmm#,xydm=#xydm#,xdm=#xdm#,jysdm=#jysdm#,glyx=#glyx# ,bszplj=#bszplj#
+         where zgh=#zgh#;
+         update XT_DLB
+         set yhdm=#zgh#,xm=#jsxm#,yhlx='1' where yhdm=#zgh#;
+      end;
+     </update>
+     <update id="updKyf" parameterClass="JsxxbEntity">
+     	update SZ_JSXXB set kyf = #kyf# where zgh = #zgh#
+     </update>
+     
+<!--  删除教师   -->
+     <delete id="delJs" parameterClass="String">
+     begin
+        delete from SZ_JSXXB  where zgh=#zgh#;
+        delete from DM_RYJSB where yhdm=#zgh# and xtdm = <include refid="common.xtdm"/>;
+        delete from DM_RYJSQXB where yhdm=#zgh# and xtdm = <include refid="common.xtdm"/>;
+        delete from dm_ryjsanb where yhdm=#zgh# and xtdm = <include refid="common.xtdm"/>;
+        delete from DM_SJQXB where yhdm=#zgh# and xtdm = <include refid="common.xtdm"/>;
+        delete from XT_DLB where yhdm=#zgh#;
+     end;
+    </delete>
+<!--  查询教师号是否存在  -->
+    <select id="queryByZghCount" parameterClass="String" resultClass="int">
+		select count(*) from sz_jsxxb where zgh = #zgh#
+    </select>
+    
+    <!--  查询教师号是否存在  -->
+    <select id="queryByZghCount2" parameterClass="String" resultClass="int">
+		select count(*) from xt_dlb where yhdm = #zgh#  
+    </select>
+    
+    <!-- 查询学院 -->
+    <select id="queryYxb" resultClass="YxdmbEntity">
+    	select yxdm,yxmc from dm_yxb where sjyxdm = '0'
+    </select>
+<!--  查询单个教师信息   -->
+    <select id="queryJsByZgh" parameterClass="String" resultClass="JsxxbEntity">
+        select zgh,jsxm,xb,jg,mz,whcd,xl,xw,xzjb,zc,zzmm,xydm,lxdh,t1.yxmc,t.xdm,t.jysdm,t.glyx,t.bszplj
+        from SZ_JSXXB t
+        left join DM_YXB t1 on t.xydm=t1.yxdm
+        where zgh=#zgh#
+    </select>
+    
+    <!-- 查询性别 -->
+    <select id="queryXb" resultClass="XbbEntity">
+    	select dm,mc from dm_xbb where kyf = '1'
+    </select>
+    <!-- 查询籍贯 -->
+    <select id="queryJg" resultClass="JgbEntity">
+    	select dm,mc from dm_jgb where kyf = '1'
+    </select>
+    <!-- 查询民族 -->
+    <select id="queryMz" resultClass="MzbEntity">
+    	select dm,mc from dm_mzb where kyf = '1'
+    </select>
+    <!-- 查询文化程度 -->
+    <select id="queryWhcd" resultClass="WhcdbEntity">
+    	select dm,mc from dm_whcdb where kyf = '1'
+    </select>
+    <!-- 查询学历 -->
+    <select id="queryXl" resultClass="XlbEntity">
+    	select dm,mc from dm_xlb where kyf = '1'
+    </select>
+    <!-- 查询学位 -->
+    <select id="queryXw" resultClass="XwbEntity">
+    	select dm,mc from dm_xwb where kyf = '1'
+    </select>
+    <!-- 查询行政级别 -->
+    <select id="queryXzjb" resultClass="XzjbbEntity">
+    	select dm,mc from dm_xzjbb where kyf = '1'
+    </select>
+    <!-- 查询职称 -->
+    <select id="queryZc" resultClass="ZcbEntity">
+    	select dm,mc from dm_zcb where kyf = '1'
+    </select>
+    <!-- 查询政治面貌 -->
+    <select id="queryZzmm" resultClass="ZzmmbEntity">
+    	select dm,mc from dm_zzmmb where kyf = '1'
+    </select>
+    <!-- 根据学院查询系 -->
+    <select id="queryXList" resultClass="YxdmbEntity" parameterClass="String">
+    	select yxdm,yxmc from DM_YXB t 
+      where sjyxdm=#yxdm# and kyf='1'
+		order by yxdm
+    </select>
+    <!-- 查询院系是否为管理部门 -->
+    <select id="querySfglbm" parameterClass="YxdmbEntity" resultClass="YxdmbEntity">
+    	select sfglbm from dm_yxb where yxdm = #yxdm# and kyf = '1'
+    </select>
+    <!-- 根据院查询教研室 -->
+    <select id="queryJysByYx" parameterClass="String" resultClass="JysbEntity">
+    	select jysdm,jysmc from dm_jysb where kyf = '1' and xydm = #yxdm# order by jysdm
+    </select>
+    <!-- 根据系查询教研室 -->
+    <select id="queryJysListNoGlByX" parameterClass="String" resultClass="JysbEntity">
+    	select jysdm,jysmc from dm_jysb where kyf = '1' and xdm = #yxdm# order by jysdm
+    </select>
+    
+    <!-- 查询教研室数据权限表中是否有数据 -->
+   	<select id="queryJyssjqxCount" parameterClass="java.util.HashMap" resultClass="int">
+   		select count(*) from dm_jyssjqxb where xtdm = <include refid="common.xtdm"/> and  yhdm=#yhdm# and jsdm=#jsdm#
+   	</select>
+   	
+   		<!-- 根据session中yhdm 查询 用户数据 -->
+   	<select id="queryUser" parameterClass="userEntity" resultClass="userEntity">
+   		select xd.dldm,
+       xd.yhdm,  
+       to_char(#jsdm#) jsdm,
+       dj.sfcjgly,
+       dr.gljb
+		  from xt_dlb xd
+		 inner join dm_jsb dj
+		    on dj.jsdm = to_char(#jsdm#)
+		  left join dm_ryjsb dr
+		    on dr.jsdm = to_char(#jsdm#)
+		   and dr.yhdm = #yhdm#
+		   and dr.xtdm = dj.xtdm
+		 where xd.yhdm = #yhdm#
+		   and dj.kyf = '1'
+		   and dj.xtdm = <include refid="common.xtdm"/>
+		   and dr.xtdm = <include refid="common.xtdm"/>
+
+   	</select>
+   	
+   	
+   	<!-- **********excel表格导入******************************************************* -->
+   	<select id="queryOneJsxxbByzgh" parameterClass="String" resultClass="String">
+   		select count(*) from SZ_JSXXB where zgh = #zgh#
+   	</select>
+   	
+   	<update id="updBathJsxx" parameterClass="JsxxbEntity">
+   		update SZ_JSXXB set jsxm=#jsxm#,xb=#xb#,xydm=#xydm#,xdm=#xdm#,jysdm=#jysdm#,glyx=#glyx# where zgh = #zgh#
+   	</update>
+   	
+   	<!-- excel表格导入教师信息 -->
+   	<insert id="addBathJsxx" parameterClass="JsxxbEntity">
+    	begin
+    	    delete from xt_dlb where yhdm = #zgh#;
+    	    delete from dm_ryjsb where yhdm = #zgh# and xtdm = <include refid="common.xtdm"/>;
+    	    delete from dm_ryjsanb where yhdm = #zgh# and xtdm = <include refid="common.xtdm"/>;
+    	    delete from dm_ryjsqxb where yhdm = #zgh# and xtdm = <include refid="common.xtdm"/>;
+	        insert into xt_dlb(dldm,yhdm,mm,xm,mrjs,yhlx) values 
+	      (seq_xt_dlb.nextval,#zgh#,'123456',#jsxm#,'2','1');
+           insert into SZ_JSXXB(zgh,jsxm,xb,xydm,xdm,jysdm,glyx)
+                   values(#zgh#,#jsxm#,#xb#,#xydm#,#xdm#,#jysdm#,#glyx#);
+	         insert into dm_ryjsb(ryjsdm,yhdm,jsdm,gljb,xtdm,cjr,cjsj) 
+	         values(SEQ_DM_RYJSB.NEXTVAL,#zgh#,'2','2',<include refid="common.xtdm"/>,#cjr#,sysdate);
+     end;   	
+   	</insert>
+   	
+   	<!-- **********excel表格导入******************************************************* -->
+   	<!-- 查询  是否有字段  begin -->
+   	<!-- 院系 -->
+	<select id="queryYxCount" parameterClass="String" resultClass="int">
+	Select Count(*) From dm_yxb Where yxdm=#dmormc# Or yxmc=#dmormc#
+	</select>
+	<select id="queryYxDm" parameterClass="String" resultClass="String">
+	Select yxdm From dm_yxb Where yxdm=#dmormc# Or yxmc=#dmormc#
+	</select>
+	<!-- 专业 -->
+	<select id="queryZyCount" parameterClass="String" resultClass="int">
+	Select Count(*) From dm_zyb Where zydm=#dmormc# Or zymc=#dmormc#
+	</select>
+	<select id="queryZyDm" parameterClass="String" resultClass="String">
+	Select zydm From dm_zyb Where zydm=#dmormc# Or zymc=#dmormc#
+	</select>
+	 <!--  教研室 -->
+	  <select id="queryJysCount" parameterClass="String" resultClass="int">
+    	select  Count(*)  from dm_jysb where jysdm=#dmormc# Or jysmc=#dmormc#
+    </select>
+    <select id="queryJysDm" parameterClass="String" resultClass="String">
+    	select jysdm from dm_jysb where jysdm=#dmormc# Or jysmc=#dmormc#
+    </select>
+	
+	<!-- 学生用班级    select db.bjdm,db.bjmc from dm_bjb db -->
+	<select id="queryBjDm" parameterClass="String" resultClass="String">
+    	  select bjdm from dm_bjb where  bjdm=#dmormc# or bjmc=#dmormc#  
+    </select>
+      <select id="queryBjCount" parameterClass="String" resultClass="int">
+    	 select Count(*) from dm_bjb where  bjdm=#dmormc# or bjmc=#dmormc# 
+    </select>
+	 <!-- 查询性别 -->
+    <select id="queryXbDm" parameterClass="String" resultClass="String">
+    	select dm,mc from dm_xbb where  dm=#dmormc# or mc=#dmormc#  
+    </select>
+      <select id="queryXbCount" parameterClass="String" resultClass="int">
+    	select Count(*)  from dm_xbb where  dm=#dmormc# or mc=#dmormc#  
+    </select>
+    <!-- 查询籍贯 -->
+    <select id="queryJgDm" parameterClass="String" resultClass="String">
+    	select dm,mc from dm_jgb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+     <select id="queryJgCount" parameterClass="String" resultClass="int">
+    	select  Count(*)   from dm_jgb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+    <!-- 查询民族 -->
+    <select id="queryMzDm" parameterClass="String" resultClass="String">
+    	select dm,mc from dm_mzb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+     <select id="queryMzCount" parameterClass="String" resultClass="int">
+    	select  Count(*)   from dm_mzb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+    <!-- 查询文化程度 -->
+    <select id="queryWhcdDm" parameterClass="String" resultClass="String">
+    	select dm,mc from dm_whcdb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+    <select id="queryWhcdCount" parameterClass="String" resultClass="int">
+    	select  Count(*)   from dm_whcdb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+    <!-- 查询学历 -->
+    <select id="queryXlDm" parameterClass="String" resultClass="String">
+    	select dm,mc from dm_xlb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+    <select id="queryXlCount" parameterClass="String" resultClass="int">
+    	select  Count(*)   from dm_xlb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+    <!-- 查询学位 -->
+    <select id="queryXwDm" parameterClass="String" resultClass="String">
+    	select dm,mc from dm_xwb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+    <select id="queryXwCount" parameterClass="String" resultClass="int">
+    	select  Count(*)   from dm_xwb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+    <!-- 查询行政级别 -->
+    <select id="queryXzjbDm" parameterClass="String" resultClass="String">
+    	select dm,mc from dm_xzjbb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+     <select id="queryXzjbCount" parameterClass="String" resultClass="int">
+    	select  Count(*)   from dm_xzjbb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+    <!-- 查询职称 -->
+    <select id="queryZcDm" parameterClass="String" resultClass="String">
+    	select dm,mc from dm_zcb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+     <select id="queryZcCount" parameterClass="String" resultClass="int">
+    	select  Count(*)   from dm_zcb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+    <!-- 查询政治面貌 -->
+    <select id="queryZzmmDm" parameterClass="String" resultClass="String">
+    	select dm,mc from dm_zzmmb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+      <select id="queryZzmmCount" parameterClass="String" resultClass="int">
+    	select  Count(*)   from dm_zzmmb where dm=#dmormc# or mc=#dmormc#  
+    </select>
+	<!--查询  是否有字段   end -->
+	
+	<!-- 导入查询 -->
+	 <select id="queryByPtZghCount" parameterClass="String" resultClass="int">
+		Select count(*) From pt_sz_jsxxb where zgh = #zgh#
+    </select>
+    <!-- 增加 -->
+    <insert id="addPtJsxx" parameterClass="JsxxbEntity">
+    insert into pt_SZ_JSXXB(zgh,jsxm,xb,jg,mz,whcd,xl,xw,xzjb,zc,zzmm,xydm,xdm,jysdm,glyx,bszplj)
+ 	values(#zgh#,#jsxm#,#xb#,#jg#,#mz#,#whcd#,#xl#,#xw#,#xzjb#,#zc#,#zzmm#,#xydm#,#xdm#,#jysdm#,#xydm#,#bszplj#)
+    </insert>
+    <!-- 修改 -->
+    <update id="updPtJsxx" parameterClass="JsxxbEntity">
+	    Update pt_Sz_Jsxxb
+	   Set Jsxm   = #jsxm#,
+	       Xb     = #xb#,
+	       Jg     = #jg#,
+	       Mz     = #mz#,
+	       Whcd   = #whcd#,
+	       Xl     = #xl#,
+	       Xw     = #xw#,
+	       Xzjb   = #xzjb#,
+	       Zc     = #zc#,
+	       Zzmm   = #zzmm#,
+	       Xydm   = #xydm#,
+	       Xdm    = #xdm#,
+	       Jysdm  = #jysdm#,
+	       Glyx   = #xydm#,
+	       Bszplj = #bszplj#
+	 Where Zgh = #zgh#
+    </update>
+    <!-- 查询 院系教研室   tree-->
+    <select id="queryYxByJysTree" resultClass="JsxxbEntity" parameterClass="JsxxbEntity">
+	    Select dm,mc,fdm From (Select yxdm dm,yxmc  mc,'0' fdm From dm_yxb Where sjyxdm='0' and kyf='1'
+	       <isNotEmpty prepend="and" property="yxmcordm">
+				       (yxmc like '%'||trim(#yxmcordm#)||'%' or yxdm like '%'||trim(#yxmcordm#)||'%')
+		   </isNotEmpty> 
+		   <isNotEmpty prepend="and" property="jysmcordm">
+				  yxdm in(   Select distinct glyx from dm_jysb Where  (jysmc like '%'||trim(#jysmcordm#)||'%' or jysdm like '%'||trim(#jysmcordm#)||'%'))
+		   </isNotEmpty>
+		Union
+		Select jysdm dm ,jysmc  mc,glyx fdm From dm_jysb  Where  kyf='1'
+		<isNotEmpty prepend="and" property="jysmcordm">
+				       (jysmc like '%'||trim(#jysmcordm#)||'%' or jysdm like '%'||trim(#jysmcordm#)||'%')
+		</isNotEmpty>
+		)  START WITH   fdm='0'  CONNECT BY     PRIOR       dm= fdm
+    </select>
+    <!-- 查询复合条件的教师信息 -->
+    <select id="queryAllJsxx" parameterClass="String" resultClass="JsxxbEntity">
+    	select zgh,jsxm,xb,jg,mz,whcd,xl,xw,xzjb,zc,zzmm,xydm,xdm,jysdm,glyx,bszplj From pt_sz_jsxxb Where ('Y'||glyx=#ids# Or jysdm=#ids# )and zgh  not in (select zgh from sz_jsxxb)
+    </select>
+    <!-- 根据教师职工号看是修改还是增加 -->
+    <insert id="addorupdJs" parameterClass="JsxxbEntity">
+      Merge into sz_jsxxb  
+   	 Using (Select Count(*)  Count From sz_jsxxb Where zgh=#zgh#) num2 
+        On  (num2.count  >0 )
+         when not matched Then
+           Insert (zgh,jsxm,xb,jg,mz,whcd,xl,xw,xzjb,zc,zzmm,xydm,xdm,jysdm,glyx)
+ 		values(#zgh#,#jsxm#,#xb#,#jg#,#mz#,#whcd#,#xl#,#xw#,#xzjb#,#zc#,#zzmm#,#xydm#,#xdm#,#jysdm#,#xydm#)
+					   When  MATCHED THEN   
+               Update 
+               Set Jsxm   = #jsxm#,
+                   Xb     = #xb#,
+                   Jg     = #jg#,
+                   Mz     = #mz#,
+                   Whcd   = #whcd#,
+                   Xl     = #xl#,
+                   Xw     = #xw#,
+                   Xzjb   = #xzjb#,
+                   Zc     = #zc#,
+                   Zzmm   = #zzmm#,
+                   Xydm   = #xydm#,
+                   Xdm    = #xdm#,
+                   Jysdm  = #jysdm#,
+                   Glyx   = #xydm#
+             Where Zgh = #zgh#
+    </insert>
+</sqlMap>

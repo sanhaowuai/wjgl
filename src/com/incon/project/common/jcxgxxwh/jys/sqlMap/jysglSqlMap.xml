@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="jysgl">
+	<!-- 实体pojo -->
+	<typeAlias alias="JysbEntity" type="com.incon.pojo.common.jcxgxxwh.JysbEntity"/>
+	<typeAlias alias="JyslxbEntity" type="com.incon.pojo.common.jcxgxxwh.JyslxbEntity"/>
+	<typeAlias alias="YxdmbEntity" type="com.incon.pojo.common.YxdmbEntity"/>
+	<typeAlias alias="JysglPage" type="com.incon.project.common.jcxgxxwh.jys.page.JysglPage" />
+	<typeAlias alias="userEntity" type="com.incon.pojo.common.UserEntity" />
+<!--  分页查询教研室	-->
+    <select id="queryJysgl" parameterClass="JysglPage" resultClass="JysbEntity">
+    select t.*   from 
+       (select t.*,row_number()over(order by to_number(jysdm)) orderNumber from 
+        (
+      select jy.jysdm,jy.jysmc,jy.jysfzr,jy.kyf,
+      (select mc from dm_jyslxb where dm = jy.jyslx) jyxmc,
+      jy.jyslx,
+      (select yxmc from dm_yxb where yxdm = jy.xydm) xymc,jy.xydm,
+      (select yxmc from dm_yxb where yxdm = jy.xdm) xmc,jy.xdm from dm_jysb jy where 1=1
+     	<isNotEqual property="sfcjgly" compareValue="1">
+		 	<isNotEqual property="gljb" compareValue="1">
+		 		<isEqual property="resultCount" compareValue="1">
+			 		and jysdm in ( select jysdm from dm_jyssjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		 		<isEqual property="resultCount" compareValue="0">
+			 		and glyx in ( select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+		 		</isEqual>
+		 	</isNotEqual>
+		 </isNotEqual>
+         <isNotEmpty prepend="and" property="dmmc" > 
+          jysmc like '%'|| trim(#dmmc#) ||'%'
+      	 </isNotEmpty>
+       ) t 
+       )t 
+	      <![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		  ]]> 
+    </select>
+    <select id="queryJysglCount" parameterClass="JysglPage" resultClass="int">
+	 	select count(*) from 
+	      (
+		 	 select jy.jysdm,jy.jysmc,jy.jysfzr,jy.kyf,
+      		(select yxmc from dm_yxb where yxdm = jy.xydm) xymc,jy.xydm,
+      		(select yxmc from dm_yxb where yxdm = jy.xdm) xmc,jy.xdm from dm_jysb jy where 1=1
+	      	<isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		<isEqual property="resultCount" compareValue="1">
+				 		and jysdm in ( select jysdm from dm_jyssjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 		</isEqual>
+			 		<isEqual property="resultCount" compareValue="0">
+				 		and glyx in ( select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 		</isEqual>
+			 	</isNotEqual>
+			 </isNotEqual>
+         	<isNotEmpty prepend="and" property="dmmc" > 
+          	jysmc like '%'|| trim(#dmmc#) ||'%'
+      		</isNotEmpty>
+		 ) t
+    </select>
+    
+    <select id="queryJyslx" resultClass="JyslxbEntity">
+    	select dm dm,mc mc from dm_jyslxb where kyf = '1'
+    </select>
+    
+    <select id="queryXy" resultClass="YxdmbEntity">
+    	select yxmc,yxdm from dm_yxb where kyf = '1' and sjyxdm = '0'
+    </select>
+    
+    <!-- 根据院查询系 -->
+     <select id="queryXList" resultClass="YxdmbEntity" parameterClass="String">
+      select yxdm,yxmc,sfglbm from dm_yxb where sjyxdm = #yxdm# and kyf='1'
+	  order by to_number(yxdm) asc
+    </select>
+    
+    <select id="querySfglbm" parameterClass="YxdmbEntity" resultClass="YxdmbEntity">
+    	select sfglbm from dm_yxb where yxdm = #yxdm# and kyf = '1'
+    </select>
+    
+	<!--  添加教研室  -->
+    <insert id="addJys" parameterClass="JysbEntity"  >
+    	begin
+	       	insert into DM_JYSB(jysdm,jysmc,jysfzr,jysjc,jysywmc,lxdh,jyslx,kyf,xydm,xdm,glyx) 
+	       	values(#jysdm#,#jysmc#,#jysfzr#,#jysjc#,#jysywmc#,#lxdh#,#jyslx#,#kyf#,#xydm#,#xdm#,#glyx#);
+	       	insert into dm_jyssjqxb(jyssjqxdm, jsdm, jysdm, yhdm, xtdm, cjr, cjsj)
+	       	values(seq_dm_jyssjqxb.nextval, #jsdm#, #jysdm#, #yhdm#, <include refid="common.xtdm"/>, #cjr#, #cjsj#); 
+	    end;
+    </insert>
+	<!--  修改教研室信息  -->
+     <update id="updJys" parameterClass="JysbEntity">
+         update DM_JYSB
+         set jysdm=#jysdm#,jysmc=#jysmc#,jysfzr=#jysfzr#,jysjc=#jysjc#,jysywmc=#jysywmc#,lxdh=#lxdh#,
+         jyslx=#jyslx#,kyf=#kyf#,xydm=#xydm#,xdm=#xdm#,glyx=#glyx#
+         where jysdm=#jysdm#
+     </update>
+<!--  删除教研室 -->
+     <delete id="delJys" parameterClass="String">
+        delete from DM_JYSB where jysdm=#jysdm#
+    </delete>
+<!--  查询教研室代码是否存在  -->
+    <select id="queryByDmCount" parameterClass="String" resultClass="int">
+		select count(*) from dm_jysb where jysdm = #jysdm#
+    </select>
+<!--  查询单个教研室信息   -->
+    <select id="queryJysByDm" parameterClass="String" resultClass="JysbEntity">
+        select jysdm,jysmc,jysfzr,jysjc,jysywmc,lxdh,jyslx,kyf,xydm,xdm,glyx
+        from DM_JYSB 
+        where jysdm=#jysdm#
+    </select>
+   	<!-- 查询教研室数据权限表中是否有数据 -->
+   	<select id="queryJyssjqxCount" parameterClass="java.util.HashMap" resultClass="int">
+   		select count(*) from dm_jyssjqxb where xtdm = <include refid="common.xtdm"/> and  yhdm=#yhdm# and jsdm=#jsdm#
+   	</select>
+   	<!-- 根据session中yhdm 查询 用户数据 -->
+   	<select id="queryUser" parameterClass="userEntity" resultClass="userEntity">
+   		select xd.dldm,
+       xd.yhdm,  
+       to_char(#jsdm#) jsdm,
+       dj.sfcjgly,
+       dr.gljb
+		  from xt_dlb xd
+		 inner join dm_jsb dj
+		    on dj.jsdm = to_char(#jsdm#)
+		  left join dm_ryjsb dr
+		    on dr.jsdm = to_char(#jsdm#)
+		   and dr.yhdm = #yhdm#
+		   and dr.xtdm = dj.xtdm
+		 where xd.yhdm = #yhdm#
+		   and dj.kyf = '1'
+		   and dj.xtdm = <include refid="common.xtdm"/>
+		   and dr.xtdm = <include refid="common.xtdm"/>
+   	</select>
+</sqlMap>

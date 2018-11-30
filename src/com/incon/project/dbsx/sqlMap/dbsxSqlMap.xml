@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dbsx">
+	<!-- 实体pojo -->
+	<typeAlias alias="DbsxEntity" type="com.incon.pojo.common.dbsx.DbsxEntity"/>
+	<typeAlias alias="DbsxPage" type="com.incon.project.dbsx.page.DbsxPage" />
+		<!-- 分页查询 -->
+	 <select id="queryDbsx" parameterClass="DbsxPage" resultClass="DbsxEntity">
+	 	   select * from (select  rownum rn, bb.* from ( 
+	            Select fsr, sxr, ljdz, jsdm, bt, nr, sfylj, dkfs,to_char(fssj,'yyyy-mm-dd') fssj,
+				 txkssj, sxzzsj, Id, sfwc, yw_b, yw_b_id, xtdm, to_char(wcsj,'yyyy-mm-dd') wcsj, sxrfwsq, ydsj
+				  From xt_dbsx_jsb
+				  Where ((sxr =#yhdm# and jsdm=#jsdm#) Or ((fn_xt_xx_jxdtsql (sxrfwsq,#yhdm#)>0) And sxr is Null))
+				  and sfyd=#sfyd#
+				  order by fssj desc
+  		  <![CDATA[
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+	
+	 <select id="queryDbsxCount" parameterClass="DbsxPage" resultClass="int">
+	 		select  count(*) from (
+	             Select *
+				  From xt_dbsx_jsb
+				 Where ((sxr =#yhdm# and jsdm=#jsdm#) Or ((fn_xt_xx_jxdtsql (sxrfwsq,#yhdm#)>0) And sxr is Null))
+				  and sfyd=#sfyd#
+				    )
+	 </select>
+	 <!-- 根据id查询具体数据 -->
+	  <select id="queryByidDbsx" parameterClass="String" resultClass="DbsxEntity">
+	 		Select fsr, sxr, ljdz, jsdm, bt, nr, sfylj, dkfs, to_char(fssj,'yyyy-mm-dd') fssj, 
+			to_char(txkssj,'yyyy-mm-dd') txkssj,to_char(sxzzsj,'yyyy-mm-dd') sxzzsj, Id, sfwc, yw_b, yw_b_id, xtdm, to_char(wcsj,'yyyy-mm-dd') wcsj, 
+			sxrfwsq, ydsj, sfyd From xt_dbsx_jsb Where Id=#id#
+	 </select>
+	  <!-- 修改  是否已读状态 -->
+	<update id="updByidDbsx" parameterClass="java.util.HashMap">
+					Update xt_dbsx_jsb
+				   Set ydsj = Sysdate,
+				       sfyd = '1',
+				        sxr=#yhdm#
+				 Where Id = #id#
+	</update>
+	
+	<!-- 查询未读状态(0)的前五条 -->
+	 <select id="queryDbsxTop5" parameterClass="DbsxPage" resultClass="DbsxEntity">
+	 select * from ( 
+			 Select fsr, sxr, ljdz,jsdm, bt, nr, sfylj, dkfs,to_char(fssj,'yyyy-mm-dd') fssj,
+				 txkssj, sxzzsj, Id, sfwc, yw_b, yw_b_id, xtdm, wcsj, sxrfwsq, ydsj
+				  From xt_dbsx_jsb
+				  Where ((sxr =#yhdm# and jsdm=#jsdm#) Or ((fn_xt_xx_jxdtsql (sxrfwsq,#yhdm#)>0) And sxr is Null))
+				  and sfyd='0' 
+				  and TXKSSJ <![CDATA[<=]]>Sysdate And sxzzsj >= Sysdate and sfwc='0'
+				  order by fssj desc
+				  )where 
+      <![CDATA[  rownum<6 ]]>
+    </select>
+    
+    <!-- 增加   -->
+     <insert id="addDbsx" parameterClass="DbsxEntity" >
+     Insert Into xt_dbsx_jsb
+	  (fsr, sxr, jsdm, bt, nr, sfylj, dkfs,  txkssj, sxzzsj,id,fssj
+	  , sfwc, yw_b, yw_b_id, xtdm, wcsj, sxrfwsq,  sfyd,ljdz,zxtdm,appxxdz)
+	Values
+	  (#fsr#, #sxr#, #jsdm#, #bt#, #nr#, #sfylj#, #dkfs#,
+	   to_date(#txkssj#,'yyyy-mm-dd HH24:mi:ss'), to_date(#sxzzsj#,'yyyy-mm-dd HH24:mi:ss'),sys_guid(),sysdate, #sfwc#, #yw_b#, #yw_b_id#, #xtdm#,to_date( #wcsj#,'yyyy-mm-dd HH24:mi:ss' ), #sxrfwsq#, '0',#ljdz#,#zxtdm#,#appxxdz#)
+     </insert>
+     <!-- 删除 -->
+     <delete id="delDbsx" parameterClass="DbsxEntity">
+	       Delete xt_dbsx_jsb
+			 Where yw_b=#yw_b# And
+		  yw_b_id=#yw_b_id# And xtdm=#xtdm#
+     </delete>
+      <!-- 修改 -->
+     <update id="updDbsx" parameterClass="DbsxEntity">
+	   Update xt_dbsx_jsb
+		   Set 
+		       sfwc = #sfwc#,
+		       wcsj=to_date(#wcsj#,'yyyy-mm-dd HH24:mi:ss')
+		 Where yw_b=#yw_b# And
+				  yw_b_id=#yw_b_id# And xtdm=#xtdm#
+     </update>
+     
+     
+     <!-- 根据id查询是否属于自己 -->
+	  <select id="querySfkck" parameterClass="String" resultClass="int">
+	 	Select  count(*) from xt_dbsx_jsb where id=#id# And sfyd='1'
+	 </select>
+    
+</sqlMap>

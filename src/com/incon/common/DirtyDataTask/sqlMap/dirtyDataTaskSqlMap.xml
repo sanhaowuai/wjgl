@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dirtyDataTask">
+	<typeAlias alias="DirtyDataTaskEntity" type="com.incon.common.DirtyDataTask.page.DirtyDataTaskEntity"/>
+	<typeAlias alias="RwrzbEntity" type="com.incon.common.ExceptionTask.page.RwrzbEntity"/>
+	
+	<!-- 查询  垃圾数据 任务列表 -->
+	<select id="queryDirtyDataTaskToList" parameterClass="DirtyDataTaskEntity" resultClass="DirtyDataTaskEntity">
+		select ljsjrwb.id, ljsjrwb.mc, ljsjrwb.ms, ljsjrwb.tablename, 
+		ljsjrwb.wheresql, ljsjrwb.deletesql, xt_dlb.xm as zhxgrdm, ljsjrwb.zhxgsj, ljsjrwb.xtdm, ljsjrwb.yxhs 
+		from xt_ljsjrwb ljsjrwb 
+		left join xt_dlb on xt_dlb.yhdm = ljsjrwb.zhxgrdm 
+		where ljsjrwb.xtdm = <include refid="common.xtdm"/> 
+		<isNotEmpty prepend="and" property="mc">
+			(  ljsjrwb.mc like '%'|| trim(#mc#)||'%')
+		</isNotEmpty>
+		<isEqual property="gnbs" prepend="and" compareValue="2">
+			ljsjrwb.zhxgrdm = #zhxgrdm#
+		</isEqual>
+		order by ljsjrwb.zhxgsj desc
+	</select>
+	<!-- 查询单个 垃圾数据 任务 -->
+	<select id="queryDirtyDataTaskToSin" parameterClass="DirtyDataTaskEntity" resultClass="DirtyDataTaskEntity">
+		select ljsjrwb.id, ljsjrwb.mc, ljsjrwb.ms, ljsjrwb.tablename, 
+		ljsjrwb.wheresql, ljsjrwb.deletesql, xt_dlb.xm as zhxgrdm, ljsjrwb.zhxgsj, ljsjrwb.xtdm, ljsjrwb.yxhs 
+		from xt_ljsjrwb ljsjrwb 
+		left join xt_dlb on xt_dlb.yhdm = ljsjrwb.zhxgrdm 
+		where ljsjrwb.xtdm = <include refid="common.xtdm"/> 
+		and ljsjrwb.id = #id#
+	</select>
+	<!-- 删除单个垃圾数据 任务 -->
+	<delete id="delDirtyDataTaskToSin" parameterClass="DirtyDataTaskEntity">
+		delete from xt_ljsjrwb where xtdm = <include refid="common.xtdm"/> and id = #id#
+	</delete>
+	
+	<!-- 新增单个垃圾数据 任务 -->
+	<insert id="addDirtyDataTaskToSin" parameterClass="DirtyDataTaskEntity">
+
+		insert into xt_ljsjrwb
+		  (id, mc, ms, tablename, wheresql, deletesql, zhxgrdm, zhxgsj, xtdm)
+		values
+		  (#id#, #mc#, #ms#, #tablename#, #wheresql#, #deletesql#, #zhxgrdm#, sysdate, <include refid="common.xtdm"/>)
+	</insert>
+	<!-- 修改单个垃圾数据任务 -->
+	<update id="updDirtyDataTaskToSin" parameterClass="DirtyDataTaskEntity">
+		update xt_ljsjrwb
+		   set mc = #mc#,
+		       ms = #ms#,
+		       tablename = #tablename#,
+		       wheresql = #wheresql#,
+		       deletesql = #deletesql#,
+		       zhxgrdm = #zhxgrdm#,
+		       zhxgsj = sysdate,
+		       yxhs = nvl(#yxhs#,yxhs) 
+		where xtdm = <include refid="common.xtdm"/>  and id = #id# 
+	</update>		
+	
+	<select id="queryRwrzb" parameterClass="java.util.HashMap" resultClass="RwrzbEntity">
+	select id, rwlx, zxsj, rwid, xtdm, zxsql, xt_dlb.xm as zxrdm, yxhs from xt_rwrzb 
+	left join xt_dlb on xt_dlb.yhdm = xt_rwrzb.zxrdm 
+	where xtdm = <include refid="common.xtdm"/> and rwlx = #rwlx# and rwid = #rwid# 
+	order by zxsj desc
+	</select>
+</sqlMap>

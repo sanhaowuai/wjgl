@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="swtx">
+	<!-- 实体pojo -->
+	<typeAlias alias="SwtxEntity" type="com.incon.pojo.common.swtx.SwtxEntity"/>
+	<typeAlias alias="SwtxPage" type="com.incon.project.swtx.page.SwtxPage" />
+	<!-- 分页查询 -->
+	 <select id="querySwtx" parameterClass="SwtxPage" resultClass="SwtxEntity">
+	 	   select * from (select  rownum rn, bb.* from ( 
+	            Select  fsr, sxr, ljdz, jsdm, bt, nr, sfylj, dkfs, to_char(fssj,'yyyy-mm-dd') fssj, to_char(txkssj,'yyyy-mm-dd') txkssj,
+	 		to_char(sxzzsj,'yyyy-mm-dd') sxzzsj,
+			 sfsx, Id, sfyd, yw_b, yw_b_id, xtdm, ydsj, sxrfwsq
+				  From xt_sw_jsb
+				  Where ((sxr =#yhdm# and jsdm=#jsdm#) Or ((fn_xt_xx_jxdtsql (sxrfwsq,#yhdm#)>0) And sxr is Null))
+				  and sfyd=#sfyd#
+				  order by fssj desc
+  		  <![CDATA[
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+	
+	 <select id="querySwtxCount" parameterClass="SwtxPage" resultClass="int">
+	 		select  count(*) from (
+	             Select *
+				  From xt_sw_jsb
+				 Where ((sxr =#yhdm# and jsdm=#jsdm#) Or ((fn_xt_xx_jxdtsql (sxrfwsq,#yhdm#)>0) And sxr is Null))
+				  and sfyd=#sfyd#
+				    )
+	 </select>
+	 <!-- 根据id查询具体数据 -->
+	  <select id="queryByidSwtx" parameterClass="String" resultClass="SwtxEntity">
+	 		Select  fsr, sxr, ljdz, jsdm, bt, nr, sfylj, dkfs, to_char(fssj,'yyyy-mm-dd') fssj, to_char(txkssj,'yyyy-mm-dd') txkssj,
+	 		to_char(sxzzsj,'yyyy-mm-dd') sxzzsj,
+			 sfsx, Id, sfyd, yw_b, yw_b_id, xtdm, ydsj, sxrfwsq
+			  From xt_sw_jsb Where Id=#id#
+	 </select>
+	 <!-- 修改  是否已读状态 -->
+	<update id="updByidSwtx" parameterClass="java.util.HashMap">
+					Update xt_sw_jsb
+				   Set ydsj = Sysdate,
+				       sfyd = '1',
+				       sxr=#yhdm#
+				   Where Id = #id#
+	</update>
+	
+	<!-- 查询未读状态(0)的前五条 -->
+	 <select id="querySwtxTop5" parameterClass="SwtxPage" resultClass="SwtxEntity">
+	 select * from ( 
+			 Select fsr, sxr, ljdz, jsdm, bt, nr, sfylj, dkfs, to_char(fssj,'yyyy-mm-dd') fssj, to_char(txkssj,'yyyy-mm-dd') txkssj,
+	 		to_char(sxzzsj,'yyyy-mm-dd') sxzzsj,
+			 sfsx, Id, sfyd, yw_b, yw_b_id, xtdm, ydsj, sxrfwsq
+				  From xt_sw_jsb
+				  Where ((sxr =#yhdm# and jsdm=#jsdm#) Or ((fn_xt_xx_jxdtsql (sxrfwsq,#yhdm#)>0) And sxr is Null))
+				  and sfyd='0'
+				   and TXKSSJ <![CDATA[<=]]>Sysdate And sxzzsj >= Sysdate And sfsx='0'
+				  order by fssj desc
+				  )where 
+      <![CDATA[  rownum<6 ]]>
+    </select>
+    
+    
+     <!-- 新增事务提醒-->
+     <insert id="addSwtx" parameterClass="SwtxEntity" >
+     Insert Into xt_sw_jsb
+	  (fsr, sxr, jsdm, bt, nr, sfylj, dkfs, fssj, txkssj, sxzzsj
+	  , Id,  yw_b, yw_b_id, xtdm,  sxrfwsq,sfsx,ljdz,sfyd,zxtdm,appxxdz)
+	Values
+	  (#fsr#, #sxr#, #jsdm#, #bt#, #nr#, #sfylj#, #dkfs#,sysdate, 
+	  to_date(#txkssj#,'yyyy-mm-dd HH24:mi:ss'), to_date(#sxzzsj#,'yyyy-mm-dd HH24:mi:ss'), sys_guid(),  #yw_b#, #yw_b_id#, #xtdm#, #sxrfwsq#,#sfsx#,#ljdz#,'0',#zxtdm#,#appxxdz#)
+     </insert>
+     <!-- 删除 -->
+     <delete id="delSwtx" parameterClass="SwtxEntity">
+	       Delete xt_sw_jsb
+			 Where yw_b=#yw_b# And
+		  yw_b_id=#yw_b_id# And xtdm=#xtdm#
+     </delete>
+      <!-- 修改 -->
+     <update id="updSwtx" parameterClass="SwtxEntity">
+	   Update xt_sw_jsb
+		   Set 
+		       sfsx = #sfsx#
+		 Where yw_b=#yw_b# And
+				  yw_b_id=#yw_b_id# And xtdm=#xtdm#
+     </update>
+     <!-- 根据id查询是否属于自己 -->
+	  <select id="querySfkck" parameterClass="String" resultClass="int">
+	 	Select  count(*) from xt_sw_jsb where id=#id# And sfyd='1'
+	 </select>
+</sqlMap>

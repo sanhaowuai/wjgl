@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="yxgl">
+	<!-- 分页page -->
+	<typeAlias alias="yxglPage" type="com.incon.project.common.yxgl.page.YxglPage"/>
+	<typeAlias alias="zyPage" type="com.incon.project.common.yxgl.page.ZyPage"/>
+	<!-- 实体pojo -->
+	<typeAlias alias="YxdmbEntity" type="com.incon.pojo.common.YxdmbEntity"/>
+	<typeAlias alias="ZybEntity" type="com.incon.pojo.common.ZybEntity"/>
+	<typeAlias alias="XyzybEntity" type="com.incon.pojo.common.XyzybEntity"/>
+
+	<!-- 分页查询院系列表 --> 
+	<select id="queryYx" parameterClass="yxglPage"  resultClass="YxdmbEntity">
+	select t.*   from 
+	     (select t.*,row_number()over(order by yxdm) orderNumber from 
+	      (
+		   select yxdm,yxmc,yxjc,sjyxdm,sfglbm,sfyxs,kyf,
+			(select count(*) from DM_YXB a where a.sjyxdm=t.yxdm) xjsl 
+			from DM_YXB t  
+		  where 1=1
+		  <isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and yxdm in (select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+			 
+		  <isNotEmpty  prepend="and" property="dmmc">
+		       yxmc like '%'|| trim(#dmmc#) ||'%'
+		  </isNotEmpty>
+		 ) t 
+	     )t 	
+		<![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		]]>	
+	</select>
+	
+	 <select id="queryYxCount" parameterClass="yxglPage" resultClass="int">
+	 	select count(*) from 
+	      (
+			select yxdm,yxmc,yxjc,sjyxdm,sfglbm,sfyxs,kyf,
+				(select count(*) from DM_YXB a where a.sjyxdm=t.yxdm) xjsl 
+				from DM_YXB t  
+		  		where 1=1
+		  		<isNotEqual property="sfcjgly" compareValue="1">
+			 	<isNotEqual property="gljb" compareValue="1">
+			 		and yxdm in (select yxdm from dm_sjqxb where xtdm=<include refid="common.xtdm"/> and yhdm=#yhdm# and jsdm=#jsdm#)
+			 	</isNotEqual>
+			 </isNotEqual>
+		  <isNotEmpty  prepend="and" property="dmmc">
+		 		 yxmc like '%'|| trim(#dmmc#) ||'%'
+		  </isNotEmpty>
+		 ) t
+	 </select>
+	 <!-- 上级院系列表 -->
+	 <select id="querySjyx" resultClass="java.util.HashMap">
+		SELECT YXDM,REPLACE(LPAD(' ', 2 * (LEVEL - 1), '@') || '【' || YXDM || '】' || YXMC,'@','　') YXMC
+  		FROM DM_YXB
+		CONNECT BY PRIOR YXDM = SJYXDM
+ 		START WITH SJYXDM = '0'
+	 </select>
+	 <!-- 下级数量列表 -->
+	 <select id="queryXjsl" resultClass="java.util.HashMap">
+		select t.*
+  			from (select yxdm,
+               (select count(*) from DM_YXB a where a.sjyxdm = t.yxdm) xjsl
+          from DM_YXB t
+         where 1 = 1) t
+	 </select>
+	<!-- 新增院系 -->
+	<insert id="addYx" parameterClass="YxdmbEntity">
+	 insert into DM_YXB( yxdm,yxmc,yxjc,zjm,yxywmc,sjyxdm,sfglbm,sfyxs,sfkkbm,sxh,kyf) 
+	  values(#yxdm#,#yxmc#,#yxjc#,#zjm#,#yxywmc#,#sjyxdm#,#sfglbm#,#sfyxs#,#sfkkbm#,#sxh#,#kyf#)
+
+	</insert>
+	
+	<insert id="addSjqx" parameterClass="YxdmbEntity">
+	   insert into dm_sjqxb
+   			(sjqxdm, jsdm, yxdm, yhdm, xtdm, cjr, cjsj)
+ 		values
+   			(seq_dm_sjqxb.nextval, #jsdm#, #yxdm#, #yhdm#, <include refid="common.xtdm"/>, #yhdm#, sysdate)		
+	</insert>
+	<!-- 查询一个院系 -->
+	<select id="queryOneYx" parameterClass="String" resultClass="YxdmbEntity">
+
+	    select yxdm,yxmc,yxjc,zjm,yxywmc,sjyxdm,sfglbm,sfyxs,sfkkbm,sxh,kyf from DM_YXB t  where yxdm=#yxdm#
+	</select>
+	<!-- 修改院系 -->
+	<update id="updYx" parameterClass="YxdmbEntity" >
+
+	   update DM_YXB set 
+	    yxmc=#yxmc#,yxjc=#yxjc#,zjm=#zjm#,yxywmc=#yxywmc#,sjyxdm=#sjyxdm#,sfglbm=#sfglbm#,sfyxs=#sfyxs#,sfkkbm=#sfkkbm#,sxh=#sxh#,kyf=#kyf# 
+	   where yxdm=#yxdm#
+	</update>
+	<!-- 删除院系 -->
+	<delete id="delYx" parameterClass="String">
+	begin
+	   delete from DM_YXB where yxdm = #yxdm#;
+	   delete from dm_sjqxb where yxdm = #yxdm#;
+	end;
+	</delete>
+		<!-- 查询yxdm是否重复 -->
+	<select id="queryByYxdmCount" parameterClass="string" resultClass="Integer">
+		select count(*) from DM_YXB where yxdm = #yxdm#
+	</select>
+	<!-- 查询专业******************************************* -->
+    <select id="queryZy" parameterClass="java.util.HashMap" resultClass="ZybEntity">
+      select t.*   from 
+	     (select t.*,row_number()over(order by zydm) orderNumber from 
+	      (
+	       	select dz.zydm,dz.zymc,
+				(case when (select count(*) from dm_xyzyb dx where dx.zydm=dz.zydm and dx.kyf = '1' 
+					and (dx.xydm = #YXDM# or dx.xdm = #YXDM#))>0 
+					then '1' else '0' end) flag 
+					from dm_zyb dz where dz.kyf = '1'	      
+				 
+	  <isNotEmpty  prepend="and" property="DMMC">
+	       dz.zymc like '%'||trim(#DMMC#)||'%'
+	  </isNotEmpty> 
+      	) t 
+	    )t
+	    
+    </select>
+     <select id="queryZyCount" parameterClass="zyPage" resultClass="int">
+	 	select count(*) from 
+	      (
+       		 select t.zydm,
+		       t.zymc,
+		       t.kyf
+				  from DM_ZYB t
+				 where 1=1 
+	  <isNotEmpty  prepend="and" property="dmmc">
+	       zymc like '%'||trim(#dmmc#)||'%'
+	  </isNotEmpty> 
+		 ) t 
+	 </select>
+	 
+	<!-- 删除  -->
+	<delete id="delXyzyb" parameterClass="String">
+	   delete from DM_XYZYB where xydm=#xydm# or xdm=#xydm#
+	</delete>
+	
+	<!-- 增加 -->
+	<insert id="addXyzyb" parameterClass="XyzybEntity">
+		insert into dm_xyzyb (id,xydm,xdm,glyx,zydm,kyf) 
+			values (seq_dm_xyzyb.nextval,
+			(case when (select sjyxdm from dm_yxb where yxdm = #xydm#) = '0' then #xydm# 
+			else (select sjyxdm from dm_yxb where yxdm = #xydm#) end),
+			(case when (select sjyxdm from dm_yxb where yxdm = #xydm#) != '0' then #xydm# else '0' end),
+			(case when (select sfglbm from dm_yxb where yxdm = #xydm#) = '1' then #xydm# 
+			else (select sjyxdm from dm_yxb where yxdm = #xydm#) end),
+			#zydm#,'1') 
+	</insert>
+	
+		<!-- 根据session中yhdm 查询 用户数据 -->
+   	<select id="queryUser" parameterClass="userEntity" resultClass="userEntity">
+   		select xd.dldm,
+       xd.yhdm,  
+       to_char(#jsdm#) jsdm,
+       dj.sfcjgly,
+       dr.gljb
+		  from xt_dlb xd
+		 inner join dm_jsb dj
+		    on dj.jsdm = to_char(#jsdm#)
+		  left join dm_ryjsb dr
+		    on dr.jsdm = to_char(#jsdm#)
+		   and dr.yhdm = #yhdm#
+		   and dr.xtdm = dj.xtdm
+		 where xd.yhdm = #yhdm#
+		   and dj.kyf = '1'
+		   and dj.xtdm = <include refid="common.xtdm"/>
+		   and dr.xtdm = <include refid="common.xtdm"/>
+
+   	</select>
+</sqlMap>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pubNj">
+
+	<!--  查询年级	-->
+    <select id="queryPubNj" resultClass="HashMap">
+  
+      select nj,njmc,kyf from dm_njb
+       where kyf='1' and 1=1
+         <isNotEmpty prepend="and" property="njmc" > 
+          njmc like '%'|| #njmc# ||'%'
+      	</isNotEmpty>
+       
+	      <![CDATA[
+	      order by nj desc
+		  ]]> 
+    </select>
+
+</sqlMap>

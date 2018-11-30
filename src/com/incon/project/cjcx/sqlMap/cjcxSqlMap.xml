@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="cjcx">
+ 	<typeAlias alias="cjcxPage" type="com.incon.project.cjcx.page.CjcxPage"/>
+    <typeAlias alias="Qmcjcx" type="com.incon.pojo.common.cjcx.Qmcjcx"/>
+    <typeAlias alias="Qzcjcx" type="com.incon.pojo.common.cjcx.Qzcjcx"/>
+    <typeAlias alias="sevencx" type="com.incon.pojo.common.cjcx.Sevencx" />
+    <typeAlias alias="ty_cj" type="com.incon.pojo.common.cjcx.Tycj" />
+    <typeAlias alias="Rwmbxx" type="com.incon.pojo.common.cjcx.Rwmbxx"/>
+    <typeAlias alias="Cjszb" type="com.incon.pojo.common.cjcx.Cjszb"/>
+    
+       <!-- 查询成绩开关设置表数据-->
+     <select id="cjcx.queryCjszb"  resultClass="Cjszb">
+        select kssj,jssj,mxnj,mxyx,mxzy,bzsm from jw_cj_jcszb_cjcxkz 
+    </select>
+    
+     <!--  判断开关是否开放-->
+     <select id="cjcx.querySfKf" parameterClass="string" resultClass="Integer">
+       select count(1) from jw_cj_jcszb_cjcxkz t where sysdate between kssj and jssj  
+       and (instr( ','||mxnj||','  ,  ','||(select nj from xj_xsxxb where xh=#xh# )||',' )>0 or mxnj is null)
+       and (instr( ','||mxyx||','  ,  ','||(select glyx from xj_xsxxb  where xh=#xh#  )||',' )>0 or mxyx is null)
+       and (instr( ','||mxzy||','  ,  ','||(select zydm from xj_xsxxb  where xh=#xh#  )||',' )>0 or mxzy is null)   
+    </select>
+    
+        <!-- 查询成绩复核开始，结束时间-->
+     <select id="cjcx.queryCjfhsj" parameterClass="string"  resultClass="Cjszb">
+        select nvl(t.cjfhsqksts,0) cjfhsqksts,nvl(t.cjfhsqjsts,0) cjfhsqjsts,t.xn||t.xq xnxq from jw_cj_jcszb t where xn||xq=#xnxq#
+    </select>
+    
+     <!--  查询学生评价设置表最大的当前学年学期-->
+     <select id="cjcx.queryXnxq"  resultClass="String">
+       select  nvl(max(t.xn||t.xq),0)   from JW_PJ_XSPJJCSZB t where SFDQXNXQ='1' 
+    </select>
+    
+    <!--  查询学生成绩列表页分页-->
+     <select id="cjcx.queryCjcxPage" parameterClass="cjcxPage" resultClass="Qmcjcx">
+        select m.* from   (select t.*,row_number()over(order by null) orderNumber from  (  
+            
+             select   cjb.id, cjb.xh, cjb.jhh,cjb.rwh,cjb.kcdm,cjb.kcmc,cjb.kcxz, kcxzb.mc kcxzmc,cjb.kclb,kclbb.mc kclbmc , 
+             cjb.xf ,cjb.sfksk,cjb.sfcyxfjjs,cjb.zpcj, cjb.cjbz, bzb.cjbzmc,cjb.bkcxbj,xnmc||xqmc xnxqmc
+                     ,(case when  cjb.zzzscj >= 60 then 1 else 0 end) sfjg ,cjb.kkyx,yxb.yxmc kkyxmc,pm,'1' sfkck,
+                     to_char(t.cjdtjsj,'yyyy-mm-dd HH24:MI:SS') cjtjsj
+             from jw_cj_xscjb cjb 
+             left join jw_rw_rwapb t on t.rwh = cjb.rwh
+             left join dm_yxb yxb on yxb.yxdm = cjb.kkyx
+             left join jw_dm_kclbb kclbb  on kclbb.dm=cjb.kclb
+             left join jw_dm_kcxzb kcxzb  on kcxzb.dm=cjb.kcxz
+             left join jw_cj_cjbzb bzb on cjb.cjbz = bzb.cjbzdm
+             left join dm_xnxqb xnxqb on cjb.xn=xnxqb.xn and cjb.xq = xnxqb.xq
+             where xh=#pageXh#  
+             <isEqual prepend="and" property="pageSfjg" compareValue="0"> zzzscj <![CDATA[<]]> 60 </isEqual>
+             <isEqual prepend="and" property="pageSfjg" compareValue="1"> zzzscj >= 60 </isEqual>
+             <isNotEmpty prepend="and" property="pageSffx"> nvl(cjb.sffx,'0') = #pageSffx# </isNotEmpty> 
+             <isNotEmpty prepend="and" property="pageBkcxbj"> cjb.bkcxbj = #pageBkcxbj# </isNotEmpty> 
+             <isNotEmpty prepend="and" property="pageXnxq"> cjb.xn||cjb.xq = #pageXnxq# </isNotEmpty> 
+             <isNotEmpty prepend="and" property="pageKcmc"> (cjb.kcmc like '%'||trim(#pageKcmc#)||'%' or cjb.kcdm like '%'||trim(#pageKcmc#)||'%')</isNotEmpty>
+             order by cjb.xn, cjb.xq, cjb.kcdm, cjb.bkcxbj, cjb.kcxz, cjb.kclb
+             
+         ) t )m
+         <![CDATA[
+           where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+         ]]>   
+    </select>
+    
+     <!-- 查询学生成绩列表页查总条数 -->
+    <select id="cjcx.queryCjcxPageCount" parameterClass="cjcxPage" resultClass="int">
+         select count(1)  from jw_cj_xscjb cjb  where xh=#pageXh#  
+         <isEqual prepend="and" property="pageSfjg" compareValue="0"> zzzscj <![CDATA[<]]> 60 </isEqual>
+         <isEqual prepend="and" property="pageSfjg" compareValue="1"> zzzscj >= 60 </isEqual>
+         <isNotEmpty prepend="and" property="pageSffx"> nvl(cjb.sffx,'0') = #pageSffx# </isNotEmpty> 
+         <isNotEmpty prepend="and" property="pageBkcxbj"> cjb.bkcxbj = #pageBkcxbj# </isNotEmpty> 
+         <isNotEmpty prepend="and" property="pageXnxq"> cjb.xn||cjb.xq = #pageXnxq# </isNotEmpty> 
+         <isNotEmpty prepend="and" property="pageKcmc"> (cjb.kcmc like '%'||trim(#pageKcmc#)||'%' or cjb.kcdm like '%'||trim(#pageKcmc#)||'%')</isNotEmpty>
+    </select>
+      <!-- 成绩说明备注-->
+    <select id="cjcx.queryCjsmbz"   resultClass="java.util.HashMap">
+        select bz,kzxx from jw_xt_xtcsb where kzzd = 'CJLR_SMBZ'
+    </select>
+    
+      <!-- 查询评价是否开放  -->
+    <select id="cjcx.queryPjsfkf" parameterClass="String"  resultClass="Integer">
+        select count(1)  from jw_pj_xspjjcszb  t where xn||xq = #xnxq# and sysdate between t.kssj and t.jssj and pjwccxcj='1'
+    </select>
+    
+     <!-- 查询学生成绩信息  -->
+    <select id="cjcx.queryCjrwxx" parameterClass="String" resultClass="Qmcjcx">
+        select  cjb.rwh, cjb.xn|| cjb.xq xnxq ,cjb.ljfxjfz, cjb.zpcjjfz, nvl(rwb.bfzmf,0)bfzmf,
+                lbb.lbmc ljfxjfzmc , lbb2.lbmc zpcjjfzmc , cjb.kcdm , cjb.kcmc,
+                cjb.ljfx01,cjb.ljfx02, cjb.ljfx03 ,cjb.ljfx04,  cjb.ljfx05, 
+                cjb.ljfx06, cjb.ljfx07, cjb.ljfx08, cjb.ljfx09, cjb.ljfx10,
+                cjb.jf1 ,cjb.jf2,cjb.zpcj,cjb.bkcxbj,xnmc||xqmc xnxqmc
+        from jw_cj_xscjb cjb 
+        left join jw_rw_rwapb rwb on (rwb.rwh = cjb.rwh or rwb.rwh = cjb.jhh) 
+        left join jw_cj_jcszb szb  on szb.xn =  cjb.xn and szb.xq =  cjb.xq
+        left join jw_cj_cjjfzlbb lbb on cjb.ljfxjfz  = lbb.lbdm
+        left join jw_cj_cjjfzlbb lbb2 on cjb.zpcjjfz  = lbb2.lbdm
+        left join dm_xnxqb xnxqb on cjb.xn=xnxqb.xn and  cjb.xq = xnxqb.xq
+        where cjb.id= #id#
+    </select>
+        <!-- 查询任务的累加分项信息 - 医大-->
+    <select id="cjcx.queryRwmbxxListRwByYd" parameterClass="HashMap" resultClass="Rwmbxx">
+        select rwh,lmdm,lmlx, lmmc,ljfxbz,mf,sfqzks,t.zgh,s.jsxm,t.czzt from jw_cj_cjrwb_xx t
+        left join sz_jsxxb s on s.zgh=t.zgh 
+        where (rwh=#rwh# or rwh = #jhh#) order by lmlx,lmdm
+    </select> 
+    
+      <!-- 学生查看成绩，学分绩进入判断  -->
+    <parameterMap class="java.util.HashMap" id="wjdcMap" >
+	  <parameter property="xh"   javaType="String"    jdbcType="VARCHAR"  mode="IN"/>
+  	  <parameter property="sfbj" javaType="String"    jdbcType="VARCHAR"  mode="OUT"/>
+  	  <parameter property="msg"  javaType="String"    jdbcType="VARCHAR"  mode="OUT"/>
+  	</parameterMap>
+	<procedure id="cjcx.jw_cj_sfckcjpd"  parameterMap="wjdcMap" >
+		 {call JW_CJ_SFCKCJPD(?,?,?)}
+	</procedure>
+        
+</sqlMap>

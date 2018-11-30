@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="cdlbgl">
+	<!-- 实体pojo -->
+	<typeAlias alias="CdlbbEntity" type="com.incon.pojo.common.jcxgxxwh.CdlbbEntity"/>
+	<typeAlias alias="CdlbglPage" type="com.incon.project.common.jcxgxxwh.cdlb.page.CdlbglPage" />
+<!--  分页查询场地类别	-->
+    <select id="queryCdlbgl" parameterClass="CdlbglPage" resultClass="CdlbbEntity">
+    select t.*   from 
+       (select t.*,row_number()over(order by to_number(dm)) orderNumber from 
+        (
+      select dm,mc,kyf from dm_cdlbb where 1=1
+         <isNotEmpty prepend="and" property="dmmc" > 
+          mc like '%'|| trim(#dmmc#) ||'%'
+      	</isNotEmpty>
+       ) t 
+       )t 
+	      <![CDATA[
+	        where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		  ]]> 
+    </select>
+    <select id="queryCdlbglCount" parameterClass="CdlbglPage" resultClass="int">
+	 	select count(*) from 
+	      (
+		 	 select dm,mc,kyf from dm_cdlbb where 1=1
+     		<isNotEmpty prepend="and" property="dmmc" > 
+				  mc like '%'|| trim(#dmmc#) ||'%'
+			</isNotEmpty>
+		 ) t
+    </select>
+	<!--  添加场地类别  -->
+    <insert id="addCdlb" parameterClass="CdlbbEntity"  >
+       	insert into DM_CDLBB(dm,mc,kyf) values(#dm#,#mc#,#kyf#)
+    </insert>
+	<!--  修改场地类别信息  -->
+     <update id="updCdlb" parameterClass="CdlbbEntity">
+         update DM_CDLBB
+         set dm=#dm#,mc=#mc#,kyf=#kyf# 
+         where dm=#dm#
+     </update>
+<!-- 根据场地列别代码查询场地类别名称 -->
+<select id="queryExit" parameterClass="String" resultClass="int">
+	select count(*) from dm_jxcd where cdlb = #dm#
+</select>
+<!--  删除场地类别  -->
+     <delete id="delCdlb" parameterClass="String">
+        delete from DM_CDLBB  where dm=#dm#
+    </delete>
+<!--  查询代码是否存在  -->
+    <select id="queryByDmCount" parameterClass="String" resultClass="int">
+		select count(*) from dm_cdlbb where dm = #dm#
+    </select>
+<!--  查询单个场地类别信息   -->
+    <select id="queryCdlbByDm" parameterClass="String" resultClass="CdlbbEntity">
+        select dm,mc,kyf
+        from DM_CDLBB
+        where dm=#dm#
+    </select>
+</sqlMap>

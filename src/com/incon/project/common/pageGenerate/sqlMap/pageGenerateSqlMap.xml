@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pageGen">
+	<!-- 实体pojo -->
+	
+	<!-- PAGE -->
+	<typeAlias alias="PageGenPage" type="com.incon.project.common.pageGenerate.page.PageGeneratePage" />
+	<typeAlias alias="PageSearchPage" type="com.incon.project.common.pageGenerate.page.PageSearchPage" />
+	<!--  分页查询创建页面list -->
+    <select id="pageGen.queryPageGenList" parameterClass="PageGenPage" resultClass="java.util.HashMap">
+       select * from (select  rownum rn, bb.* from ( 
+              select pt.id,pt.pagename,pt.columnname,pt.sql,pt.sqlwhere from TJFX_PAGETABLE pt  
+        		where 1=1
+			  <isNotEmpty prepend="and" property="pagename">
+			       pt.PAGENAME like '%'||trim(#pagename#)||'%'
+			  </isNotEmpty>
+       <![CDATA[
+       ORDER BY to_number(ID)
+	   ) bb where rownum <=#pageNo#*#pageSize#
+	   )where rn  >(#pageNo#-1)*(#pageSize#)
+	   ]]>
+    </select>
+    
+    <!--  分页查询创建页面list条数 -->
+    <select id="pageGen.queryPageGenCount" parameterClass="PageGenPage" resultClass="int">
+    	select count(*) from TJFX_PAGETABLE pt  
+        		where 1=1
+			  <isNotEmpty prepend="and" property="pagename">
+			       pt.PAGENAME like '%'||trim(#pagename#)||'%'
+			  </isNotEmpty>
+    </select>
+    
+    <!-- 新增 统计分析_页面 -->
+    <insert id="pageGen.insertPageGen" parameterClass="PageGenPage">
+        <selectKey resultClass="String" keyProperty="id">
+		     select nvl(max(to_number(id)),0)+1 id from TJFX_PAGETABLE
+		</selectKey>
+    	insert into TJFX_PAGETABLE(id,pagename,columnname,sql,sqlwhere,lj,qxdm,lj2,sffy) 
+    	       values(#id#,#pagename#,#columnname#,#sql#,#sqlwhere#,#lj#,#qxdm#,#lj2#,#sffy#)
+    </insert>
+    
+    <!-- 修改 统计分析_页面 -->
+    <update id="pageGen.updPageGen" parameterClass="PageGenPage">
+    	update TJFX_PAGETABLE set pagename=#pagename#,columnname=#columnname#,sql=#sql#,sqlwhere=#sqlwhere# where id=#id#
+    </update>
+    
+    <!-- 删除 统计分析_查询条件 -->
+    <delete id="pageGen.delCxtj" parameterClass="String">
+    	delete from TJFX_CXTJB where wjid=#id#
+    </delete>
+    
+    <!-- 新增 统计分析_查询条件 -->
+    <insert id="pageGen.insertCxtj" parameterClass="java.util.HashMap">
+    	insert into TJFX_CXTJB(id,lx,sxmc,sxdm,tablename,bt,wjid)
+    	       values((select nvl(max(to_number(id)),0)+1 id from TJFX_CXTJB),#lx#,#sxmc#,#sxdm#,#tablename#,#bt#,#wjid#)
+    </insert>
+    
+    <!-- 根据id查询页面 -->
+    <select id="pageGen.queryPageByid" parameterClass="String" resultClass="java.util.HashMap">
+    	select TJFX_PAGETABLE.id,
+		       TJFX_PAGETABLE.pagename,
+		       TJFX_PAGETABLE.columnname,
+		       TJFX_PAGETABLE.sql,
+		       TJFX_PAGETABLE.sqlwhere,
+		       TJFX_PAGETABLE.lj,
+		       TJFX_PAGETABLE.lj2,
+		       TJFX_PAGETABLE.sffy,
+		       to_char(listagg(TJFX_PAGEGNB.GNID, ',') within
+		               group(order by TJFX_PAGEGNB.GNID)) gnlb,
+		       to_char(listagg(TJFX_PAGEHNGNB.HNGNID, ',') within
+		               group(order by TJFX_PAGEHNGNB.HNGNID)) hngnlb
+		  from TJFX_PAGETABLE
+		  left join TJFX_PAGEGNB ON TJFX_PAGETABLE.ID = TJFX_PAGEGNB.PAGEID
+		  left join TJFX_PAGEHNGNB ON TJFX_PAGETABLE.ID = TJFX_PAGEHNGNB.PAGEID
+		 where TJFX_PAGETABLE.id = #id#
+		 group by TJFX_PAGETABLE.id,
+		          TJFX_PAGETABLE.pagename,
+		          TJFX_PAGETABLE.columnname,
+		          TJFX_PAGETABLE.sql,
+		          TJFX_PAGETABLE.sqlwhere,
+		          TJFX_PAGETABLE.lj,
+		          TJFX_PAGETABLE.lj2,
+		          TJFX_PAGETABLE.sffy
+    </select>
+    
+    <!-- 根据id查询查询条件 -->
+    <select id="pageGen.queryCxtjByid" parameterClass="String" resultClass="java.util.HashMap">
+    	select id,lx,sxmc,sxdm,tablename,bt,wjid from TJFX_CXTJB where wjid=#id#
+    </select>
+
+    <select id="pageGen.queryGnlbByid" parameterClass="String" resultClass="java.util.HashMap">
+    	select GNID,TZLJ FROM TJFX_PAGEGNB WHERE PAGEID = #id#
+    </select>
+        
+    <select id="pageGen.queryHngnlbByid" parameterClass="String" resultClass="java.util.HashMap">
+    	select HNGNID,HNTZLJ FROM TJFX_PAGEHNGNB WHERE PAGEID = #id#
+    </select>
+        
+    <!--  -->
+   	<select id="pageGen.queryToolkitList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" remapResults="true">
+   		select TO_CHAR($DM$)$DM$,TO_CHAR($NAME$)$NAME$ from $TABLENAME$
+   		<isNotEmpty property="WHERE">
+   		  where $WHERE$='1'
+   		</isNotEmpty>
+   		ORDER BY $DM$
+   	</select>
+   	
+   	<!--  -->
+   	<select id="pageGen.queryToolkitComment" parameterClass="java.util.HashMap" resultClass="String">
+   		 select COMMENTS from user_col_comments where Table_Name=#TABLENAME# AND COLUMN_NAME=#NAME#
+   	</select>
+   	
+ 	<select id="queryLeaf" parameterClass="String" remapResults="true" resultClass="java.util.HashMap">
+		$querySql$
+	</select>
+	
+    <select id="pageGen.queryPageSearchList" parameterClass="PageSearchPage" resultClass="java.util.HashMap">
+       select t.* from (select t.*,row_number()over(order by null) orderNumber from (
+       			$sqlStr$
+       ) t ) t
+		<![CDATA[
+			where orderNumber > (#pageNo#-1)*(#pageSize#) and  orderNumber < =(#pageNo#)*(#pageSize#) 
+		]]>
+    </select>
+    
+    <select id="pageGen.queryPageSearchListCount" parameterClass="PageSearchPage" resultClass="int">
+    	select count(*) from ($sqlStr$)
+    </select>
+	
+	<!-- 删除创建的页面 -->
+	<delete id="pageGen.delPageGen" parameterClass="String">
+		begin 
+			delete from tjfx_pagetable pg where pg.id=#id#; 
+			delete from tjfx_cxtjb tj where tj.wjid=#id#;
+		end;
+	</delete>
+	
+	<!-- 修改访问路径 -->
+	<update id="pageGen.updFwlj" parameterClass="java.util.HashMap">
+		update DM_QXB set fwlj=#fwlj# where qxdm=#qxdm#
+	</update>
+	
+	<select id="queryGnmcyId" parameterClass="String" resultClass="String">
+		select GNMC from tjfx_gnlb where GNID = #gnid#
+	</select>
+	
+	<select id="queryHngnmcyId" parameterClass="String" resultClass="java.util.HashMap">
+		select GNMC,INCO from tjfx_hngnlb where GNID = #gnid#
+	</select>
+	
+    <insert id="pageGen.insertGnlb" parameterClass="java.util.HashMap">
+    	insert into TJFX_PAGEGNB(id,pageid,gnid,tzlj) 
+    	       values((select nvl(max(to_number(id)),0)+1 id from TJFX_PAGEGNB),#pageid#,#gnid#,#tzlj#)
+    </insert>
+    
+    <insert id="pageGen.insertHngnlb" parameterClass="java.util.HashMap">
+    	insert into TJFX_PAGEHNGNB(id,pageid,hngnid,hntzlj) 
+    	       values((select nvl(max(to_number(id)),0)+1 id from TJFX_PAGEHNGNB),#pageid#,#gnid#,#tzlj#)
+    </insert>
+    
+    <insert id="pageGen.deleteGnlb" parameterClass="String">
+    	delete TJFX_PAGEGNB where pageid = #id#
+    </insert>
+    
+    <insert id="pageGen.deleteHngnlb" parameterClass="String">
+    	delete TJFX_PAGEHNGNB where pageid = #id#
+    </insert>
+
+</sqlMap>
